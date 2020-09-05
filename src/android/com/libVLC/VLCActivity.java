@@ -98,6 +98,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                             vlcVideoLibrary.stop();
                         }
                     }
+                    else if (method.equals("close")) {
+                        if (vlcVideoLibrary.isPlaying()) {
+                            vlcVideoLibrary.stop();
+                        }
+                        activity.finish();
+                    }
                     else if (method.equals("getPosition")) {
                         if (vlcVideoLibrary.isPlaying()) {
                             JSONObject obj = new JSONObject();

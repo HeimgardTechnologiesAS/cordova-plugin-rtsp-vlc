@@ -25,5 +25,5 @@ module.exports = {
     exec(success, failure, "VideoPlayerVLC", "play", [uri]);
   },
   stop: function(success, failure) {
-    exec(success, failure, "VideoPlayerVLC", "stop");
+    exec(success, failure, "VideoPlayerVLC", "close");
   }};

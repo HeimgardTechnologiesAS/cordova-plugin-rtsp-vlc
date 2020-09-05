@@ -38,6 +38,13 @@
 
 }
 
+-(void) close:(CDVInvokedUrlCommand *)command{
+
+    self.lastCommand = command;
+    [self finishOkAndDismiss];
+
+}
+
 -(void) finishOkAndDismiss{
     
     // End the execution

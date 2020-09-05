@@ -74,9 +74,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         // application context
         activity = cordova.getActivity();
-        if (this.callbackContext == null) {
-            this.callbackContext = callbackContext;
-        }
+        this.callbackContext = callbackContext;
 
         String url;
         JSONObject object;
@@ -92,6 +90,10 @@ public class VideoPlayerVLC extends CordovaPlugin {
         }
         else if (action.equals("stop")) {
             _filters("stop");
+            return true;
+        }
+        else if (action.equals("close")) {
+            _filters("close");
             return true;
         }
 

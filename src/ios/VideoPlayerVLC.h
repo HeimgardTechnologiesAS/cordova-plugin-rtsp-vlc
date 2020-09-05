@@ -30,6 +30,7 @@
 @property (strong,nonatomic) CDVInvokedUrlCommand* lastCommand;
 
 -(void) play:(CDVInvokedUrlCommand *)command;
+-(void) close:(CDVInvokedUrlCommand *)command;
 -(void) finishOkAndDismiss;
 
 @end
