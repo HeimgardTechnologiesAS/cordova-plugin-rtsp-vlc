@@ -3,6 +3,6 @@ repositories {
 }
 
 dependencies {
-    compile 'compile(name: 'disonoVLC', ext:'aar')'
-    compile 'compile(name: 'libvlc', ext:'aar')'
+    implementation(project(path: ":libvlc"))
+    implementation(project(path: ":disonoVLC"))
 }
