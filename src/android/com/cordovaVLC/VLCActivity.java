@@ -1,4 +1,4 @@
-package com.libVLC;
+package com.cordovaVLC;
 
 import android.app.ActionBar;
 import android.app.Activity;

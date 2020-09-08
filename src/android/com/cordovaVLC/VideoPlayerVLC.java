@@ -1,4 +1,4 @@
-package com.libVLC;
+package com.cordovaVLC;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -25,7 +25,7 @@ import org.json.JSONObject;
 
 public class VideoPlayerVLC extends CordovaPlugin {
     private final String TAG = "VideoPlayerVLC";
-    public final static String BROADCAST_METHODS = "com.libVLC";
+    public final static String BROADCAST_METHODS = "com.cordovaVLC";
 
     private CallbackContext callbackContext;
     BroadcastReceiver br = new BroadcastReceiver() {
