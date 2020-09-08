@@ -34,6 +34,8 @@
 			<config-file target="AndroidManifest.xml" parent="/manifest/application">
 				<activity android:name="com.libVLC.VLCActivity"/>
 			</config-file>
+			<source-file src="src/android/com/libs/disonoVLC" target-dir="src/main/java/com"/>
+			<source-file src="src/android/com/libs/libvlc" target-dir="src/main/java/com"/>
 			
 			<source-file src="src/android/com/libVLC/VideoPlayerVLC.java" target-dir="src/com/libVLC"/>
 			<source-file src="src/android/com/libVLC/VLCActivity.java" target-dir="src/com/libVLC"/>
