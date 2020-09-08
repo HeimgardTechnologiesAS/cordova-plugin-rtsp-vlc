@@ -1,0 +1,7 @@
+repositories {
+    maven { url "https://jitpack.io" }
+}
+ 
+dependencies {
+    implementation 'com.github.disono.libVLC-Player:libvlc:1.1'
+}
