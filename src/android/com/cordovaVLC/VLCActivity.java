@@ -21,8 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.libs.disonoVLC.VlcListener;
-import com.libs.disonoVLC.VlcVideoLibrary;
+import com.libs.cordovaVLCViewHandler.VlcListener;
+import com.libs.cordovaVLCViewHandler.VlcVideoLibrary;
 
 import org.json.JSONException;
 import org.json.JSONObject;
