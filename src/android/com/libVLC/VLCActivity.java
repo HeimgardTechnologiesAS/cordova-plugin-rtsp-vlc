@@ -102,6 +102,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         if (vlcVideoLibrary.isPlaying()) {
                             vlcVideoLibrary.stop();
                         }
+                        if(vlcVideoLibrary.getVlcInstance() != null) {
+                            vlcVideoLibrary.getVlcInstance().release();
+                        }
                         activity.finish();
                     }
                     else if (method.equals("getPosition")) {
@@ -166,8 +169,15 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     public void onPause() {
         super.onPause();
 
+        // if (vlcVideoLibrary.isPlaying()) {
+        //     vlcVideoLibrary.pause();
+        // }
+
+        // when we press back button onPause event is triggered and immediately after that onDestroy event.
+        // expected behavior in our app should be to stop stream, not pause when back button is pressed
+        // TODO: this is workaround and we need to find out how to handle it properly
         if (vlcVideoLibrary.isPlaying()) {
-            vlcVideoLibrary.pause();
+            vlcVideoLibrary.stop();
         }
     }
 
@@ -185,7 +195,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         super.onDestroy();
         activity.unregisterReceiver(br);
 
-        vlcVideoLibrary.stop();
         _sendBroadCast("onDestroyVlc");
     }
 
