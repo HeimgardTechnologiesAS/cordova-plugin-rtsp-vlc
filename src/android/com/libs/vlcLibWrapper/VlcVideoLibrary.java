@@ -1,4 +1,4 @@
-package com.libs.cordovaVLCViewHandler;
+package com.libs.vlcLibWrapper;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;

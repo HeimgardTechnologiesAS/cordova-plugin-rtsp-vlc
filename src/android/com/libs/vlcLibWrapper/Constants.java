@@ -1,4 +1,4 @@
-package com.libs.cordovaVLCViewHandler;
+package com.libs.vlcLibWrapper;
 
 public class Constants {
     // buffer in ms

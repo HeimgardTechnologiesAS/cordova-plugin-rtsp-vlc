@@ -34,7 +34,7 @@
 			<config-file target="AndroidManifest.xml" parent="/manifest/application">
 				<activity android:name="com.cordovaVLC.VLCActivity"/>
 			</config-file>
-			<source-file src="src/android/com/libs/cordovaVLCViewHandler" target-dir="src/main/java/com"/>
+			<source-file src="src/android/com/libs/vlcLibWrapper" target-dir="src/main/java/com"/>
 			
 			<source-file src="src/android/com/cordovaVLC/VideoPlayerVLC.java" target-dir="src/com/cordovaVLC"/>
 			<source-file src="src/android/com/cordovaVLC/VLCActivity.java" target-dir="src/com/cordovaVLC"/>
