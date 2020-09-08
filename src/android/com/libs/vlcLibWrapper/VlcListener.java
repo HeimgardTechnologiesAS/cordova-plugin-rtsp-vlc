@@ -1,4 +1,4 @@
-package com.libs.cordovaVLCViewHandler;
+package com.libs.vlcLibWrapper;
 
 public interface VlcListener {
     void onPlayVlc();
