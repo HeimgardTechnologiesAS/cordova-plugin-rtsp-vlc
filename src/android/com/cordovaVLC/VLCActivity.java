@@ -1,5 +1,8 @@
 package com.cordovaVLC;
 
+import android.content.res.Configuration;
+import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -20,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -30,6 +34,7 @@ import org.json.JSONObject;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 /**
  * Author: Archie, Disono (webmonsph@gmail.com)
@@ -307,6 +312,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         bStartStop.setOnClickListener(this);
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
+        vlcVideoLibrary.setStreamDimensions(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
     }
 
     private void _handlerSeekBar() {
@@ -431,5 +437,31 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         intent.putExtra("method", methodName);
         intent.putExtra("data", object.toString());
         activity.sendBroadcast(intent);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
+            vlcVideoLibrary.detachVLCView();
+            surfaceView.setVisibility(View.GONE);
+            vlcVideoLibrary.setVLCViewSize(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
+
+
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+            vlcVideoLibrary.detachVLCView();
+            surfaceView.setVisibility(View.GONE);
+            vlcVideoLibrary.setVLCViewSize(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
+        }
+    }
+
+    public DisplayMetrics getDisplayMetrics() {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics;
     }
 }

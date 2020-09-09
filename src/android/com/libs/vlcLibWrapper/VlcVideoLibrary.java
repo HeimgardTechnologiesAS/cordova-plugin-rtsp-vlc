@@ -3,16 +3,17 @@ package com.libs.vlcLibWrapper;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import android.os.Handler;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import android.view.View;
 
 import org.videolan.libvlc.IVLCVout;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
-
 
 
 public class VlcVideoLibrary implements MediaPlayer.EventListener {
@@ -26,6 +27,7 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
     private LibVLC vlcInstance;
     private MediaPlayer player;
     private VlcListener vlcListener;
+    private int streamHeight = 0, streamWidth = 0;
 
     public VlcVideoLibrary(Context context, VlcListener vlcListener, SurfaceView surfaceView) {
         this.vlcListener = vlcListener;
@@ -147,16 +149,20 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
         player.setMedia(media);
         player.setEventListener(this);
 
-        IVLCVout vlcOut = player.getVLCVout();
+        detachVLCView();
+        if (streamWidth > 0 && streamHeight > 0){
+            setVLCViewSize(streamWidth,streamHeight);
+            player.setVideoTrackEnabled(true);
+        }
+    }
 
+    public void setVLCViewSize(int width, int height) {
+
+        IVLCVout vlcOut = player.getVLCVout();
         if (surfaceView != null) {
             vlcOut.setVideoView(surfaceView);
-            width = surfaceView.getWidth();
-            height = surfaceView.getHeight();
         } else if (textureView != null) {
             vlcOut.setVideoView(textureView);
-            width = textureView.getWidth();
-            height = textureView.getHeight();
         } else if (surfaceTexture != null) {
             vlcOut.setVideoSurface(surfaceTexture);
         } else if (surface != null) {
@@ -164,10 +170,27 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
         } else {
             throw new RuntimeException("You cant set a null render object");
         }
-
         if (width != 0 && height != 0) vlcOut.setWindowSize(width, height);
+        player.pause();
         vlcOut.attachViews();
-        player.setVideoTrackEnabled(true);
-        player.play();
+
+        new Handler().postDelayed(() -> {
+                player.play();
+                surfaceView.setVisibility(View.VISIBLE);
+        }, 100);
+
     }
+    public void detachVLCView() {
+        IVLCVout vlcOut = player.getVLCVout();
+        if(vlcOut != null){
+            vlcOut.detachViews();
+        }
+
+    }
+    public void setStreamDimensions(int width,int height) {
+        streamWidth = width;
+        streamHeight = height;
+    }
+
+    
 }

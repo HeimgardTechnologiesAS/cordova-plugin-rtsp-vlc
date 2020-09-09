@@ -32,7 +32,10 @@
 			</config-file>
 
 			<config-file target="AndroidManifest.xml" parent="/manifest/application">
-				<activity android:name="com.cordovaVLC.VLCActivity"/>
+				<activity 
+					android:name="com.cordovaVLC.VLCActivity"
+				 	android:configChanges="screenSize|orientation"
+				/>
 			</config-file>
 			<source-file src="src/android/com/libs/vlcLibWrapper" target-dir="src/main/java/com"/>
 			
