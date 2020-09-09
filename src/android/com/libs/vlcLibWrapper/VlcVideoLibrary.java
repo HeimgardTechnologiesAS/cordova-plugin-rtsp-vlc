@@ -138,55 +138,7 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
             player.pause();
         }
     }
-
-    private void setMedia(Media media) {
-        media.addOption(":network-caching=" + Constants.BUFFER);
-        media.addOption(":file-caching=" + Constants.BUFFER);
-        media.addOption(":fullscreen");
-        media.setHWDecoderEnabled(true, false);
-
-        player = new MediaPlayer(vlcInstance);
-        player.setMedia(media);
-        player.setEventListener(this);
-
-        detachVLCView();
-        if (streamWidth > 0 && streamHeight > 0){
-            setVLCViewSize(streamWidth,streamHeight);
-            player.setVideoTrackEnabled(true);
-        }
-    }
-
-    public void setVLCViewSize(int width, int height) {
-
-        IVLCVout vlcOut = player.getVLCVout();
-        if (surfaceView != null) {
-            vlcOut.setVideoView(surfaceView);
-        } else if (textureView != null) {
-            vlcOut.setVideoView(textureView);
-        } else if (surfaceTexture != null) {
-            vlcOut.setVideoSurface(surfaceTexture);
-        } else if (surface != null) {
-            vlcOut.setVideoSurface(surface, surfaceHolder);
-        } else {
-            throw new RuntimeException("You cant set a null render object");
-        }
-        if (width != 0 && height != 0) vlcOut.setWindowSize(width, height);
-        player.pause();
-        vlcOut.attachViews();
-
-        new Handler().postDelayed(() -> {
-                player.play();
-                surfaceView.setVisibility(View.VISIBLE);
-        }, 100);
-
-    }
-    public void detachVLCView() {
-        IVLCVout vlcOut = player.getVLCVout();
-        if(vlcOut != null){
-            vlcOut.detachViews();
-        }
-
-    }
+    
     private void setMedia(Media media) {
         media.addOption(":network-caching=" + Constants.BUFFER);
         media.addOption(":file-caching=" + Constants.BUFFER);
