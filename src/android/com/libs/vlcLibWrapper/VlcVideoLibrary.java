@@ -3,12 +3,12 @@ package com.libs.vlcLibWrapper;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
-import android.os.Handler;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
+import android.os.Handler;
 
 import org.videolan.libvlc.IVLCVout;
 import org.videolan.libvlc.LibVLC;
@@ -187,10 +187,55 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
         }
 
     }
-    public void setStreamDimensions(int width,int height) {
-        streamWidth = width;
-        streamHeight = height;
+    private void setMedia(Media media) {
+        media.addOption(":network-caching=" + Constants.BUFFER);
+        media.addOption(":file-caching=" + Constants.BUFFER);
+        media.addOption(":fullscreen");
+        media.setHWDecoderEnabled(true, false);
+
+        player = new MediaPlayer(vlcInstance);
+        player.setMedia(media);
+        player.setEventListener(this);
+
+        IVLCVout vlcOut = player.getVLCVout();
+
+        if (surfaceView != null) {
+            vlcOut.setVideoView(surfaceView);
+            width = surfaceView.getWidth();
+            height = surfaceView.getHeight();
+        } else if (textureView != null) {
+            vlcOut.setVideoView(textureView);
+            width = textureView.getWidth();
+            height = textureView.getHeight();
+        } else if (surfaceTexture != null) {
+            vlcOut.setVideoSurface(surfaceTexture);
+        } else if (surface != null) {
+            vlcOut.setVideoSurface(surface, surfaceHolder);
+        } else {
+            throw new RuntimeException("You cant set a null render object");
+        }
+
+        if (width != 0 && height != 0) vlcOut.setWindowSize(1440, 2924);
+        vlcOut.attachViews();
+        player.setVideoTrackEnabled(true);
+        player.play();
     }
 
-    
+    public void detachVLCView() {
+        IVLCVout vlcOut = player.getVLCVout();
+        if(vlcOut != null){
+            vlcOut.detachViews();
+        }
+
+    }
+
+    public void attachVLCView(int width, int height) {
+        IVLCVout vlcOut = player.getVLCVout();
+        vlcOut.setVideoView(surfaceView);
+        vlcOut.setWindowSize(width, height);
+            new Handler().postDelayed(() -> {
+                vlcOut.attachViews();
+                surfaceView.setVisibility(View.VISIBLE);
+        }, 200);
+    }
 }

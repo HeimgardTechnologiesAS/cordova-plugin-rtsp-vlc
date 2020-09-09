@@ -312,7 +312,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         bStartStop.setOnClickListener(this);
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
-        vlcVideoLibrary.setStreamDimensions(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
     }
 
     private void _handlerSeekBar() {
@@ -448,14 +447,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
             vlcVideoLibrary.detachVLCView();
             surfaceView.setVisibility(View.GONE);
-            vlcVideoLibrary.setVLCViewSize(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
+            vlcVideoLibrary.attachVLCView(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
 
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
             vlcVideoLibrary.detachVLCView();
             surfaceView.setVisibility(View.GONE);
-            vlcVideoLibrary.setVLCViewSize(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
+            vlcVideoLibrary.attachVLCView(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
         }
     }
 
