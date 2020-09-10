@@ -444,16 +444,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         // Checks the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
-            vlcVideoLibrary.detachVLCView();
-            surfaceView.setVisibility(View.GONE);
-            vlcVideoLibrary.attachVLCView(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
+            vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
 
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
-            vlcVideoLibrary.detachVLCView();
-            surfaceView.setVisibility(View.GONE);
-            vlcVideoLibrary.attachVLCView(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
+            vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
         }
     }
 

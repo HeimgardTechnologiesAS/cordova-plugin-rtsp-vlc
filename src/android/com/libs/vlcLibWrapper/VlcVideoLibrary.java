@@ -138,7 +138,7 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
             player.pause();
         }
     }
-    
+
     private void setMedia(Media media) {
         media.addOption(":network-caching=" + Constants.BUFFER);
         media.addOption(":file-caching=" + Constants.BUFFER);
@@ -167,27 +167,15 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
             throw new RuntimeException("You cant set a null render object");
         }
 
-        if (width != 0 && height != 0) vlcOut.setWindowSize(1440, 2924);
+        if (width != 0 && height != 0) vlcOut.setWindowSize(width, height);
         vlcOut.attachViews();
         player.setVideoTrackEnabled(true);
         player.play();
     }
 
-    public void detachVLCView() {
-        IVLCVout vlcOut = player.getVLCVout();
-        if(vlcOut != null){
-            vlcOut.detachViews();
-        }
 
-    }
-
-    public void attachVLCView(int width, int height) {
+    public void changeVideoResolution(int width, int height) {
         IVLCVout vlcOut = player.getVLCVout();
-        vlcOut.setVideoView(surfaceView);
         vlcOut.setWindowSize(width, height);
-            new Handler().postDelayed(() -> {
-                vlcOut.attachViews();
-                surfaceView.setVisibility(View.VISIBLE);
-        }, 200);
     }
 }
