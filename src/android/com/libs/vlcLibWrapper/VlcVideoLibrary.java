@@ -7,12 +7,13 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
+import android.view.View;
+import android.os.Handler;
 
 import org.videolan.libvlc.IVLCVout;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
-
 
 
 public class VlcVideoLibrary implements MediaPlayer.EventListener {
@@ -26,6 +27,7 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
     private LibVLC vlcInstance;
     private MediaPlayer player;
     private VlcListener vlcListener;
+    private int streamHeight = 0, streamWidth = 0;
 
     public VlcVideoLibrary(Context context, VlcListener vlcListener, SurfaceView surfaceView) {
         this.vlcListener = vlcListener;
@@ -170,5 +172,11 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
         vlcOut.attachViews();
         player.setVideoTrackEnabled(true);
         player.play();
+    }
+
+
+    public void changeVideoResolution(int width, int height) {
+        IVLCVout vlcOut = player.getVLCVout();
+        vlcOut.setWindowSize(width, height);
     }
 }
