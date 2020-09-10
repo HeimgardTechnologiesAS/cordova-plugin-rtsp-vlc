@@ -26,4 +26,9 @@ module.exports = {
   },
   stop: function(success, failure) {
     exec(success, failure, "VideoPlayerVLC", "close");
-  }};
+  },
+  setCameraMovementListener: function(success, failure) {
+    exec(success, failure, "VideoPlayerVLC", "enableCameraMovementListener");
+  }
+
+};

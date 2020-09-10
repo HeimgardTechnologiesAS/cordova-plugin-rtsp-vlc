@@ -28,6 +28,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
     public final static String BROADCAST_METHODS = "com.cordovaVLC";
 
     private CallbackContext callbackContext;
+    private CallbackContext callbackContextMovement;
     BroadcastReceiver br = new BroadcastReceiver() {
 
         @Override
@@ -74,12 +75,12 @@ public class VideoPlayerVLC extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         // application context
         activity = cordova.getActivity();
-        this.callbackContext = callbackContext;
 
         String url;
         JSONObject object;
 
         if (action.equals("play")) {
+            this.callbackContext = callbackContext;
             url = args.getString(0);
             _play(url, true, true);
             return true;
@@ -95,6 +96,8 @@ public class VideoPlayerVLC extends CordovaPlugin {
         else if (action.equals("close")) {
             _filters("close");
             return true;
+        } else if (action.equals("enableCameraMovementListener")) {
+            this.callbackContextMovement = callbackContextMovement;
         }
 
         PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
@@ -167,5 +170,13 @@ public class VideoPlayerVLC extends CordovaPlugin {
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, event);
         pluginResult.setKeepCallback(true);
         callbackContext.sendPluginResult(pluginResult);
+    }
+
+    private void _cordovaSendMovementRequest(int direction) {
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, direction);
+        pluginResult.setKeepCallback(true);
+        if(callbackContextMovement != null) {
+            callbackContextMovement.sendPluginResult(pluginResult);
+        }
     }
 }
