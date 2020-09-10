@@ -10,4 +10,6 @@ public interface VlcListener {
     void onVideoEnd();
 
     void onError();
+
+    void onBuffering();
 }

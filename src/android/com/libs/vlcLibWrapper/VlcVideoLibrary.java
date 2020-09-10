@@ -99,6 +99,8 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
             case MediaPlayer.Event.EncounteredError:
                 vlcListener.onError();
                 break;
+            case MediaPlayer.Event.Buffering:
+                vlcListener.onBuffering();
             default:
                 break;
         }
@@ -139,7 +141,6 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
 
     private void setMedia(Media media) {
         media.addOption(":network-caching=" + Constants.BUFFER);
-        media.addOption(":file-caching=" + Constants.BUFFER);
         media.addOption(":fullscreen");
         media.setHWDecoderEnabled(true, false);
 

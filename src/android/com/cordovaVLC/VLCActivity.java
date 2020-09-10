@@ -251,6 +251,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         bStartStop.setImageDrawable(drawableIcon);
     }
 
+    @Override
+    public void onBuffering() {
+        _sendBroadCast("onBuffering");
+    }
+
     private void _initPlayer() {
         new Timer().schedule(
             new TimerTask() {
