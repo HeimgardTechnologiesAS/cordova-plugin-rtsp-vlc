@@ -87,6 +87,7 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/arrow_up"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:tint="#ffffff"
@@ -94,6 +95,7 @@
             android:src="@drawable/ic_keyboard_arrow_up_black_18dp"
         />
         <ImageView
+            android:id="@+id/arrow_left"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:tint="#ffffff"
@@ -101,6 +103,7 @@
             android:src="@drawable/ic_keyboard_arrow_left_black_18dp"
             />
         <ImageView
+            android:id="@+id/arrow_right"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:tint="#ffffff"
@@ -109,6 +112,7 @@
             android:src="@drawable/ic_keyboard_arrow_right_black_18dp"
             />
         <ImageView
+            android:id="@+id/arrow_down"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:tint="#ffffff"

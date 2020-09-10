@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -72,6 +73,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
+    private ImageView arrowUp, arrowDown, arrowLeft, arrowRight;
 
     BroadcastReceiver br = new BroadcastReceiver() {
 
@@ -313,9 +315,29 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         mediaPlayerView = (LinearLayout) findViewById(_getResource("mediaPlayerView", "id"));
         mediaPlayerControls = (LinearLayout) findViewById(_getResource("mediaPlayerControls", "id"));
         mediaPlayerControls.bringToFront();
+        arrowUp = findViewById(_getResource("arrow_up", "id"));
+        arrowDown = findViewById(_getResource("arrow_down", "id"));
+        arrowLeft = findViewById(_getResource("arrow_left", "id"));
+        arrowRight = findViewById(_getResource("arrow_right", "id"));
+        setClickListeners();
 
         bStartStop.setOnClickListener(this);
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
+    }
+
+       private void setClickListeners() {
+        arrowUp.setOnClickListener(v -> {
+              Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();   
+        });
+        arrowDown.setOnClickListener(v -> {
+              Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();   
+        });
+        arrowLeft.setOnClickListener(v -> {
+              Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();   
+        });
+        arrowRight.setOnClickListener(v -> {
+              Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();   
+        });
     }
 
     private void _handlerSeekBar() {
