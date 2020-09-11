@@ -11,6 +11,15 @@
         android:layout_height="match_parent"
         android:layout_gravity="center|center_vertical">
 
+        <ProgressBar
+            android:id="@+id/loadingPanel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:indeterminate="true"
+            android:layout_gravity="center" />
+
         <LinearLayout
             android:id="@+id/mediaPlayerView"
             android:layout_width="match_parent"
