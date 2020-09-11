@@ -75,7 +75,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private String currentLoc = "00:00";
     private String duration = "00:00";
     private ImageView arrowUp, arrowDown, arrowLeft, arrowRight;
-    private int _movementValue = 0;
+    public static String UP = "1";
+    public static String DOWN = "2";
+    public static String LEFT = "3";
+    public static String RIGHT = "4";
+    public static String NONE = "0";
 
     BroadcastReceiver br = new BroadcastReceiver() {
 
@@ -327,53 +331,42 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
     }
 
-       private void setClickListeners() {
+    private void setClickListeners() {
         arrowUp.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-               _movementValue = 1;
-
+                _sendBroadCast("onCameraMoveAction", NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _movementValue = 0;
+               _sendBroadCast("onCameraMoveAction", UP);
             }
             return true;
         });
 
         arrowDown.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                _movementValue = 2;
-
+                _sendBroadCast("onCameraMoveAction", NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _movementValue = 0;
+                _sendBroadCast("onCameraMoveAction", DOWN);
             }
             return true;
         });
 
         arrowLeft.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                _movementValue = 3;
-
+                _sendBroadCast("onCameraMoveAction", NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _movementValue = 0;
+                _sendBroadCast("onCameraMoveAction", LEFT);
             }
             return true;
         });
 
         arrowRight.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                _movementValue = 4;
-
+               _sendBroadCast("onCameraMoveAction", NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-               _movementValue = 0;
+                _sendBroadCast("onCameraMoveAction", RIGHT);
             }
             return true;
         });
-        try {
-            JSONObject callbackResult = new JSONObject();
-            callbackResult.put("value", _movementValue);
-            _sendBroadCast("onCameraMoveAction", callbackResult);
-        } catch (JSONException e) {
-            Log.e(TAG, e.getMessage());
-        }
     }
 
     private void _handlerSeekBar() {
@@ -497,6 +490,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         intent.setAction(BROADCAST_LISTENER);
         intent.putExtra("method", methodName);
         intent.putExtra("data", object.toString());
+        activity.sendBroadcast(intent);
+    }
+
+    private void _sendBroadCast(String methodName, String data) {
+        Intent intent = new Intent();
+        intent.setAction(BROADCAST_LISTENER);
+        intent.putExtra("method", methodName);
+        intent.putExtra("data", data);
         activity.sendBroadcast(intent);
     }
 
