@@ -11,5 +11,5 @@ public interface VlcListener {
 
     void onError();
 
-    void onBuffering();
+    void onBuffering(float percentage);
 }

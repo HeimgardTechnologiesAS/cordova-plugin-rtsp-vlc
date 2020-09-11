@@ -256,8 +256,17 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     @Override
-    public void onBuffering() {
-        _sendBroadCast("onBuffering");
+    public void onBuffering(float percentage) {
+        if(percentage < 80) {
+            findViewById(_getResource("loadingPanel", "id")).bringToFront();
+            if (findViewById(_getResource("loadingPanel", "id")).getVisibility() != View.VISIBLE) {
+                findViewById(_getResource("loadingPanel", "id")).setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (findViewById(_getResource("loadingPanel", "id")).getVisibility() == View.VISIBLE) {
+                findViewById(_getResource("loadingPanel", "id")).setVisibility(View.GONE);
+            }
+        }
     }
 
     private void _initPlayer() {
