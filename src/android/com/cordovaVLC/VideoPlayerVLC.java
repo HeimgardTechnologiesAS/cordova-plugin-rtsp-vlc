@@ -100,7 +100,8 @@ public class VideoPlayerVLC extends CordovaPlugin {
             _filters("close");
             return true;
         } else if (action.equals("enableCameraMovementListener")) {
-            this.callbackContextMovement = callbackContextMovement;
+            this.callbackContextMovement = callbackContext;
+            return true;
         }
 
         PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
