@@ -80,7 +80,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     public static String LEFT = "3";
     public static String RIGHT = "4";
     public static String NONE = "0";
-    
+
     BroadcastReceiver br = new BroadcastReceiver() {
 
         @Override
@@ -340,54 +340,42 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
     }
 
-       private void setClickListeners() {
-         arrowDown.setOnTouchListener((v, event) -> {
-             if (event.getAction() == MotionEvent.ACTION_UP) {
-                  _sendBroadCast("onCameraMoveAction", NONE);
-                  return true;
+    private void setClickListeners() {
+        arrowUp.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                _sendBroadCast("onCameraMoveAction", NONE);
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+               _sendBroadCast("onCameraMoveAction", UP);
+            }
+            return true;
+        });
 
-             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                   _sendBroadCast("onCameraMoveAction", DOWN);
-                  return true;
-             }
-             return false;
-         });
+        arrowDown.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                _sendBroadCast("onCameraMoveAction", NONE);
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                _sendBroadCast("onCameraMoveAction", DOWN);
+            }
+            return true;
+        });
 
-         arrowLeft.setOnTouchListener((v, event) -> {
-             if (event.getAction() == MotionEvent.ACTION_UP) {
-                  _sendBroadCast("onCameraMoveAction", NONE);
-                 return true;
+        arrowLeft.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                _sendBroadCast("onCameraMoveAction", NONE);
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                _sendBroadCast("onCameraMoveAction", LEFT);
+            }
+            return true;
+        });
 
-             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                  _sendBroadCast("onCameraMoveAction", LEFT);
-                  return true;
-             }
-             return false;
-         });
-
-         arrowUp.setOnTouchListener((v, event) -> {
-             if (event.getAction() == MotionEvent.ACTION_UP) {
-                  _sendBroadCast("onCameraMoveAction", NONE);
-                  return true;
-
-             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                  _sendBroadCast("onCameraMoveAction", RIGHT);
-                  return true;
-             }
-             return false;
-         });
-
-         arrowRight.setOnTouchListener((v, event) -> {
-             if (event.getAction() == MotionEvent.ACTION_UP) {
-                  _sendBroadCast("onCameraMoveAction", NONE);
-                  return true;
-
-             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                  _sendBroadCast("onCameraMoveAction", RIGHT);
-                  return true;
-             }
-             return false;
-         });
+        arrowRight.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+               _sendBroadCast("onCameraMoveAction", NONE);
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                _sendBroadCast("onCameraMoveAction", RIGHT);
+            }
+            return true;
+        });
     }
 
     private void _handlerSeekBar() {
@@ -514,11 +502,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         activity.sendBroadcast(intent);
     }
 
-    private void _sendBroadCast(String methodName, String direction) {
+    private void _sendBroadCast(String methodName, String data) {
         Intent intent = new Intent();
         intent.setAction(BROADCAST_LISTENER);
         intent.putExtra("method", methodName);
-        intent.putExtra("direction", direction);
+        intent.putExtra("data", data);
         activity.sendBroadcast(intent);
     }
 
