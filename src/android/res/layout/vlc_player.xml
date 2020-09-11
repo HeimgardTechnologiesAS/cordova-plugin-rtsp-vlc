@@ -94,6 +94,42 @@
                 android:text="00:00"
                 android:textColor="#ffffff" />
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/arrow_up"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:tint="#ffffff"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_keyboard_arrow_up_black_18dp"
+        />
+        <ImageView
+            android:id="@+id/arrow_left"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:tint="#ffffff"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_keyboard_arrow_left_black_18dp"
+            />
+        <ImageView
+            android:id="@+id/arrow_right"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:tint="#ffffff"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_keyboard_arrow_right_black_18dp"
+            />
+        <ImageView
+            android:id="@+id/arrow_down"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:tint="#ffffff"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:src="@drawable/ic_keyboard_arrow_down_24px"
+            />
+
     </RelativeLayout>
 
 </RelativeLayout>
