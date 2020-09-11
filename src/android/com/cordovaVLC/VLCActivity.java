@@ -75,6 +75,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private String currentLoc = "00:00";
     private String duration = "00:00";
     private ImageView arrowUp, arrowDown, arrowLeft, arrowRight;
+    private int _movementValue = 0;
 
     BroadcastReceiver br = new BroadcastReceiver() {
 
@@ -327,35 +328,52 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
        private void setClickListeners() {
-        arrowDown.setOnTouchListener((v, event) -> {
+        arrowUp.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();
+               _movementValue = 1;
 
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                Toast.makeText(this, "click up released", Toast.LENGTH_SHORT).show();
+                _movementValue = 0;
             }
-            return false;
+            return true;
+        });
+
+        arrowDown.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                _movementValue = 2;
+
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                _movementValue = 0;
+            }
+            return true;
         });
 
         arrowLeft.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();
+                _movementValue = 3;
 
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                Toast.makeText(this, "click up released", Toast.LENGTH_SHORT).show();
+                _movementValue = 0;
             }
-            return false;
+            return true;
         });
 
-        arrowUp.setOnTouchListener((v, event) -> {
+        arrowRight.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();
+                _movementValue = 4;
 
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                Toast.makeText(this, "click up released", Toast.LENGTH_SHORT).show();
+               _movementValue = 0;
             }
-            return false;
+            return true;
         });
+        try {
+            JSONObject callbackResult = new JSONObject();
+            callbackResult.put("value", _movementValue);
+            _sendBroadCast("onCameraMoveAction", callbackResult);
+        } catch (JSONException e) {
+            Log.e(TAG, e.getMessage());
+        }
     }
 
     private void _handlerSeekBar() {

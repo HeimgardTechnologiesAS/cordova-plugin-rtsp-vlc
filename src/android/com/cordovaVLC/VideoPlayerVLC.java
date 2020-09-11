@@ -60,6 +60,9 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     else if (method.equals("getPosition")) {
                         _cordovaSendResult("getPosition", data);
                     }
+                    else if (method.equals("onCameraMoveAction")) {
+                        _cordovaSendMovementRequest(data);
+                    }
                 }
             }
         }
@@ -172,7 +175,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
         callbackContext.sendPluginResult(pluginResult);
     }
 
-    private void _cordovaSendMovementRequest(int direction) {
+    private void _cordovaSendMovementRequest(String direction) {
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, direction);
         pluginResult.setKeepCallback(true);
         if(callbackContextMovement != null) {
