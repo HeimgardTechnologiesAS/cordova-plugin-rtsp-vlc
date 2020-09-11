@@ -330,9 +330,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         arrowDown.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();
+                 return true;
 
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 Toast.makeText(this, "click up released", Toast.LENGTH_SHORT).show();
+                 return true;
             }
             return false;
         });
@@ -340,9 +342,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         arrowLeft.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();
+                 return true;
 
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 Toast.makeText(this, "click up released", Toast.LENGTH_SHORT).show();
+                 return true;
             }
             return false;
         });
@@ -350,9 +354,23 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         arrowUp.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();
+                 return true;
 
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 Toast.makeText(this, "click up released", Toast.LENGTH_SHORT).show();
+                 return true;
+            }
+            return false;
+        });
+
+        arrowRight.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                Toast.makeText(this, "click up", Toast.LENGTH_SHORT).show();
+                 return true;
+
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Toast.makeText(this, "click up released", Toast.LENGTH_SHORT).show();
+                 return true;
             }
             return false;
         });
