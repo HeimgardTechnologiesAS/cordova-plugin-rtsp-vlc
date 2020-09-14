@@ -265,6 +265,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     @Override
     public void onBuffering(float percentage) {
+        lockOrientation();
         if(percentage < 80) {
             findViewById(_getResource("loadingPanel", "id")).bringToFront();
             if (findViewById(_getResource("loadingPanel", "id")).getVisibility() != View.VISIBLE) {
@@ -275,6 +276,32 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                 findViewById(_getResource("loadingPanel", "id")).setVisibility(View.GONE);
             }
         }
+         if (percentage == 100) {
+            unlockOrientation();
+        }
+    }
+
+    public void lockOrientation() {
+        int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
+        switch(rotation) {
+            case Surface.ROTATION_180:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+                break;
+            case Surface.ROTATION_270:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+                break;
+            case  Surface.ROTATION_0:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                break;
+            case Surface.ROTATION_90:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                break;
+        }
+    }
+
+    public void unlockOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 
     private void _initPlayer() {
