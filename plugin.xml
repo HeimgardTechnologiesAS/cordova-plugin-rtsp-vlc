@@ -41,6 +41,7 @@
 			
 			<source-file src="src/android/com/cordovaVLC/VideoPlayerVLC.java" target-dir="src/com/cordovaVLC"/>
 			<source-file src="src/android/com/cordovaVLC/VLCActivity.java" target-dir="src/com/cordovaVLC"/>
+			<source-file src="src/android/com/cordovaVLC/CordovaAPIKeys.java" target-dir="src/com/cordovaVLC"/>
 			
 			<resource-file src="src/android/res/layout/vlc_player.xml" target="res/layout/vlc_player.xml" />
 

@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView;
 import android.view.MotionEvent;
+import android.view.Surface;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -420,9 +421,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private void _requestCameraMove(String value) {
         try {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("type", "player_camera_move_request");
+            jsonObject.put("type", CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST);
             jsonObject.put("value", value);
-            _sendBroadCast("player_camera_move_request", jsonObject);
+            _sendBroadCast(CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST, jsonObject);
         }catch (JSONException err){
             Log.d("Error", err.toString());
         }
