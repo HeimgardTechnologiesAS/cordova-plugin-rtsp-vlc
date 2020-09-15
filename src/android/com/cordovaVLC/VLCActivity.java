@@ -140,6 +140,18 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                             _changePosition(intent.getFloatExtra("position", 0));
                         }
                     }
+                    else if (method.equals("webview_show_ptz_buttons")) {
+                        boolean value = intent.getBooleanExtra("data",false);
+                        // TODO: call method to show/hide ptz
+                    }
+                    else if (method.equals("webview_show_recording_button")) {
+                        boolean value = intent.getBooleanExtra("data",false);
+                        // TODO: call method to show/hide recording button
+                    }
+                    else if (method.equals("webview_update_rec_status")) {
+                        boolean value = intent.getBooleanExtra("data",false);
+                        // TODO: call method to change recording button style recording/not recording
+                    }
                 }
             }
         }
@@ -343,39 +355,50 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private void setClickListeners() {
         arrowUp.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                _sendBroadCast("onCameraMoveAction", NONE);
+                _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-               _sendBroadCast("onCameraMoveAction", UP);
+               _requestCameraMove(UP);
             }
             return true;
         });
 
         arrowDown.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                _sendBroadCast("onCameraMoveAction", NONE);
+                _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _sendBroadCast("onCameraMoveAction", DOWN);
+                _requestCameraMove(DOWN);
             }
             return true;
         });
 
         arrowLeft.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                _sendBroadCast("onCameraMoveAction", NONE);
+                _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _sendBroadCast("onCameraMoveAction", LEFT);
+               _requestCameraMove(LEFT);
             }
             return true;
         });
 
         arrowRight.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-               _sendBroadCast("onCameraMoveAction", NONE);
+               _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _sendBroadCast("onCameraMoveAction", RIGHT);
+                _requestCameraMove(RIGHT);
             }
             return true;
         });
+    }
+
+    private void _requestCameraMove(String value) {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", "player_camera_move_request");
+            jsonObject.put("value", value);
+            _sendBroadCast("player_camera_move_request", jsonObject);
+        }catch (JSONException err){
+            Log.d("Error", err.toString());
+        }
     }
 
     private void _handlerSeekBar() {

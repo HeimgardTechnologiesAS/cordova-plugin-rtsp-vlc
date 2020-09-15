@@ -28,7 +28,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
     public final static String BROADCAST_METHODS = "com.cordovaVLC";
 
     private CallbackContext callbackContext;
-    private CallbackContext callbackContextMovement;
+    private CallbackContext callbackContextExternalData;
     BroadcastReceiver br = new BroadcastReceiver() {
 
         @Override
@@ -60,8 +60,8 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     else if (method.equals("getPosition")) {
                         _cordovaSendResult("getPosition", data);
                     }
-                    else if (method.equals("onCameraMoveAction")) {
-                        _cordovaSendMovementRequest(data);
+                    else if (method.equals("player_camera_move_request")) {
+                        _cordovaSendExternal(data);
                     }
                 }
             }
@@ -99,14 +99,41 @@ public class VideoPlayerVLC extends CordovaPlugin {
         else if (action.equals("close")) {
             _filters("close");
             return true;
-        } else if (action.equals("enableCameraMovementListener")) {
-            this.callbackContextMovement = callbackContext;
-            return true;
+        } else if (action.equals("receiveExternalData")) {
+
+
+            String externalData = args.getString(0);
+            if(externalData.equals("set_external_callback")) {
+                if(this.callbackContextExternalData == null) {
+                    this.callbackContextExternalData = callbackContext;
+                }
+                return true;
+            }
+
+            try {
+                JSONObject jsonObject = new JSONObject(externalData);
+                String type = jsonObject.getString("type");
+                if(type.equals("webview_show_ptz_buttons")){
+                    boolean showPtzArrowsRequest = jsonObject.getBoolean("value");
+                    _filters("webview_show_ptz_buttons", showPtzArrowsRequest);
+                }
+                else if(type.equals("webview_show_recording_button")) {
+                    boolean showRecordingButtonRequest = jsonObject.getBoolean("value");
+                    _filters("webview_show_recording_button", showRecordingButtonRequest);
+                }
+                else if (type.equals("webview_update_rec_status")) {
+                    boolean updateRecordingStatusRequest = jsonObject.getBoolean("value");
+                    _filters("webview_update_rec_status", updateRecordingStatusRequest);
+                }
+                return true;
+            }catch (JSONException err){
+                Log.d("Error", err.toString());
+            }
         }
 
         PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
         pluginResult.setKeepCallback(true);
-        this.callbackContext.sendPluginResult(pluginResult);
+        callbackContext.sendPluginResult(pluginResult);
 
         return false;
     }
@@ -165,6 +192,14 @@ public class VideoPlayerVLC extends CordovaPlugin {
         activity.sendBroadcast(intent);
     }
 
+    private void _filters(String methodName, boolean data) {
+        Intent intent = new Intent();
+        intent.setAction(BROADCAST_METHODS);
+        intent.putExtra("method", methodName);
+        intent.putExtra("data", data);
+        activity.sendBroadcast(intent);
+    }
+
     private void _broadcastRCV() {
         IntentFilter filter = new IntentFilter(VLCActivity.BROADCAST_LISTENER);
         activity.registerReceiver(br, filter);
@@ -176,11 +211,11 @@ public class VideoPlayerVLC extends CordovaPlugin {
         callbackContext.sendPluginResult(pluginResult);
     }
 
-    private void _cordovaSendMovementRequest(String direction) {
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, direction);
+    private void _cordovaSendExternal(String data) {
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
         pluginResult.setKeepCallback(true);
-        if(callbackContextMovement != null) {
-            callbackContextMovement.sendPluginResult(pluginResult);
+        if(callbackContextExternalData != null) {
+            callbackContextExternalData.sendPluginResult(pluginResult);
         }
     }
 }
