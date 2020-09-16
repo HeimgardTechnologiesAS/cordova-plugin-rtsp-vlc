@@ -50,30 +50,50 @@
 			<resource-file src="src/android/res/drawable-hdpi/ic_arrow_right.xml" target="res/drawable-hdpi/ic_arrow_right.xml" />
 			<resource-file src="src/android/res/drawable-hdpi/ic_arrow_up.xml" target="res/drawable-hdpi/ic_arrow_up.xml" />
 			<resource-file src="src/android/res/drawable-hdpi/ic_joystick_background.xml" target="res/drawable-hdpi/ic_joystick_background.xml" />
+			<resource-file src="src/android/res/drawable-hdpi/ic_joystick_background_down.xml" target="res/drawable-hdpi/ic_joystick_background_down.xml" />
+			<resource-file src="src/android/res/drawable-hdpi/ic_joystick_background_left.xml" target="res/drawable-hdpi/ic_joystick_background_left.xml" />
+			<resource-file src="src/android/res/drawable-hdpi/ic_joystick_background_right.xml" target="res/drawable-hdpi/ic_joystick_background_right.xml" />
+			<resource-file src="src/android/res/drawable-hdpi/ic_joystick_background_up.xml" target="res/drawable-hdpi/ic_joystick_background_up.xml" />
 
 			<resource-file src="src/android/res/drawable-mdpi/ic_arrow_down.xml" target="res/drawable-mdpi/ic_arrow_down.xml" />
 			<resource-file src="src/android/res/drawable-mdpi/ic_arrow_left.xml" target="res/drawable-mdpi/ic_arrow_left.xml" />
 			<resource-file src="src/android/res/drawable-mdpi/ic_arrow_right.xml" target="res/drawable-mdpi/ic_arrow_right.xml" />
 			<resource-file src="src/android/res/drawable-mdpi/ic_arrow_up.xml" target="res/drawable-mdpi/ic_arrow_up.xml" />
 			<resource-file src="src/android/res/drawable-mdpi/ic_joystick_background.xml" target="res/drawable-mdpi/ic_joystick_background.xml" />
+			<resource-file src="src/android/res/drawable-mdpi/ic_joystick_background_down.xml" target="res/drawable-mdpi/ic_joystick_background_down.xml" />
+			<resource-file src="src/android/res/drawable-mdpi/ic_joystick_background_left.xml" target="res/drawable-mdpi/ic_joystick_background_left.xml" />
+			<resource-file src="src/android/res/drawable-mdpi/ic_joystick_background_right.xml" target="res/drawable-mdpi/ic_joystick_background_right.xml" />
+			<resource-file src="src/android/res/drawable-mdpi/ic_joystick_background_up.xml" target="res/drawable-mdpi/ic_joystick_background_up.xml" />
 			
 			<resource-file src="src/android/res/drawable-xhdpi/ic_arrow_down.xml" target="res/drawable-xhdpi/ic_arrow_down.xml" />
 			<resource-file src="src/android/res/drawable-xhdpi/ic_arrow_left.xml" target="res/drawable-xhdpi/ic_arrow_left.xml" />
 			<resource-file src="src/android/res/drawable-xhdpi/ic_arrow_right.xml" target="res/drawable-xhdpi/ic_arrow_right.xml" />
 			<resource-file src="src/android/res/drawable-xhdpi/ic_arrow_up.xml" target="res/drawable-xhdpi/ic_arrow_up.xml" />
 			<resource-file src="src/android/res/drawable-xhdpi/ic_joystick_background.xml" target="res/drawable-xhdpi/ic_joystick_background.xml" />
+			<resource-file src="src/android/res/drawable-xhdpi/ic_joystick_background_down.xml" target="res/drawable-xhdpi/ic_joystick_background_down.xml" />
+			<resource-file src="src/android/res/drawable-xhdpi/ic_joystick_background_left.xml" target="res/drawable-xhdpi/ic_joystick_background_left.xml" />
+			<resource-file src="src/android/res/drawable-xhdpi/ic_joystick_background_right.xml" target="res/drawable-xhdpi/ic_joystick_background_right.xml" />
+			<resource-file src="src/android/res/drawable-xhdpi/ic_joystick_background_up.xml" target="res/drawable-xhdpi/ic_joystick_background_up.xml" />
 
 			<resource-file src="src/android/res/drawable-xxhdpi/ic_arrow_down.xml" target="res/drawable-xxhdpi/ic_arrow_down.xml" />
 			<resource-file src="src/android/res/drawable-xxhdpi/ic_arrow_left.xml" target="res/drawable-xxhdpi/ic_arrow_left.xml" />
 			<resource-file src="src/android/res/drawable-xxhdpi/ic_arrow_right.xml" target="res/drawable-xxhdpi/ic_arrow_right.xml" />
 			<resource-file src="src/android/res/drawable-xxhdpi/ic_arrow_up.xml" target="res/drawable-xxhdpi/ic_arrow_up.xml" />
 			<resource-file src="src/android/res/drawable-xxhdpi/ic_joystick_background.xml" target="res/drawable-xxhdpi/ic_joystick_background.xml" />
+			<resource-file src="src/android/res/drawable-xxhdpi/ic_joystick_background_down.xml" target="res/drawable-xxhdpi/ic_joystick_background_down.xml" />
+			<resource-file src="src/android/res/drawable-xxhdpi/ic_joystick_background_left.xml" target="res/drawable-xxhdpi/ic_joystick_background_left.xml" />
+			<resource-file src="src/android/res/drawable-xxhdpi/ic_joystick_background_right.xml" target="res/drawable-xxhdpi/ic_joystick_background_right.xml" />
+			<resource-file src="src/android/res/drawable-xxhdpi/ic_joystick_background_up.xml" target="res/drawable-xxhdpi/ic_joystick_background_up.xml" />
 
 			<resource-file src="src/android/res/drawable-xxxhdpi/ic_arrow_down.xml" target="res/drawable-xxxhdpi/ic_arrow_down.xml" />
 			<resource-file src="src/android/res/drawable-xxxhdpi/ic_arrow_left.xml" target="res/drawable-xxxhdpi/ic_arrow_left.xml" />
 			<resource-file src="src/android/res/drawable-xxxhdpi/ic_arrow_right.xml" target="res/drawable-xxxhdpi/ic_arrow_right.xml" />
 			<resource-file src="src/android/res/drawable-xxxhdpi/ic_arrow_up.xml" target="res/drawable-xxxhdpi/ic_arrow_up.xml" />
 			<resource-file src="src/android/res/drawable-xxxhdpi/ic_joystick_background.xml" target="res/drawable-xxxhdpi/ic_joystick_background.xml" />
+			<resource-file src="src/android/res/drawable-xxxhdpi/ic_joystick_background_down.xml" target="res/drawable-xxxhdpi/ic_joystick_background_down.xml" />
+			<resource-file src="src/android/res/drawable-xxxhdpi/ic_joystick_background_left.xml" target="res/drawable-xxxhdpi/ic_joystick_background_left.xml" />
+			<resource-file src="src/android/res/drawable-xxxhdpi/ic_joystick_background_right.xml" target="res/drawable-xxxhdpi/ic_joystick_background_right.xml" />
+			<resource-file src="src/android/res/drawable-xxxhdpi/ic_joystick_background_up.xml" target="res/drawable-xxxhdpi/ic_joystick_background_up.xml" />
 			
 			<resource-file src="src/android/res/drawable-hdpi/ic_pause_white_24dp.png" target="res/drawable-hdpi/ic_pause_white_24dp.png" />
 			<resource-file src="src/android/res/drawable-hdpi/ic_play_arrow_white_24dp.png" target="res/drawable-hdpi/ic_play_arrow_white_24dp.png" />

@@ -27,6 +27,7 @@ import android.widget.Toast;
 import android.widget.ImageView;
 import android.view.MotionEvent;
 import android.view.Surface;
+import android.widget.RelativeLayout;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -75,7 +76,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
-    private ImageView arrowUp, arrowDown, arrowLeft, arrowRight;
+    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow;
+    private ImageView upJoy, downJoy, leftJoy, rightJoy;
+
     public static String UP = "1";
     public static String DOWN = "2";
     public static String LEFT = "3";
@@ -370,10 +373,16 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         mediaPlayerView = (LinearLayout) findViewById(_getResource("mediaPlayerView", "id"));
         mediaPlayerControls = (LinearLayout) findViewById(_getResource("mediaPlayerControls", "id"));
         mediaPlayerControls.bringToFront();
-        arrowUp = findViewById(_getResource("arrow_up", "id"));
-        arrowDown = findViewById(_getResource("arrow_down", "id"));
-        arrowLeft = findViewById(_getResource("arrow_left", "id"));
-        arrowRight = findViewById(_getResource("arrow_right", "id"));
+
+        rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
+        rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
+        rlLeftArrow = findViewById(_getResource("left_arrow_click","id"));
+        rlRightArrow = findViewById(_getResource("right_arrow_click","id"));
+
+        upJoy = findViewById(_getResource("iv_up_joy","id"));
+        downJoy = findViewById(_getResource("iv_down_joy","id"));
+        leftJoy = findViewById(_getResource("iv_left_joy","id"));
+        rightJoy = findViewById(_getResource("iv_right_joy","id"));
         setClickListeners();
 
         bStartStop.setOnClickListener(this);
@@ -381,37 +390,45 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     private void setClickListeners() {
-        arrowUp.setOnTouchListener((v, event) -> {
+        rlUpArrow.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
+                upJoy.setVisibility(View.INVISIBLE);
                 _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                upJoy.setVisibility(View.VISIBLE);
                _requestCameraMove(UP);
             }
             return true;
         });
 
-        arrowDown.setOnTouchListener((v, event) -> {
+        rlDownArrow.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
+                downJoy.setVisibility(View.INVISIBLE);
                 _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                downJoy.setVisibility(View.VISIBLE);
                 _requestCameraMove(DOWN);
             }
             return true;
         });
 
-        arrowLeft.setOnTouchListener((v, event) -> {
+        rlLeftArrow.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
+                leftJoy.setVisibility(View.INVISIBLE);
                 _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                leftJoy.setVisibility(View.VISIBLE);
                _requestCameraMove(LEFT);
             }
             return true;
         });
 
-        arrowRight.setOnTouchListener((v, event) -> {
+        rlRightArrow.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
+                rightJoy.setVisibility(View.INVISIBLE);
                _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                rightJoy.setVisibility(View.VISIBLE);
                 _requestCameraMove(RIGHT);
             }
             return true;
