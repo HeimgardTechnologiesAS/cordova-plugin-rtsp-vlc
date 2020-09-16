@@ -459,7 +459,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     private void closeLayout() {
-        
+        activity.finish();
     }
 
     private void _handlerSeekBar() {
