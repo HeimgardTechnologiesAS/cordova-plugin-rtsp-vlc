@@ -23,10 +23,13 @@
 #import <UIKit/UIKit.h>
 #import <Cordova/CDVPlugin.h>
 #import "VideoPlayerVLCViewController.h"
+#import <MobileVLCKit/MobileVLCKit.h>
 
 @interface VideoPlayerVLC : CDVPlugin
 
 @property (strong,nonatomic) VideoPlayerVLCViewController* overlay;
+@property(strong, nonatomic) VLCMediaPlayer *mediaPlayer;
+
 @property (strong,nonatomic) CDVInvokedUrlCommand* lastCommand;
 
 -(void) play:(CDVInvokedUrlCommand *)command;
