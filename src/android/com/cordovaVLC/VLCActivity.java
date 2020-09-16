@@ -76,8 +76,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
-    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow;
-    private ImageView upJoy, downJoy, leftJoy, rightJoy;
+    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive;
+    private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose;
+
 
     public static String UP = "1";
     public static String DOWN = "2";
@@ -281,6 +282,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     @Override
     public void onBuffering(float percentage) {
+        rlLive.setVisibility(View.INVISIBLE); 
         lockOrientation();
         if(percentage < 80) {
             findViewById(_getResource("loadingPanel", "id")).bringToFront();
@@ -294,6 +296,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
          if (percentage == 100) {
             unlockOrientation();
+            rlLive.setVisibility(View.VISIBLE); 
         }
     }
 
@@ -374,10 +377,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         mediaPlayerControls = (LinearLayout) findViewById(_getResource("mediaPlayerControls", "id"));
         mediaPlayerControls.bringToFront();
 
+        rlLive = findViewById(_getResource("rl_live","id"));
+
         rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
         rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
         rlLeftArrow = findViewById(_getResource("left_arrow_click","id"));
         rlRightArrow = findViewById(_getResource("right_arrow_click","id"));
+
+        ivClose = findViewById(_getResource("iv_close","id"));
 
         upJoy = findViewById(_getResource("iv_up_joy","id"));
         downJoy = findViewById(_getResource("iv_down_joy","id"));
@@ -390,6 +397,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     private void setClickListeners() {
+
+        ivClose.setOnClickListener(v -> {
+            closeLayout();
+        });
+
         rlUpArrow.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 upJoy.setVisibility(View.INVISIBLE);
@@ -444,6 +456,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }catch (JSONException err){
             Log.d("Error", err.toString());
         }
+    }
+
+    private void closeLayout() {
+        
     }
 
     private void _handlerSeekBar() {

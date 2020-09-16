@@ -63,6 +63,10 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     else if (method.equals("player_camera_move_request")) {
                         _cordovaSendExternal(data);
                     }
+                    else if (method.equals("closeLayout")) {
+                        _filters("close");
+                    }
+                   
                 }
             }
         }
