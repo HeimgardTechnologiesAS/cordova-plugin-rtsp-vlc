@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MobileVLCKit/MobileVLCKit.h>
 
-@interface VideoPlayerVLCViewController : UIViewController
+@interface VideoPlayerVLCViewController : UIViewController <VLCMediaPlayerDelegate>
 @property(nonatomic) BOOL playOnStart;
 @property(strong, nonatomic) NSString *urlString;
 

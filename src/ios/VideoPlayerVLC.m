@@ -44,12 +44,14 @@ static CDVInvokedUrlCommand* commandGlob = nil;
         }
         @catch (NSException *exception) {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
+            [pluginResult setKeepCallback:@YES];
             [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
         }
     }
     else
     {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"url-invalid"];
+        [pluginResult setKeepCallback:@YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
     }
     
@@ -69,6 +71,7 @@ static CDVInvokedUrlCommand* commandGlob = nil;
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"not-playing"];
     }
+    [pluginResult setKeepCallback:@YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlob.callbackId];
 }
 
@@ -85,6 +88,20 @@ static CDVInvokedUrlCommand* commandGlob = nil;
     } else {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"not-playing"];
     }
+    [pluginResult setKeepCallback:@YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlob.callbackId];
+}
+
+-(void) sendVlcState:(NSString *) event {
+    CDVPluginResult *pluginResult = nil;
+
+    @try {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:event];
+    }
+    @catch (NSException *exception) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
+    }
+    [pluginResult setKeepCallback:@YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlob.callbackId];
 }
 

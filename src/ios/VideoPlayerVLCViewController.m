@@ -35,7 +35,7 @@
     self.mediaView = [[UIView alloc] init];
     self.closeButton = [[UIButton alloc] init];
     self.mediaPlayer = [[VLCMediaPlayer alloc] initWithOptions:@[@"--network-caching=150 --clock-jitter=0 --clock-synchro=0"]];
-    
+    self.mediaPlayer.delegate = self;
    
     self.closeButton.translatesAutoresizingMaskIntoConstraints = NO;
     
@@ -92,7 +92,6 @@
                 [self.mediaPlayer setMedia:[[VLCMedia alloc] initWithURL:mediaUrl]];
             }
             else{
-                [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Invalid URL" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
                 return;
             }
             [self.mediaPlayer play];
@@ -114,5 +113,37 @@
 
 }
 
-@end
+- (void)mediaPlayerStateChanged:(NSNotification *)aNotification {
+    VLCMediaPlayerState vlcState = self.mediaPlayer.state;
 
+    switch (vlcState) {
+        case VLCMediaPlayerStateStopped:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"onStopVlc"];
+            [self stop];
+            break;
+        case VLCMediaPlayerStateOpening:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"onBuffering"];
+            break;
+        case VLCMediaPlayerStateBuffering:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"onBuffering"];
+            break;
+        case VLCMediaPlayerStateEnded:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"onVideoEnd"];
+            [self stop];
+            break;
+        case VLCMediaPlayerStateError:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"onError"];
+            break;
+        case VLCMediaPlayerStatePlaying:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"onPlayVlc"];
+            break;
+        case VLCMediaPlayerStatePaused:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"onPauseVlc"];
+            break;
+        default:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"default"];
+            break;
+    };
+}
+
+@end
