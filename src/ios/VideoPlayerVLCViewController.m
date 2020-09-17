@@ -125,7 +125,6 @@
             [[VideoPlayerVLC getInstance] sendVlcState:@"onBuffering"];
             break;
         case VLCMediaPlayerStateBuffering:
-            [[VideoPlayerVLC getInstance] sendVlcState:@"onBuffering"];
             break;
         case VLCMediaPlayerStateEnded:
             [[VideoPlayerVLC getInstance] sendVlcState:@"onVideoEnd"];
