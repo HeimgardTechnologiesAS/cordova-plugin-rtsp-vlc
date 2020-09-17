@@ -100,6 +100,16 @@
 
     </RelativeLayout>
 
+
+           <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:text="blaaa"
+                android:textColor="#ffffff" />
+
     <RelativeLayout
         android:id="@+id/rl_live"
         android:visibility="invisible"
@@ -134,13 +144,13 @@
         android:layout_height="wrap_content"/>
 
     <ImageView
-        android:id="@+id/iv_recording_idle"
         android:src="@drawable/ic_recording_button_idle"
         app:layout_constraintBottom_toTopOf="@+id/cl_joystick"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.96"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -154,6 +164,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0.95"
+        app:layout_constraintHorizontal_bias="0.9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -161,7 +172,7 @@
             android:id="@+id/iv_joystick_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_joystick_background"
+            android:src="@drawable/ic_joystick_landscape"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

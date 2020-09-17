@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.widget.RelativeLayout;
+import android.support.constraint.ConstraintLayout;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -77,7 +78,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private String currentLoc = "00:00";
     private String duration = "00:00";
     private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive;
-    private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose;
+    private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle;
+    private ConstraintLayout clJoystick;
 
 
     public static String UP = "1";
@@ -192,6 +194,58 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         // play
         _initPlayer();
+    }
+
+        private void _UIListener() {
+        mSeekBar = (SeekBar) findViewById(_getResource("videoSeekBar", "id"));
+
+        surfaceView = (SurfaceView) findViewById(_getResource("vlc_surfaceView", "id"));
+        bStartStop = (ImageButton) findViewById(_getResource("vlc_start_stop", "id"));
+
+        videoCurrentLoc = (TextView) findViewById(_getResource("videoCurrentLoc", "id"));
+        videoDuration = (TextView) findViewById(_getResource("videoDuration", "id"));
+
+        mediaPlayerView = (LinearLayout) findViewById(_getResource("mediaPlayerView", "id"));
+        mediaPlayerControls = (LinearLayout) findViewById(_getResource("mediaPlayerControls", "id"));
+        mediaPlayerControls.bringToFront();
+
+        rlLive = findViewById(_getResource("rl_live","id"));
+
+        rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
+        rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
+        rlLeftArrow = findViewById(_getResource("left_arrow_click","id"));
+        rlRightArrow = findViewById(_getResource("right_arrow_click","id"));
+
+        ivClose = findViewById(_getResource("iv_close","id"));
+        ivRecordingIdle = findViewById(_getResource("iv_recording_idle","id"));
+
+        upJoy = findViewById(_getResource("iv_up_joy","id"));
+        downJoy = findViewById(_getResource("iv_down_joy","id"));
+        leftJoy = findViewById(_getResource("iv_left_joy","id"));
+        rightJoy = findViewById(_getResource("iv_right_joy","id"));
+
+        clJoystick = findViewById(_getResource("cl_joystick","id"));
+        joystickLayout = findViewById(_getResource("iv_joystick_layout","id"));
+
+
+
+        setClickListeners();
+
+        bStartStop.setOnClickListener(this);
+        vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
+    }
+
+        /**
+     * Resource ID
+     *
+     * @param name
+     * @param type layout, drawable, id
+     * @return
+     */
+    private int _getResource(String name, String type) {
+        String package_name = getApplication().getPackageName();
+        Resources resources = getApplication().getResources();
+        return resources.getIdentifier(name, type, package_name);
     }
 
     @Override
@@ -364,38 +418,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         activity.registerReceiver(br, filter);
     }
 
-    private void _UIListener() {
-        mSeekBar = (SeekBar) findViewById(_getResource("videoSeekBar", "id"));
-
-        surfaceView = (SurfaceView) findViewById(_getResource("vlc_surfaceView", "id"));
-        bStartStop = (ImageButton) findViewById(_getResource("vlc_start_stop", "id"));
-
-        videoCurrentLoc = (TextView) findViewById(_getResource("videoCurrentLoc", "id"));
-        videoDuration = (TextView) findViewById(_getResource("videoDuration", "id"));
-
-        mediaPlayerView = (LinearLayout) findViewById(_getResource("mediaPlayerView", "id"));
-        mediaPlayerControls = (LinearLayout) findViewById(_getResource("mediaPlayerControls", "id"));
-        mediaPlayerControls.bringToFront();
-
-        rlLive = findViewById(_getResource("rl_live","id"));
-
-        rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
-        rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
-        rlLeftArrow = findViewById(_getResource("left_arrow_click","id"));
-        rlRightArrow = findViewById(_getResource("right_arrow_click","id"));
-
-        ivClose = findViewById(_getResource("iv_close","id"));
-
-        upJoy = findViewById(_getResource("iv_up_joy","id"));
-        downJoy = findViewById(_getResource("iv_down_joy","id"));
-        leftJoy = findViewById(_getResource("iv_left_joy","id"));
-        rightJoy = findViewById(_getResource("iv_right_joy","id"));
-        setClickListeners();
-
-        bStartStop.setOnClickListener(this);
-        vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
-    }
-
     private void setClickListeners() {
 
         ivClose.setOnClickListener(v -> {
@@ -558,19 +580,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         });
     }
 
-    /**
-     * Resource ID
-     *
-     * @param name
-     * @param type layout, drawable, id
-     * @return
-     */
-    private int _getResource(String name, String type) {
-        String package_name = getApplication().getPackageName();
-        Resources resources = getApplication().getResources();
-        return resources.getIdentifier(name, type, package_name);
-    }
-
     private void _sendBroadCast(String methodName) {
         Intent intent = new Intent();
         intent.setAction(BROADCAST_LISTENER);
@@ -598,14 +607,65 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        // Checks the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            createLandscapeLayoutProperties();
             vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
 
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            createPortraitLayoutProperties();
             vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
         }
+    }
+
+    public void createLandscapeLayoutProperties() {
+        joystickLayout.setBackgroundResource(0);
+        joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
+
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
+        params.horizontalBias = 0.9f;
+        clJoystick.setLayoutParams(params);
+
+        ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
+        rlLiveParams.horizontalBias = 0.1f;
+        rlLiveParams.verticalBias = 0.05f;
+        rlLive.setLayoutParams(rlLiveParams);
+
+        ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) ivClose.getLayoutParams();
+        closeParams.horizontalBias = 0.02f;
+        closeParams.verticalBias = 0.05f;
+        ivClose.setLayoutParams(closeParams);
+        
+        ConstraintLayout.LayoutParams recordIdleParams = (ConstraintLayout.LayoutParams) ivRecordingIdle.getLayoutParams();
+        recordIdleParams.horizontalBias = 0.9f;
+        recordIdleParams.verticalBias = 0.17f;
+        ivRecordingIdle.setLayoutParams(recordIdleParams);
+        
+    }
+
+    public void createPortraitLayoutProperties() {
+        joystickLayout.setBackgroundResource(0);
+        joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
+        
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
+        params.horizontalBias = 0.5f;
+        clJoystick.setLayoutParams(params);
+
+        ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
+        rlLiveParams.horizontalBias = 0.05f;
+        rlLiveParams.verticalBias = 0.4f;
+        rlLive.setLayoutParams(rlLiveParams);
+
+        ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) ivClose.getLayoutParams();
+        closeParams.horizontalBias = 0.05f;
+        closeParams.verticalBias = 0.05f;
+        ivClose.setLayoutParams(closeParams);
+
+        ConstraintLayout.LayoutParams recordIdleParams = (ConstraintLayout.LayoutParams) ivRecordingIdle.getLayoutParams();
+        recordIdleParams.horizontalBias = 0.5f;
+        recordIdleParams.verticalBias = 0.96f;
+        ivRecordingIdle.setLayoutParams(recordIdleParams);
+        
     }
 
     public DisplayMetrics getDisplayMetrics() {
