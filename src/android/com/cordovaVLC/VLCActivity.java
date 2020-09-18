@@ -81,7 +81,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private String duration = "00:00";
     private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer;
     private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle, ivRecordingActive;
-    private ConstraintLayout clJoystick;
+    private ConstraintLayout clJoystick, recordSavedLayout;
     private Chronometer cmRecordingTimer;
     private boolean isRecordingActivated = false;
 
@@ -236,8 +236,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         joystickLayout = findViewById(_getResource("iv_joystick_layout","id"));
 
         cmRecordingTimer = findViewById(_getResource("cm_recording_timer","id"));
-
-
+        recordSavedLayout = findViewById(_getResource("rl_recording_saved","id"));
 
         setClickListeners();
 
@@ -516,6 +515,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private void stopRecording() {
          //send stop recording flag to cordova
         cmRecordingTimer.stop();
+        recordSavedLayout.setVisibility(View.VISIBLE);
+        ivClose.setVisibility(View.INVISIBLE);
+        recordSavedLayout.postDelayed(() -> {
+            recordSavedLayout.setVisibility(View.INVISIBLE);
+            ivClose.setVisibility(View.VISIBLE);
+        }, 2000);
     }
 
 
@@ -675,6 +680,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
         params.horizontalBias = 0.9f;
+        params.verticalBias = 0.85f;
         clJoystick.setLayoutParams(params);
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
@@ -708,6 +714,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
         params.horizontalBias = 0.5f;
+        params.verticalBias = 0.95f;
         clJoystick.setLayoutParams(params);
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
