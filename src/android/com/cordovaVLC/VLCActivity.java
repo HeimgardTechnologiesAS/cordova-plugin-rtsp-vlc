@@ -166,11 +166,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
-
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+       
 
         activity = this;
         ActionBar actionBar = activity.getActionBar();
@@ -194,6 +195,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         // play
         _initPlayer();
+        joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
     }
 
         private void _UIListener() {
@@ -619,7 +621,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     public void createLandscapeLayoutProperties() {
-        joystickLayout.setBackgroundResource(0);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
@@ -644,7 +645,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     public void createPortraitLayoutProperties() {
-        joystickLayout.setBackgroundResource(0);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
         
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
