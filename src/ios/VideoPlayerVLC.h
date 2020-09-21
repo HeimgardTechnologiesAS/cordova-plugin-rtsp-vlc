@@ -28,7 +28,8 @@
 @interface VideoPlayerVLC : CDVPlugin
 
 @property (strong) VideoPlayerVLCViewController* player;
-@property (strong) CDVInvokedUrlCommand* commandGlob;
+@property (strong) CDVInvokedUrlCommand* commandGlobPlay;
+@property (strong) CDVInvokedUrlCommand* commandGlobExternalData;
 @property (nonatomic, retain) VideoPlayerVLC* instance;
 
 + (id) getInstance;
@@ -36,5 +37,8 @@
 -(void) stopInner;
 -(void) stop:(CDVInvokedUrlCommand *)command;
 -(void) sendVlcState:(NSString *) event;
+-(void) receiveExternalData:(CDVInvokedUrlCommand *) command; 
+-(void) sendExternalData:(NSString *) data;
+-(void) sendExternalDataAsDictionary:(NSMutableDictionary *) data ;
 
 @end

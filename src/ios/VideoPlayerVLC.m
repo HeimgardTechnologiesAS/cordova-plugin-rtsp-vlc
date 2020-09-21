@@ -12,7 +12,8 @@
 @implementation VideoPlayerVLC
 
 static VideoPlayerVLC* instance = nil;
-static CDVInvokedUrlCommand* commandGlob = nil;
+static CDVInvokedUrlCommand* commandGlobPlay = nil;
+static CDVInvokedUrlCommand* commandGlobExternalData = nil;
 
 + (id) getInstance{
     return instance;
@@ -21,7 +22,7 @@ static CDVInvokedUrlCommand* commandGlob = nil;
 -(void) play:(CDVInvokedUrlCommand *) command {
 
     instance = self;
-    commandGlob = command;
+    commandGlobPlay = command;
     if (self.player != nil){
         self.player = nil;
     }
@@ -51,28 +52,48 @@ static CDVInvokedUrlCommand* commandGlob = nil;
     else
     {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"url-invalid"];
-        [pluginResult setKeepCallback:@YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId: command.callbackId];
     }
     
     
 }
 
--(void) stopInner{
+-(void) receiveExternalData:(CDVInvokedUrlCommand *) command {
     
-    CDVPluginResult *pluginResult = nil;
-    if (self.player != nil) {
-        @try {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onDestroyVlc"];
+    NSString *externalCommandString  = [command.arguments objectAtIndex:0];
+    if(externalCommandString != nil) {
+        if([externalCommandString isEqualToString:@"set_external_callback"]) {
+            commandGlobExternalData = command;
+            return;
+        } else {
+            NSError *err = nil;
+            NSMutableDictionary *JSONObj = [NSJSONSerialization JSONObjectWithData:[externalCommandString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&err];
+            if(err == nil) {
+                NSString *type = [JSONObj valueForKey:@"type"];
+                if(type != nil) {
+                    if([type isEqualToString:@"webview_show_ptz_buttons"]) {
+                        BOOL value = [JSONObj[@"value"] boolValue];
+                        // TODO: call method to show/hide ptz buttons
+                        return;
+                    } 
+                    else if([type isEqualToString:@"webview_show_recording_button"]) {
+                        BOOL value = [JSONObj[@"value"] boolValue];
+                        // TODO: call method to show/hide recording buton
+                        return; 
+                    } 
+                    else if([type isEqualToString:@"webview_update_rec_status"]) {
+                        BOOL value = [JSONObj[@"value"] boolValue];
+                        // TODO: call method to update recording button style and show recording timer if true
+                        return;
+                    } 
+                }
+            }
         }
-        @catch (NSException *exception) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
-        }
-    } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"not-playing"];
     }
-    [pluginResult setKeepCallback:@YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlob.callbackId];
+    NSMutableDictionary* errorResult = [[NSMutableDictionary alloc] init];
+    [errorResult setValue:@"error" forKey:@"type"];
+    [errorResult setValue:@"error_parsing_request" forKey:@"value"];
+    [self sendExternalDataAsDictionary:errorResult];
 }
 
 -(void) stop:(CDVInvokedUrlCommand *) command {
@@ -89,7 +110,7 @@ static CDVInvokedUrlCommand* commandGlob = nil;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"not-playing"];
     }
     [pluginResult setKeepCallback:@YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlob.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlobPlay.callbackId];
 }
 
 -(void) sendVlcState:(NSString *) event {
@@ -102,7 +123,61 @@ static CDVInvokedUrlCommand* commandGlob = nil;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
     }
     [pluginResult setKeepCallback:@YES];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlob.callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlobPlay.callbackId];
+}
+
+
+-(void) sendExternalData:(NSString *) data {
+
+    if (commandGlobExternalData == nil) {
+        return;
+    }
+
+    CDVPluginResult *pluginResult = nil;
+
+    @try {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:data];
+    }
+    @catch (NSException *exception) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
+    }
+    [pluginResult setKeepCallback:@YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlobExternalData.callbackId];
+}
+
+-(void) sendExternalDataAsDictionary:(NSMutableDictionary *) data {
+
+    if (commandGlobExternalData == nil) {
+        return;
+    }
+
+    CDVPluginResult *pluginResult = nil;
+
+    @try {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
+    }
+    @catch (NSException *exception) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
+    }
+    [pluginResult setKeepCallback:@YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlobExternalData.callbackId];
+}
+
+-(void) stopInner{
+    
+    CDVPluginResult *pluginResult = nil;
+    if (self.player != nil) {
+        @try {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"onDestroyVlc"];
+        }
+        @catch (NSException *exception) {
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:exception.reason];
+        }
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"not-playing"];
+    }
+    [pluginResult setKeepCallback:@YES];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId: commandGlobPlay.callbackId];
 }
 
 @end

@@ -114,5 +114,6 @@
             <framework src="CoreAudio.framework" />
             <framework src="UIKit.framework" />
             <framework src="Foundation.framework" />
+			<resource-file src="src/ios/res/rec.png" />
         </platform>
 </plugin>

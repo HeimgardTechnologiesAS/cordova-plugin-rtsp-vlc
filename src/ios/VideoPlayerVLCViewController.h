@@ -15,5 +15,8 @@
 
 -(void) play;
 -(void) stop;
+-(void) recordingRequest: (BOOL) value;
+-(void) cameraMoveRequest: (NSString *) value;
+-(void) screenTouchRequest;
 
 @end

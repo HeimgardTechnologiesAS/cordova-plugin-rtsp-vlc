@@ -15,6 +15,7 @@
 @property(strong, nonatomic) UIButton *closeButton;
 @property(strong, nonatomic) VLCMediaPlayer *mediaPlayer;
 @property(strong, nonatomic) UIView *mediaView;
+@property(strong, nonatomic) UIImageView *imgView;
 @end
 
 @implementation VideoPlayerVLCViewController
@@ -34,6 +35,8 @@
     
     self.mediaView = [[UIView alloc] init];
     self.closeButton = [[UIButton alloc] init];
+    self.imgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+    self.imgView.image = [UIImage imageNamed:@"rec.png"];
     self.mediaPlayer = [[VLCMediaPlayer alloc] initWithOptions:@[@"--network-caching=150 --clock-jitter=0 --clock-synchro=0"]];
     self.mediaPlayer.delegate = self;
    
@@ -46,6 +49,7 @@
     self.mediaView.translatesAutoresizingMaskIntoConstraints = NO;
     self.mediaView.backgroundColor = [UIColor blackColor];
     
+    [self.view addSubview:self.imgView];
     [self.view addSubview:self.closeButton];
     [self.view addSubview:self.mediaView];
     
@@ -73,6 +77,7 @@
     self.mediaPlayer.drawable = self.mediaView;
 
     [self.closeButton addTarget:self action:@selector(stop) forControlEvents:UIControlEventTouchUpInside];
+    [self.mediaView addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(screenTouchRequest)]];
 
 }
 
@@ -143,6 +148,27 @@
             [[VideoPlayerVLC getInstance] sendVlcState:@"default"];
             break;
     };
+}
+
+-(void) recordingRequest: (BOOL) value {
+    NSMutableDictionary* request = [[NSMutableDictionary alloc] init];
+    [request setValue:@"player_recording_request" forKey:@"type"];
+    [request setValue:@(value) forKey:@"value"];
+    [[VideoPlayerVLC getInstance] sendExternalDataAsDictionary:request];
+}
+
+-(void) cameraMoveRequest: (NSString *) value {
+    NSMutableDictionary* request = [[NSMutableDictionary alloc] init];
+    [request setValue:@"player_camera_move_request" forKey:@"type"];
+    [request setValue:value forKey:@"value"];
+    [[VideoPlayerVLC getInstance] sendExternalDataAsDictionary:request];
+}
+
+-(void) screenTouchRequest {
+    NSMutableDictionary* request = [[NSMutableDictionary alloc] init];
+    [request setValue:@"player_screen_touch_event" forKey:@"type"];
+    [request setValue:@"value" forKey:@"value"];
+    [[VideoPlayerVLC getInstance] sendExternalDataAsDictionary:request];
 }
 
 @end
