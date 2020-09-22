@@ -35,7 +35,7 @@
 				<activity 
 					android:name="com.cordovaVLC.VLCActivity"
 				 	android:configChanges="screenSize|orientation"
-					 android:screenOrientation="portrait"
+					android:screenOrientation="portrait"
 				/>
 			</config-file>
 			<source-file src="src/android/com/libs/vlcLibWrapper" target-dir="src/main/java/com"/>

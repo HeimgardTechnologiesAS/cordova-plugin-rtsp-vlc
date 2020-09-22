@@ -83,7 +83,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle, ivRecordingActive;
     private ConstraintLayout clJoystick, recordSavedLayout;
     private Chronometer cmRecordingTimer;
-    private boolean isRecordingActivated = false;
 
 
     public static String UP = "1";
@@ -161,6 +160,13 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     }
                     else if (method.equals("webview_update_rec_status")) {
                         boolean value = intent.getBooleanExtra("data",false);
+                        if (value) {
+                            recordingHasStarted(value);
+                        } else {
+                            recordingIsStopped(value);
+                        }
+                       
+                        // ovdje je fkt poceo recording ili stao true or false
                         // TODO: call method to change recording button style recording/not recording
                     }
                 }
@@ -276,10 +282,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     @Override
     public void onResume() {
         super.onResume();
-
+/*
         if (vlcVideoLibrary.isPlaying()) {
             vlcVideoLibrary.getPlayer().play();
         }
+        */
     }
 
     @Override
@@ -427,32 +434,13 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         activity.registerReceiver(br, filter);
     }
 
-    private void setRecordingViewProperties() {
-        if(isRecordingActivated){
-            ivRecordingIdle.setVisibility(View.INVISIBLE);
-            ivRecordingActive.setVisibility(View.VISIBLE);
-            rlLive.setVisibility(View.INVISIBLE);
-            rlRecordingTimer.setVisibility(View.VISIBLE);
-            
-        } else {
-            ivRecordingActive.setVisibility(View.INVISIBLE);
-            ivRecordingIdle.setVisibility(View.VISIBLE);
-            rlLive.setVisibility(View.VISIBLE);
-            rlRecordingTimer.setVisibility(View.INVISIBLE);
-        }
-    }
-
     private void setClickListeners() {
 
         ivRecordingIdle.setOnClickListener(v -> {
-            isRecordingActivated = true;
-            setRecordingViewProperties();
             activateRecording();
         });
 
         ivRecordingActive.setOnClickListener(v -> {
-            isRecordingActivated = false;
-            setRecordingViewProperties();
             stopRecording();
         });
 
@@ -507,20 +495,68 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private void activateRecording() {
         //send recording flag to cordova
+        try {
+            ivRecordingIdle.setAlpha(0.5f);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
+            jsonObject.put("value", true);
+            _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
+        }catch (JSONException err){
+            Log.d("Error", err.toString());
+            ivRecordingIdle.setAlpha(1f);
+        }
+    }
+
+    private void recordingHasStarted(boolean isStarted){
+        setRecordingViewProperties(isStarted);
         cmRecordingTimer.setBase(SystemClock.elapsedRealtime());
         cmRecordingTimer.start();
-
     }
+
 
     private void stopRecording() {
          //send stop recording flag to cordova
+         try {
+            ivRecordingActive.setAlpha(0.5f);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
+            jsonObject.put("value", false);
+            _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
+        }catch (JSONException err){
+            Log.d("Error", err.toString());
+            ivRecordingActive.setAlpha(1f);
+        }
+
+    }
+
+    private void recordingIsStopped(boolean isStarted) {
+        setRecordingViewProperties(isStarted);
         cmRecordingTimer.stop();
-        recordSavedLayout.setVisibility(View.VISIBLE);
-        ivClose.setVisibility(View.INVISIBLE);
-        recordSavedLayout.postDelayed(() -> {
-            recordSavedLayout.setVisibility(View.INVISIBLE);
-            ivClose.setVisibility(View.VISIBLE);
-        }, 2000);
+    }
+
+    private void setRecordingViewProperties(boolean isRecordingActivated) {
+        if(isRecordingActivated){
+            ivRecordingIdle.setVisibility(View.INVISIBLE);
+            ivRecordingActive.setAlpha(1f);
+            ivRecordingActive.setVisibility(View.VISIBLE);
+            rlLive.setVisibility(View.INVISIBLE);
+            rlRecordingTimer.setVisibility(View.VISIBLE);
+            
+        } else {
+            ivRecordingActive.setVisibility(View.INVISIBLE);
+            ivRecordingIdle.setAlpha(1f);
+            ivRecordingIdle.setVisibility(View.VISIBLE);
+            rlLive.setVisibility(View.VISIBLE);
+            rlRecordingTimer.setVisibility(View.INVISIBLE);
+
+            // activate notification
+            recordSavedLayout.setVisibility(View.VISIBLE);
+            ivClose.setVisibility(View.INVISIBLE);
+            recordSavedLayout.postDelayed(() -> {
+                recordSavedLayout.setVisibility(View.INVISIBLE);
+                ivClose.setVisibility(View.VISIBLE);
+            }, 2000);
+        }
     }
 
 
@@ -665,13 +701,13 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             createLandscapeLayoutProperties();
             vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
-            setRecordingViewProperties();
+            //setRecordingViewProperties();
 
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             createPortraitLayoutProperties();
             vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
-            setRecordingViewProperties();
+            //esetRecordingViewProperties();
         }
     }
 

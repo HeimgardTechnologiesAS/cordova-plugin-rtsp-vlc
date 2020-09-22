@@ -63,6 +63,9 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     else if (method.equals("player_camera_move_request")) {
                         _cordovaSendExternal(data);
                     }
+                    else if (method.equals("player_recording_request")) {
+                        _cordovaSendExternal(data);
+                    }
                    
                 }
             }
@@ -78,6 +81,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         // application context
+        //cordova input
         activity = cordova.getActivity();
 
         String url;
@@ -105,9 +109,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
 
             String externalData = args.getString(0);
             if(externalData.equals("set_external_callback")) {
-                if(this.callbackContextExternalData == null) {
                     this.callbackContextExternalData = callbackContext;
-                }
                 return true;
             }
 
@@ -124,6 +126,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
                 }
                 else if (type.equals("webview_update_rec_status")) {
                     boolean updateRecordingStatusRequest = jsonObject.getBoolean("value");
+                    // tu primam status da je recording fkt poceo /true or false
                     _filters("webview_update_rec_status", updateRecordingStatusRequest);
                 }
                 return true;
