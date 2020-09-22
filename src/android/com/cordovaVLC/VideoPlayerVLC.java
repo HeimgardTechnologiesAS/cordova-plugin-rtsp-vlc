@@ -109,7 +109,8 @@ public class VideoPlayerVLC extends CordovaPlugin {
 
             String externalData = args.getString(0);
             if(externalData.equals("set_external_callback")) {
-                    this.callbackContextExternalData = callbackContext;
+                this.callbackContextExternalData = callbackContext;
+                _cordovaSendExternal("set_external_callback");
                 return true;
             }
 
