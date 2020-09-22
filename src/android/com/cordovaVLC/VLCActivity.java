@@ -79,7 +79,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
-    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer;
+    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt;
     private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle, ivRecordingActive;
     private ConstraintLayout clJoystick, recordSavedLayout;
     private Chronometer cmRecordingTimer;
@@ -122,6 +122,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         }
                     }
                     else if (method.equals("close")) {
+                        /*
                         if (vlcVideoLibrary.isPlaying()) {
                             vlcVideoLibrary.stop();
                         }
@@ -129,6 +130,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                             vlcVideoLibrary.getVlcInstance().release();
                         }
                         activity.finish();
+                        */
                     }
                     else if (method.equals("getPosition")) {
                         if (vlcVideoLibrary.isPlaying()) {
@@ -152,11 +154,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     }
                     else if (method.equals("webview_show_ptz_buttons")) {
                         boolean value = intent.getBooleanExtra("data",false);
-                        // TODO: call method to show/hide ptz
+                        showPTZBtn(value);
                     }
                     else if (method.equals("webview_show_recording_button")) {
                         boolean value = intent.getBooleanExtra("data",false);
-                        // TODO: call method to show/hide recording button
+                        showRecordingBtn(value);
                     }
                     else if (method.equals("webview_update_rec_status")) {
                         boolean value = intent.getBooleanExtra("data",false);
@@ -165,9 +167,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         } else {
                             recordingIsStopped(value);
                         }
-                       
-                        // ovdje je fkt poceo recording ili stao true or false
-                        // TODO: call method to change recording button style recording/not recording
                     }
                 }
             }
@@ -223,6 +222,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         rlLive = findViewById(_getResource("rl_live","id"));
         rlRecordingTimer = findViewById(_getResource("rl_recording_timer","id"));
+        rlRecordingCnt = findViewById(_getResource("rl_recording_cnt","id"));
 
         rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
         rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
@@ -266,34 +266,24 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     @Override
     public void onPause() {
         super.onPause();
-
-        // if (vlcVideoLibrary.isPlaying()) {
-        //     vlcVideoLibrary.pause();
-        // }
-
-        // when we press back button onPause event is triggered and immediately after that onDestroy event.
-        // expected behavior in our app should be to stop stream, not pause when back button is pressed
-        // TODO: this is workaround and we need to find out how to handle it properly
         if (vlcVideoLibrary.isPlaying()) {
             vlcVideoLibrary.stop();
         }
+        if(vlcVideoLibrary.getVlcInstance() != null) {
+            vlcVideoLibrary.getVlcInstance().release();
+        }
+        activity.finish();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-/*
-        if (vlcVideoLibrary.isPlaying()) {
-            vlcVideoLibrary.getPlayer().play();
-        }
-        */
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         activity.unregisterReceiver(br);
-
         _sendBroadCast("onDestroyVlc");
     }
 
@@ -560,6 +550,23 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
 
+    private void showRecordingBtn(boolean value) {
+        if(value) {
+            rlRecordingCnt.setVisibility(View.VISIBLE);
+        } else {
+            rlRecordingCnt.setVisibility(View.INVISIBLE);
+        }   
+    }
+
+    private void showPTZBtn(boolean value) {
+        if(value) {
+            clJoystick.setVisibility(View.VISIBLE);
+        } else {
+            clJoystick.setVisibility(View.INVISIBLE);
+        }   
+    }
+
+
     private void _requestCameraMove(String value) {
         try {
             JSONObject jsonObject = new JSONObject();
@@ -701,13 +708,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             createLandscapeLayoutProperties();
             vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
-            //setRecordingViewProperties();
-
-
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             createPortraitLayoutProperties();
             vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
-            //esetRecordingViewProperties();
         }
     }
 
@@ -729,15 +732,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         closeParams.verticalBias = 0.05f;
         ivClose.setLayoutParams(closeParams);
         
-        ConstraintLayout.LayoutParams recordIdleParams = (ConstraintLayout.LayoutParams) ivRecordingIdle.getLayoutParams();
-        recordIdleParams.horizontalBias = 0.9f;
-        recordIdleParams.verticalBias = 0.17f;
-        ivRecordingIdle.setLayoutParams(recordIdleParams);
-
-        ConstraintLayout.LayoutParams recordActiveParams = (ConstraintLayout.LayoutParams) ivRecordingActive.getLayoutParams();
-        recordActiveParams.horizontalBias = 0.9f;
-        recordIdleParams.verticalBias = 0.17f;
-        ivRecordingActive.setLayoutParams(recordIdleParams);
+        ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
+        recordParams.horizontalBias = 0.9f;
+        recordParams.verticalBias = 0.17f;
+        rlRecordingCnt.setLayoutParams(recordParams);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
         rlRecordingTimerParams.horizontalBias = 0.5f;
@@ -763,15 +761,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         closeParams.verticalBias = 0.05f;
         ivClose.setLayoutParams(closeParams);
 
-        ConstraintLayout.LayoutParams recordIdleParams = (ConstraintLayout.LayoutParams) ivRecordingIdle.getLayoutParams();
-        recordIdleParams.horizontalBias = 0.5f;
-        recordIdleParams.verticalBias = 0.96f;
-        ivRecordingIdle.setLayoutParams(recordIdleParams);
-
-        ConstraintLayout.LayoutParams recordActiveParams = (ConstraintLayout.LayoutParams) ivRecordingActive.getLayoutParams();
-        recordActiveParams.horizontalBias = 0.5f;
-        recordIdleParams.verticalBias = 0.96f;
-        ivRecordingActive.setLayoutParams(recordIdleParams);
+        ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
+        recordParams.horizontalBias = 0.5f;
+        recordParams.verticalBias = 0.96f;
+        rlRecordingCnt.setLayoutParams(recordParams);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
         rlRecordingTimerParams.horizontalBias = 0.5f;

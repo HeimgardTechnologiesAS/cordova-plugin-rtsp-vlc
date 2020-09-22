@@ -126,7 +126,6 @@ public class VideoPlayerVLC extends CordovaPlugin {
                 }
                 else if (type.equals("webview_update_rec_status")) {
                     boolean updateRecordingStatusRequest = jsonObject.getBoolean("value");
-                    // tu primam status da je recording fkt poceo /true or false
                     _filters("webview_update_rec_status", updateRecordingStatusRequest);
                 }
                 return true;

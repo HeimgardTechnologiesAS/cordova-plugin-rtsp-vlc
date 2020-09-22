@@ -153,14 +153,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <ImageView
-        android:id="@+id/iv_recording_idle"
-        android:src="@drawable/ic_recording_button_idle"
+    <RelativeLayout
+        android:id="@+id/rl_recording_cnt"
         app:layout_constraintBottom_toTopOf="@+id/cl_joystick"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.96"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/iv_recording_idle"
+        android:src="@drawable/ic_recording_button_idle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -168,17 +173,14 @@
         android:visibility="invisible"
         android:id="@+id/iv_record_active"
         android:src="@drawable/ic_recording_button_active"
-        app:layout_constraintBottom_toTopOf="@+id/cl_joystick"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.96"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    </RelativeLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/cl_joystick"
+        android:visibility="invisible"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         app:layout_constraintEnd_toEndOf="parent"
