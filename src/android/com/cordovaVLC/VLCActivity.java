@@ -540,12 +540,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             rlRecordingTimer.setVisibility(View.INVISIBLE);
 
             // activate notification
-            recordSavedLayout.setVisibility(View.VISIBLE);
-            ivClose.setVisibility(View.INVISIBLE);
-            recordSavedLayout.postDelayed(() -> {
-                recordSavedLayout.setVisibility(View.INVISIBLE);
-                ivClose.setVisibility(View.VISIBLE);
-            }, 2000);
+            // recordSavedLayout.setVisibility(View.VISIBLE);
+            // ivClose.setVisibility(View.INVISIBLE);
+            // recordSavedLayout.postDelayed(() -> {
+            //     recordSavedLayout.setVisibility(View.INVISIBLE);
+            //     ivClose.setVisibility(View.VISIBLE);
+            // }, 2000);
         }
     }
 
