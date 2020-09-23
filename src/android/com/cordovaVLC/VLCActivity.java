@@ -15,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.TypedValue;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -79,7 +80,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
-    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt;
+    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt, rlClose;
     private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle, ivRecordingActive;
     private ConstraintLayout clJoystick, recordSavedLayout;
     private Chronometer cmRecordingTimer;
@@ -223,6 +224,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlLive = findViewById(_getResource("rl_live","id"));
         rlRecordingTimer = findViewById(_getResource("rl_recording_timer","id"));
         rlRecordingCnt = findViewById(_getResource("rl_recording_cnt","id"));
+        rlClose = findViewById(_getResource("rl_close","id"));
 
         rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
         rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
@@ -434,8 +436,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             stopRecording();
         });
 
-        ivClose.setOnClickListener(v -> {
-            closeLayout();
+        rlClose.setOnClickListener(v -> {
+            ivClose.setAlpha(0.2f);
+            rlClose.postDelayed(() -> {
+                ivClose.setAlpha(1f);
+                closeLayout();
+                 }, 100);
         });
 
         rlUpArrow.setOnTouchListener((v, event) -> {
