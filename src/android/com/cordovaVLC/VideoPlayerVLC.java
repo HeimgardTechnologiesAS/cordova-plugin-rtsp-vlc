@@ -60,10 +60,13 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     else if (method.equals("getPosition")) {
                         _cordovaSendResult("getPosition", data);
                     }
-                    else if (method.equals("player_camera_move_request")) {
+                    else if (method.equals(CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST)) {
                         _cordovaSendExternal(data);
                     }
-                    else if (method.equals("player_recording_request")) {
+                    else if (method.equals(CordovaAPIKeys.PLAYER_RECORDING_REQUEST)) {
+                        _cordovaSendExternal(data);
+                    }
+                    else if (method.equals(CordovaAPIKeys.PLAYER_SCREEN_TOUCH_EVENT)) {
                         _cordovaSendExternal(data);
                     }
                    
@@ -128,6 +131,10 @@ public class VideoPlayerVLC extends CordovaPlugin {
                 else if (type.equals("webview_update_rec_status")) {
                     boolean updateRecordingStatusRequest = jsonObject.getBoolean("value");
                     _filters("webview_update_rec_status", updateRecordingStatusRequest);
+                }
+                else if (type.equals("player_elements_visibility")) {
+                    boolean areElementsShown = jsonObject.getBoolean("value");
+                    _filters("player_elements_visibility", areElementsShown);
                 }
                 return true;
             }catch (JSONException err){

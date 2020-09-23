@@ -77,12 +77,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private boolean _autoPlay = false;
     private boolean _hideControls = false;
+    private boolean isLayoutToched = false;
+    private boolean isRecording = false;
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
     private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt, rlClose;
     private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle, ivRecordingActive;
-    private ConstraintLayout clJoystick, recordSavedLayout;
+    private ConstraintLayout clJoystick, recordSavedLayout, mainLayout;
     private Chronometer cmRecordingTimer;
 
 
@@ -151,16 +153,22 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     }
                     else if (method.equals("webview_update_rec_status")) {
                         boolean value = intent.getBooleanExtra("data",false);
+                        isRecording = value;
                         if (value) {
                             recordingHasStarted(value);
                         } else {
                             recordingIsStopped(value);
                         }
                     }
+                    else if (method.equals("player_elements_visibility")) {
+                        boolean value = intent.getBooleanExtra("data",false);
+                        showOrHideElements(value);
+                    }
                 }
             }
         }
     };
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -194,6 +202,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
         private void _UIListener() {
+
+        mainLayout = findViewById(_getResource("main_layout", "id"));
         mSeekBar = (SeekBar) findViewById(_getResource("videoSeekBar", "id"));
 
         surfaceView = (SurfaceView) findViewById(_getResource("vlc_surfaceView", "id"));
@@ -413,6 +423,20 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private void setClickListeners() {
 
+        mainLayout.setOnClickListener(v -> {
+            if(!isRecording) {
+                try {
+                    isLayoutToched = !isLayoutToched;
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("type", CordovaAPIKeys.PLAYER_SCREEN_TOUCH_EVENT);
+                    jsonObject.put("value", isLayoutToched);
+                    _sendBroadCast(CordovaAPIKeys.PLAYER_SCREEN_TOUCH_EVENT, jsonObject);
+                }catch (JSONException err){
+                    Log.d("Error", err.toString());
+                }
+            }
+        });
+
         ivRecordingIdle.setOnClickListener(v -> {
             activateRecording();
         });
@@ -513,6 +537,16 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private void recordingIsStopped(boolean isStarted) {
         setRecordingViewProperties(isStarted);
         cmRecordingTimer.stop();
+    }
+
+    private void showOrHideElements(boolean isHidden) {
+        if(isHidden) {
+            rlRecordingCnt.setVisibility(View.INVISIBLE);
+            clJoystick.setVisibility(View.INVISIBLE);
+        } else {
+            rlRecordingCnt.setVisibility(View.VISIBLE);
+            clJoystick.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setRecordingViewProperties(boolean isRecordingActivated) {
@@ -625,14 +659,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlLiveParams.verticalBias = 0.05f;
         rlLive.setLayoutParams(rlLiveParams);
 
-        ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) ivClose.getLayoutParams();
+        ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
         closeParams.horizontalBias = 0.02f;
         closeParams.verticalBias = 0.05f;
-        ivClose.setLayoutParams(closeParams);
+        rlClose.setLayoutParams(closeParams);
         
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.9f;
-        recordParams.verticalBias = 0.17f;
+        recordParams.verticalBias = 0.18f;
         rlRecordingCnt.setLayoutParams(recordParams);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
@@ -646,7 +680,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
         params.horizontalBias = 0.5f;
-        params.verticalBias = 0.95f;
+        params.verticalBias = 0.98f;
         clJoystick.setLayoutParams(params);
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
@@ -654,14 +688,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlLiveParams.verticalBias = 0.4f;
         rlLive.setLayoutParams(rlLiveParams);
 
-        ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) ivClose.getLayoutParams();
+        ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
         closeParams.horizontalBias = 0.05f;
         closeParams.verticalBias = 0.05f;
-        ivClose.setLayoutParams(closeParams);
+        rlClose.setLayoutParams(closeParams);
 
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.5f;
-        recordParams.verticalBias = 0.96f;
+        recordParams.verticalBias = 0.98f;
         rlRecordingCnt.setLayoutParams(recordParams);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
