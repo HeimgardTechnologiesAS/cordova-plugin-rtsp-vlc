@@ -123,15 +123,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         }
                     }
                     else if (method.equals("close")) {
-                        /*
-                        if (vlcVideoLibrary.isPlaying()) {
-                            vlcVideoLibrary.stop();
-                        }
-                        if(vlcVideoLibrary.getVlcInstance() != null) {
-                            vlcVideoLibrary.getVlcInstance().release();
-                        }
-                        activity.finish();
-                        */
+              
                     }
                     else if (method.equals("getPosition")) {
                         if (vlcVideoLibrary.isPlaying()) {
@@ -147,11 +139,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         }
                     }
                     else if (method.equals("seekPosition")) {
-                        Log.d(TAG, "Seek: " + intent.getFloatExtra("position", 0));
-                        if (vlcVideoLibrary.isPlaying()) {
-                            isSeeking = true;
-                            _changePosition(intent.getFloatExtra("position", 0));
-                        }
+                 
                     }
                     else if (method.equals("webview_show_ptz_buttons")) {
                         boolean value = intent.getBooleanExtra("data",false);
@@ -199,9 +187,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _hideControls = intent.getBooleanExtra("hideControls", false);
         // auto play the video after launching
         _autoPlay = intent.getBooleanExtra("autoPlay", false);
-
-        _handlerSeekBar();
-        _handlerMediaControl();
 
         // play
         _initPlayer();
@@ -274,7 +259,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         if(vlcVideoLibrary.getVlcInstance() != null) {
             vlcVideoLibrary.getVlcInstance().release();
         }
-        activity.finish();
+        closeLayout();
     }
 
     @Override
@@ -585,103 +570,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     private void closeLayout() {
-        activity.finish();
-    }
-
-    private void _handlerSeekBar() {
-        // SEEK BAR
-        handlerSeekBar = new Handler();
-        runnableSeekBar = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (vlcVideoLibrary.getPlayer() != null && vlcVideoLibrary.isPlaying()) {
-                        long curTime = vlcVideoLibrary.getPlayer().getTime();
-                        long totalTime = (long) (curTime / vlcVideoLibrary.getPlayer().getPosition());
-                        int minutes = (int) (curTime / (60 * 1000));
-                        int seconds = (int) ((curTime / 1000) % 60);
-                        int endMinutes = (int) (totalTime / (60 * 1000));
-                        int endSeconds = (int) ((totalTime / 1000) % 60);
-                        currentLoc = String.format(Locale.US, "%02d:%02d", minutes, seconds);
-                        duration = String.format(Locale.US, "%02d:%02d", endMinutes, endSeconds);
-
-                        videoCurrentLoc.setText(currentLoc);
-                        videoDuration.setText(duration);
-
-                        if (!isSeeking) {
-                            playingPos = (int) (vlcVideoLibrary.getPlayer().getPosition() * 100);
-                            mSeekBar.setProgress(playingPos);
-                        }
-                    }
-
-                    handlerSeekBar.postDelayed(runnableSeekBar, 1000);
-                } catch (Exception ignored) {
-
-                }
-            }
-        };
-        runnableSeekBar.run();
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress,
-                                          boolean fromUser) {
-                mProgress = progress;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                isSeeking = true;
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                _changePosition((float) mProgress);
-            }
-        });
-    }
-
-    private void _changePosition(float progress) {
-        // progress
-        if (vlcVideoLibrary.getPlayer() != null && vlcVideoLibrary.getPlayer().getTime() > 0 && progress > 0 && isSeeking) {
-            vlcVideoLibrary.getPlayer().pause();
-            vlcVideoLibrary.getPlayer().setPosition((progress / 100.0f));
-
-            new Timer().schedule(
-                    new TimerTask() {
-                        @Override
-                        public void run() {
-                            vlcVideoLibrary.getPlayer().play();
-                        }
-                    },
-                    600
-            );
+        if(activity != null) {
+            activity.finish();
         }
-
-        isSeeking = false;
-    }
-
-    private void _handlerMediaControl() {
-        // OVERLAY
-        handlerOverlay = new Handler();
-        runnableOverlay = new Runnable() {
-            @Override
-            public void run() {
-                mediaPlayerControls.setVisibility(View.GONE);
-            }
-        };
-        final long timeToDisappear = 3000;
-        handlerOverlay.postDelayed(runnableOverlay, timeToDisappear);
-        mediaPlayerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!_hideControls) {
-                    mediaPlayerControls.setVisibility(View.VISIBLE);
-                }
-
-                handlerOverlay.removeCallbacks(runnableOverlay);
-                handlerOverlay.postDelayed(runnableOverlay, timeToDisappear);
-            }
-        });
+    
     }
 
     private void _sendBroadCast(String methodName) {
