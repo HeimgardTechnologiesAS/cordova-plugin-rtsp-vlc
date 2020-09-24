@@ -143,15 +143,15 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     else if (method.equals("seekPosition")) {
                  
                     }
-                    else if (method.equals("webview_show_ptz_buttons")) {
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_SHOW_PTZ_BUTTONS)) {
                         boolean value = intent.getBooleanExtra("data",false);
                         showPTZBtn(value);
                     }
-                    else if (method.equals("webview_show_recording_button")) {
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_SHOW_RECORDING_BUTTON)) {
                         boolean value = intent.getBooleanExtra("data",false);
                         showRecordingBtn(value);
                     }
-                    else if (method.equals("webview_update_rec_status")) {
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS)) {
                         boolean value = intent.getBooleanExtra("data",false);
                         isRecording = value;
                         if (value) {
@@ -160,7 +160,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                             recordingIsStopped(value);
                         }
                     }
-                    else if (method.equals("player_elements_visibility")) {
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY)) {
                         boolean value = intent.getBooleanExtra("data",false);
                         showOrHideElements(value);
                     }

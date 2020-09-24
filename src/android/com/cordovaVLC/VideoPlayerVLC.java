@@ -120,21 +120,21 @@ public class VideoPlayerVLC extends CordovaPlugin {
             try {
                 JSONObject jsonObject = new JSONObject(externalData);
                 String type = jsonObject.getString("type");
-                if(type.equals("webview_show_ptz_buttons")){
+                if(type.equals(CordovaAPIKeys.WEBVIEW_SHOW_PTZ_BUTTONS)){
                     boolean showPtzArrowsRequest = jsonObject.getBoolean("value");
-                    _filters("webview_show_ptz_buttons", showPtzArrowsRequest);
+                    _filters(CordovaAPIKeys.WEBVIEW_SHOW_PTZ_BUTTONS, showPtzArrowsRequest);
                 }
-                else if(type.equals("webview_show_recording_button")) {
+                else if(type.equals(CordovaAPIKeys.WEBVIEW_SHOW_RECORDING_BUTTON)) {
                     boolean showRecordingButtonRequest = jsonObject.getBoolean("value");
-                    _filters("webview_show_recording_button", showRecordingButtonRequest);
+                    _filters(CordovaAPIKeys.WEBVIEW_SHOW_RECORDING_BUTTON, showRecordingButtonRequest);
                 }
-                else if (type.equals("webview_update_rec_status")) {
+                else if (type.equals(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS)) {
                     boolean updateRecordingStatusRequest = jsonObject.getBoolean("value");
-                    _filters("webview_update_rec_status", updateRecordingStatusRequest);
+                    _filters(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS, updateRecordingStatusRequest);
                 }
-                else if (type.equals("player_elements_visibility")) {
+                else if (type.equals(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY)) {
                     boolean areElementsShown = jsonObject.getBoolean("value");
-                    _filters("player_elements_visibility", areElementsShown);
+                    _filters(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY, areElementsShown);
                 }
                 return true;
             }catch (JSONException err){
