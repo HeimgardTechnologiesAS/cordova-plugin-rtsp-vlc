@@ -79,6 +79,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private boolean _hideControls = false;
     private boolean isLayoutToched = false;
     private boolean isRecording = false;
+    private boolean isPTZVisible = false;
+    private boolean isRecordingBtnVisible = true;
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
@@ -145,10 +147,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_SHOW_PTZ_BUTTONS)) {
                         boolean value = intent.getBooleanExtra("data",false);
+                        isPTZVisible = value;
                         showPTZBtn(value);
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_SHOW_RECORDING_BUTTON)) {
                         boolean value = intent.getBooleanExtra("data",false);
+                        isRecordingBtnVisible = value;
                         showRecordingBtn(value);
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS)) {
@@ -544,8 +548,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             rlRecordingCnt.setVisibility(View.INVISIBLE);
             clJoystick.setVisibility(View.INVISIBLE);
         } else {
-            rlRecordingCnt.setVisibility(View.VISIBLE);
-            clJoystick.setVisibility(View.VISIBLE);
+            showRecordingBtn(isRecordingBtnVisible);
+            showPTZBtn(isPTZVisible);
         }
     }
 
