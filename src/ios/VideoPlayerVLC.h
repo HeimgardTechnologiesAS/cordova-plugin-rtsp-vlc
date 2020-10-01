@@ -17,6 +17,7 @@
 //under the License.
 //
 //  Created by Yanbing Peng on 10/02/16.
+//  Edited by Yossi Neiman
 //
 //
 #import <Foundation/Foundation.h>
@@ -26,11 +27,18 @@
 
 @interface VideoPlayerVLC : CDVPlugin
 
-@property (strong,nonatomic) VideoPlayerVLCViewController* overlay;
-@property (strong,nonatomic) CDVInvokedUrlCommand* lastCommand;
+@property (strong) VideoPlayerVLCViewController* player;
+@property (strong) CDVInvokedUrlCommand* commandGlobPlay;
+@property (strong) CDVInvokedUrlCommand* commandGlobExternalData;
+@property (nonatomic, retain) VideoPlayerVLC* instance;
 
++ (id) getInstance;
 -(void) play:(CDVInvokedUrlCommand *)command;
--(void) close:(CDVInvokedUrlCommand *)command;
--(void) finishOkAndDismiss;
+-(void) stopInner;
+-(void) stop:(CDVInvokedUrlCommand *)command;
+-(void) sendVlcState:(NSString *) event;
+-(void) receiveExternalData:(CDVInvokedUrlCommand *) command; 
+-(void) sendExternalData:(NSString *) data;
+-(void) sendExternalDataAsDictionary:(NSMutableDictionary *) data ;
 
 @end

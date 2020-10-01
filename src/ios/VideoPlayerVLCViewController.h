@@ -7,13 +7,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MobileVLCKit/MobileVLCKit.h>
 
-@interface VideoPlayerVLCViewController : UIViewController
+@interface VideoPlayerVLCViewController : UIViewController <VLCMediaPlayerDelegate>
 @property(nonatomic) BOOL playOnStart;
 @property(strong, nonatomic) NSString *urlString;
 
-@property (retain, nonatomic) VideoPlayerVLCViewController* origem;
-
--(void) finishOkAndDismiss;
+-(void) play;
+-(void) stop;
+-(UIColor *)colorFromHex:(NSString *) hexColor;
+-(void) recordingRequest: (BOOL) value;
+-(void) cameraMoveRequest: (NSString *) value;
+-(void) screenTouchRequest;
 
 @end
