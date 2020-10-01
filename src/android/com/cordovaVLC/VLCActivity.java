@@ -63,7 +63,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     int mProgress = 0;
     boolean isSeeking = false;
     private VlcVideoLibrary vlcVideoLibrary;
-    private ImageButton bStartStop;
     private Handler handlerSeekBar;
     private Runnable runnableSeekBar;
     private TextView videoCurrentLoc;
@@ -84,10 +83,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
-    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt, rlClose;
+    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt, rlClose, rlCameraView;
     private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle, ivRecordingActive;
     private ConstraintLayout clJoystick, recordSavedLayout, mainLayout;
     private Chronometer cmRecordingTimer;
+    private float ratio;
 
 
     public static String UP = "1";
@@ -95,6 +95,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     public static String LEFT = "3";
     public static String RIGHT = "4";
     public static String NONE = "0";
+
+    public static String PORTRAIT = "portrait";
+    public static String LANDSCAPE = "landscape";
 
     BroadcastReceiver br = new BroadcastReceiver() {
 
@@ -176,7 +179,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -211,8 +213,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         mSeekBar = (SeekBar) findViewById(_getResource("videoSeekBar", "id"));
 
         surfaceView = (SurfaceView) findViewById(_getResource("vlc_surfaceView", "id"));
-        bStartStop = (ImageButton) findViewById(_getResource("vlc_start_stop", "id"));
-
+    
         videoCurrentLoc = (TextView) findViewById(_getResource("videoCurrentLoc", "id"));
         videoDuration = (TextView) findViewById(_getResource("videoDuration", "id"));
 
@@ -224,6 +225,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlRecordingTimer = findViewById(_getResource("rl_recording_timer","id"));
         rlRecordingCnt = findViewById(_getResource("rl_recording_cnt","id"));
         rlClose = findViewById(_getResource("rl_close","id"));
+        rlCameraView = findViewById(_getResource("rl_camera_layout","id"));
 
         rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
         rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
@@ -246,9 +248,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         recordSavedLayout = findViewById(_getResource("rl_recording_saved","id"));
 
         setClickListeners();
-
-        bStartStop.setOnClickListener(this);
+        ratio = 16f/9f;
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
+        changeVideoViewProperties(PORTRAIT, ratio);
     }
 
         /**
@@ -302,7 +304,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _sendBroadCast("onPlayVlc");
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_pause_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -310,7 +311,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _sendBroadCast("onPauseVlc");
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -318,7 +318,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _sendBroadCast("onStopVlc");
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -326,7 +325,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _sendBroadCast("onVideoEnd");
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -338,7 +336,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -643,14 +640,15 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             createLandscapeLayoutProperties();
-            vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
+            //vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             createPortraitLayoutProperties();
-            vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
+            //vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
         }
     }
 
     public void createLandscapeLayoutProperties() {
+        changeVideoViewProperties(LANDSCAPE, ratio);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
@@ -670,7 +668,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.9f;
-        recordParams.verticalBias = 0.18f;
+        recordParams.verticalBias = 0.25f;
         rlRecordingCnt.setLayoutParams(recordParams);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
@@ -680,6 +678,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     public void createPortraitLayoutProperties() {
+        changeVideoViewProperties(PORTRAIT, ratio);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
         
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
@@ -699,7 +698,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.5f;
-        recordParams.verticalBias = 0.98f;
+        recordParams.verticalBias = 0.95f;
         rlRecordingCnt.setLayoutParams(recordParams);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
@@ -709,9 +708,41 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         
     }
 
+    public void changeVideoViewProperties(String orientation, float ratio) {
+        ConstraintLayout.LayoutParams cameraViewParams = (ConstraintLayout.LayoutParams) rlCameraView.getLayoutParams();
+        int height = 0;
+        int width = 0;
+
+        if(orientation.equals(PORTRAIT)) {
+            height = (int) (getDisplayMetrics().widthPixels/ratio);
+             width = getDisplayMetrics().widthPixels;
+            cameraViewParams.height = height;
+            cameraViewParams.width = width;
+        }
+        else if(orientation.equals(LANDSCAPE)) {
+            height = (int) getDisplayMetrics().heightPixels;
+            width = (int) (getDisplayMetrics().heightPixels * ratio);
+            cameraViewParams.height = height;
+            cameraViewParams.width = width;
+        }
+
+        rlCameraView.setLayoutParams(cameraViewParams);
+
+        Log.d("resolutionsCameraHeigth",  String.valueOf(cameraViewParams.height));
+        Log.d("resolutionsCameraWidth",  String.valueOf(cameraViewParams.width));
+
+        if (vlcVideoLibrary != null)
+            vlcVideoLibrary.changeVideoResolution(width, height);
+    }
+
     public DisplayMetrics getDisplayMetrics() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics;
+    }
+
+    public float getAutoRatio() {
+        DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
+        return ((float)metrics.heightPixels / (float)metrics.widthPixels);
     }
 }

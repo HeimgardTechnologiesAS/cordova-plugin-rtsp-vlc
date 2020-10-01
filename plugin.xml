@@ -47,7 +47,6 @@
 			<resource-file src="src/android/res/layout/vlc_player.xml" target="res/layout/vlc_player.xml" />
 			<resource-file src="src/android/res/values/colors.xml" target="res/values/colors.xml" />
 			<resource-file src="src/android/res/drawable/live_layout.xml" target="res/drawable/live_layout.xml" />
-			<resource-file src="src/android/res/layout-land/vlc_player.xml" target="res/layout-land/vlc_player.xml" />
 			<resource-file src="src/android/res/drawable/ic_joystick_landscape.xml" target="res/drawable/ic_joystick_landscape.xml" />
 			<resource-file src="src/android/res/drawable/record_saved_layout.xml" target="res/drawable/record_saved_layout.xml" />
 

@@ -176,7 +176,12 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
 
 
     public void changeVideoResolution(int width, int height) {
-        IVLCVout vlcOut = player.getVLCVout();
-        vlcOut.setWindowSize(width, height);
+        IVLCVout vlcOut = null;
+        if (player != null){
+            vlcOut = player.getVLCVout();
+            if (vlcOut != null)
+                vlcOut.setWindowSize(width, height);
+        }
+ 
     }
 }
