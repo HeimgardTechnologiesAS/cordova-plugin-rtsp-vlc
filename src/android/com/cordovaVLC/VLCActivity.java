@@ -31,6 +31,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.widget.RelativeLayout;
 import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.widget.Chronometer;
 
 import com.libs.vlcLibWrapper.VlcListener;
@@ -201,7 +202,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _hideControls = intent.getBooleanExtra("hideControls", false);
         // auto play the video after launching
         _autoPlay = intent.getBooleanExtra("autoPlay", false);
-
+        
         // play
         _initPlayer();
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
@@ -662,19 +663,36 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlLive.setLayoutParams(rlLiveParams);
 
         ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
-        closeParams.horizontalBias = 0.02f;
-        closeParams.verticalBias = 0.05f;
+        closeParams.horizontalBias = 0.03f;
+        closeParams.verticalBias = 0.035f;
         rlClose.setLayoutParams(closeParams);
         
+        // adding new constraints to record button -------------------------------------------------------------------------------
+        ConstraintSet recordBtnSet = new ConstraintSet();
+        ConstraintLayout recordBtnMainLayout = findViewById(_getResource("main_layout", "id"));
+        recordBtnSet.clone(recordBtnMainLayout);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID,ConstraintSet.TOP, 0);
+        recordBtnSet.applyTo(recordBtnMainLayout);
+    
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.9f;
-        recordParams.verticalBias = 0.25f;
+        recordParams.verticalBias = 0.3f;
         rlRecordingCnt.setLayoutParams(recordParams);
+        // ----------------------------------------------------------------------------------------------------------------------
+
+
+        // adding new constraints to recording time image -----------------------------------------------------------------------------
+        ConstraintSet recordTimeSet = new ConstraintSet();
+        ConstraintLayout recordTimeLayout = findViewById(_getResource("main_layout", "id"));
+        recordTimeSet.clone(recordTimeLayout);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+        recordTimeSet.applyTo(recordTimeLayout);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
         rlRecordingTimerParams.horizontalBias = 0.5f;
-        rlRecordingTimerParams.verticalBias = 0.05f;
+        rlRecordingTimerParams.verticalBias = 0.2f;
         rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
+        //-----------------------------------------------------------------------------------------------------------------------------------
     }
 
     public void createPortraitLayoutProperties() {
@@ -688,7 +706,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
         rlLiveParams.horizontalBias = 0.05f;
-        rlLiveParams.verticalBias = 0.4f;
+        rlLiveParams.verticalBias = 0.1f;
         rlLive.setLayoutParams(rlLiveParams);
 
         ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
@@ -696,14 +714,29 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         closeParams.verticalBias = 0.05f;
         rlClose.setLayoutParams(closeParams);
 
+        // adding new constraints to record button -----------------------------------------------------------------------------
+        ConstraintSet recordBtnSet = new ConstraintSet();
+        ConstraintLayout recordBtnMainLayout = findViewById(_getResource("main_layout", "id"));
+        recordBtnSet.clone(recordBtnMainLayout);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP,_getResource("rl_camera_layout","id"), ConstraintSet.BOTTOM, 0);
+        recordBtnSet.applyTo(recordBtnMainLayout);
+
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.5f;
-        recordParams.verticalBias = 0.95f;
+        recordParams.verticalBias = 0.9f;
         rlRecordingCnt.setLayoutParams(recordParams);
+        // ----------------------------------------------------------------------------------------------------------------------
+
+        // adding new constraints to recording time image -----------------------------------------------------------------------------
+        ConstraintSet recordTimeSet = new ConstraintSet();
+        ConstraintLayout recordTimeLayout = findViewById(_getResource("main_layout", "id"));
+        recordTimeSet.clone(recordTimeLayout);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM,_getResource("rl_camera_layout","id"), ConstraintSet.TOP, 0);
+        recordTimeSet.applyTo(recordTimeLayout);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
         rlRecordingTimerParams.horizontalBias = 0.5f;
-        rlRecordingTimerParams.verticalBias = 0.3f;
+        rlRecordingTimerParams.verticalBias = 0.95f;
         rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
         
     }
