@@ -113,5 +113,18 @@
             <framework src="CoreAudio.framework" />
             <framework src="UIKit.framework" />
             <framework src="Foundation.framework" />
+			<resource-file src="src/ios/res/close-button-land.png"/>
+			<resource-file src="src/ios/res/close-button.png"/>
+			<resource-file src="src/ios/res/joystick-down-land.png"/>
+			<resource-file src="src/ios/res/joystick-down-portrait.png"/>
+			<resource-file src="src/ios/res/joystick-left-land.png.png"/>
+			<resource-file src="src/ios/res/joystick-left-portrait.png"/>
+			<resource-file src="src/ios/res/joystick-ref-bg.png"/>
+			<resource-file src="src/ios/res/joystick-right-land.png"/>
+			<resource-file src="src/ios/res/joystick-right-portrait.png"/>
+			<resource-file src="src/ios/res/joystick-up-land.png"/>
+			<resource-file src="src/ios/res/joystick-up-portrait.png"/>
+			<resource-file src="src/ios/res/recording-button-active.png"/>
+			<resource-file src="src/ios/res/recording-button-idle.png"/>
         </platform>
 </plugin>
