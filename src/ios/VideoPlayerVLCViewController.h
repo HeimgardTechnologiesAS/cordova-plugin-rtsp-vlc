@@ -19,5 +19,6 @@
 -(void) recordingRequest: (BOOL) value;
 -(void) cameraMoveRequest: (NSString *) value;
 -(void) screenTouchRequest;
+-(void) recordingStatusReceived: (BOOL) value;
 
 @end

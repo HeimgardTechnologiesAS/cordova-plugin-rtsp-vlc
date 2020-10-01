@@ -83,6 +83,7 @@ static CDVInvokedUrlCommand* commandGlobExternalData = nil;
                     } 
                     else if([type isEqualToString:@"webview_update_rec_status"]) {
                         BOOL value = [JSONObj[@"value"] boolValue];
+                        [self.player recordingStatusReceived:value];
                         // TODO: call method to update recording button style and show recording timer if true
                         return;
                     } 

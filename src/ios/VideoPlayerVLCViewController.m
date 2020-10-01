@@ -33,6 +33,7 @@
 @property(strong, nonatomic) IBOutletCollection(NSLayoutConstraint) NSArray* portraitConstrints;
 @property(strong, nonatomic) NSDate *startDate;
 @property BOOL recActive;
+@property BOOL recWaitsForResponse;
 @end
 
 @implementation VideoPlayerVLCViewController {
@@ -146,7 +147,7 @@
     
     
     self.imgView =  [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2 - 25, self.view.frame.size.height / 2 + 170, 50, 50)];
-    [self.imgView setImage:[UIImage imageNamed:@"rec3.png"]];
+    [self.imgView setImage:[UIImage imageNamed:@"recording-button-idle.png"]];
     self.imgView.contentMode = UIViewContentModeScaleAspectFit;
     [self.imgView setUserInteractionEnabled:YES];
 
@@ -332,23 +333,11 @@
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     self.recActive = NO;
-    [self startTimer];
     //[[NSNotificationCenter defaultCenter] addObserver: self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 -(BOOL)prefersStatusBarHidden{
     return YES;
-}
-
--(void)recButtonPressed:(UITapGestureRecognizer *) gesture {
-    if(self.recActive) {
-        self.imgView.alpha = 0.2;
-        self.recActive = NO;
-        [self screenTouchRequest];
-    } else{
-        self.imgView.alpha = 0.8;
-        self.recActive = YES;
-    }
 }
 
 -(void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
@@ -465,11 +454,43 @@
     };
 }
 
+-(void)recButtonPressed:(UITapGestureRecognizer *) gesture {
+    if(self.recWaitsForResponse) {
+        return;
+    }
+    if(self.recActive) {
+        [self recordingRequest:NO];
+        [self stopTimer];
+        [self.imgView setImage:[UIImage imageNamed:@"recording-button-idle.png"]];
+        self.recActive = NO;
+        [self screenTouchRequest];
+    } else{
+        self.recWaitsForResponse = YES;
+        [self recordingRequest:YES];
+        self.imgView.alpha = 0.4;
+    }
+}
+
 -(void) recordingRequest: (BOOL) value {
     NSMutableDictionary* request = [[NSMutableDictionary alloc] init];
     [request setValue:@"player_recording_request" forKey:@"type"];
     [request setValue:@(value) forKey:@"value"];
-    [[VideoPlayerVLC getInstance] sendExternalDataAsDictionary:request];
+    NSError *err;
+    NSData * jsonData = [NSJSONSerialization dataWithJSONObject:request options:0 error:&err];
+    [[VideoPlayerVLC getInstance] sendExternalData:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
+}
+
+-(void) recordingStatusReceived: (BOOL) value {
+    self.recWaitsForResponse = NO;
+    self.imgView.alpha = 1;
+    if(value) {
+        [self startTimer];
+        [self.imgView setImage:[UIImage imageNamed:@"recording-button-active.png"]];
+        self.recActive = YES;
+    } else {
+        self.recActive = NO;
+        [self.imgView setImage:[UIImage imageNamed:@"recording-button-idle.png"]];
+    }
 }
 
 -(void) cameraMoveRequest: (NSString *) value {
@@ -606,11 +627,15 @@
     if(self.recProgressTimer) {
         [self stopTimer];
     }
+    
+    self.recordingProgressLabel.text = @"  00:00  ";
+    self.recordingProgressLabel.alpha  = 1;
     self.startDate = [NSDate date];
     self.recProgressTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTimer:) userInfo:nil repeats:YES];
 }
 
 -(void) stopTimer{
+    self.recordingProgressLabel.alpha  = 0;
     [self.recProgressTimer invalidate];
     self.recProgressTimer = nil;
 }
