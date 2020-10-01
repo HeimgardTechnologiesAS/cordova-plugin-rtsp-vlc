@@ -27,8 +27,8 @@ module.exports = {
   stop: function(success, failure) {
     exec(success, failure, "VideoPlayerVLC", "close");
   },
-  setCameraMovementListener: function(success, failure) {
-    exec(success, failure, "VideoPlayerVLC", "enableCameraMovementListener");
+  sendExternalDataToPlayer: function(data, success, failure) {
+    exec(success, failure, "VideoPlayerVLC", "receiveExternalData", [data]);
   }
 
 };

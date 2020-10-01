@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
-    android:id="@+id/main_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center|center_vertical"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -100,6 +100,16 @@
 
     </RelativeLayout>
 
+
+           <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:text="blaaa"
+                android:textColor="#ffffff" />
+
     <RelativeLayout
         android:id="@+id/rl_live"
         android:visibility="invisible"
@@ -121,82 +131,40 @@
             android:layout_height="wrap_content"/>
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/rl_recording_timer"
-        android:visibility="invisible"
-        android:background="@drawable/live_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.3"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <Chronometer
-            android:id="@+id/cm_recording_timer"
-            android:textColor="@color/whiteColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_close"
+    <ImageView
+        android:id="@+id/iv_close"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0.05"
-        app:layout_constraintHorizontal_bias="0.03"
-        android:layout_width="30dp"
-        android:layout_height="30dp">
+        app:layout_constraintHorizontal_bias="0.05"
+        android:src="@drawable/ic_x"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
-        <ImageView
-            android:id="@+id/iv_close"
-            android:layout_centerInParent="true"
-            android:src="@drawable/ic_x"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_recording_cnt"
+    <ImageView
+        android:src="@drawable/ic_recording_button_idle"
         app:layout_constraintBottom_toTopOf="@+id/cl_joystick"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.98"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-    <ImageView
-        android:id="@+id/iv_recording_idle"
-        android:src="@drawable/ic_recording_button_idle"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <ImageView
-        android:visibility="invisible"
-        android:id="@+id/iv_record_active"
-        android:src="@drawable/ic_recording_button_active"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    </RelativeLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/cl_joystick"
-        android:visibility="invisible"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.98"
+        app:layout_constraintVertical_bias="0.95"
+        app:layout_constraintHorizontal_bias="0.9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -204,6 +172,7 @@
             android:id="@+id/iv_joystick_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_joystick_landscape"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -329,44 +298,6 @@
 
         </RelativeLayout>
 
-    </android.support.constraint.ConstraintLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/rl_recording_saved"
-        android:visibility="invisible"
-        android:background="@drawable/record_saved_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.07"
-        android:padding="15dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="0.1"
-            android:text="Recording saved"
-            android:textColor="@color/whiteColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="0.9"
-            android:text="Open"
-            android:textColor="@color/whiteColor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
     </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

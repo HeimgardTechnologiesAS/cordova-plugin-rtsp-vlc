@@ -206,6 +206,7 @@
     
     
     
+    
     self.mediaView.translatesAutoresizingMaskIntoConstraints = NO;
     self.mediaView.backgroundColor = [UIColor blackColor];
     

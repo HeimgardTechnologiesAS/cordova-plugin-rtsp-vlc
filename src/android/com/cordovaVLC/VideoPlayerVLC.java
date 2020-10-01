@@ -28,7 +28,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
     public final static String BROADCAST_METHODS = "com.cordovaVLC";
 
     private CallbackContext callbackContext;
-    private CallbackContext callbackContextMovement;
+    private CallbackContext callbackContextExternalData;
     BroadcastReceiver br = new BroadcastReceiver() {
 
         @Override
@@ -60,9 +60,16 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     else if (method.equals("getPosition")) {
                         _cordovaSendResult("getPosition", data);
                     }
-                    else if (method.equals("onCameraMoveAction")) {
-                        _cordovaSendMovementRequest(data);
+                    else if (method.equals(CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST)) {
+                        _cordovaSendExternal(data);
                     }
+                    else if (method.equals(CordovaAPIKeys.PLAYER_RECORDING_REQUEST)) {
+                        _cordovaSendExternal(data);
+                    }
+                    else if (method.equals(CordovaAPIKeys.PLAYER_SCREEN_TOUCH_EVENT)) {
+                        _cordovaSendExternal(data);
+                    }
+                   
                 }
             }
         }
@@ -77,6 +84,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         // application context
+        //cordova input
         activity = cordova.getActivity();
 
         String url;
@@ -99,14 +107,44 @@ public class VideoPlayerVLC extends CordovaPlugin {
         else if (action.equals("close")) {
             _filters("close");
             return true;
-        } else if (action.equals("enableCameraMovementListener")) {
-            this.callbackContextMovement = callbackContext;
-            return true;
+        } else if (action.equals("receiveExternalData")) {
+
+
+            String externalData = args.getString(0);
+            if(externalData.equals("set_external_callback")) {
+                this.callbackContextExternalData = callbackContext;
+                _cordovaSendExternal("set_external_callback");
+                return true;
+            }
+
+            try {
+                JSONObject jsonObject = new JSONObject(externalData);
+                String type = jsonObject.getString("type");
+                if(type.equals(CordovaAPIKeys.WEBVIEW_SHOW_PTZ_BUTTONS)){
+                    boolean showPtzArrowsRequest = jsonObject.getBoolean("value");
+                    _filters(CordovaAPIKeys.WEBVIEW_SHOW_PTZ_BUTTONS, showPtzArrowsRequest);
+                }
+                else if(type.equals(CordovaAPIKeys.WEBVIEW_SHOW_RECORDING_BUTTON)) {
+                    boolean showRecordingButtonRequest = jsonObject.getBoolean("value");
+                    _filters(CordovaAPIKeys.WEBVIEW_SHOW_RECORDING_BUTTON, showRecordingButtonRequest);
+                }
+                else if (type.equals(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS)) {
+                    boolean updateRecordingStatusRequest = jsonObject.getBoolean("value");
+                    _filters(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS, updateRecordingStatusRequest);
+                }
+                else if (type.equals(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY)) {
+                    boolean areElementsShown = jsonObject.getBoolean("value");
+                    _filters(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY, areElementsShown);
+                }
+                return true;
+            }catch (JSONException err){
+                Log.d("Error", err.toString());
+            }
         }
 
         PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
         pluginResult.setKeepCallback(true);
-        this.callbackContext.sendPluginResult(pluginResult);
+        callbackContext.sendPluginResult(pluginResult);
 
         return false;
     }
@@ -165,6 +203,14 @@ public class VideoPlayerVLC extends CordovaPlugin {
         activity.sendBroadcast(intent);
     }
 
+    private void _filters(String methodName, boolean data) {
+        Intent intent = new Intent();
+        intent.setAction(BROADCAST_METHODS);
+        intent.putExtra("method", methodName);
+        intent.putExtra("data", data);
+        activity.sendBroadcast(intent);
+    }
+
     private void _broadcastRCV() {
         IntentFilter filter = new IntentFilter(VLCActivity.BROADCAST_LISTENER);
         activity.registerReceiver(br, filter);
@@ -176,11 +222,11 @@ public class VideoPlayerVLC extends CordovaPlugin {
         callbackContext.sendPluginResult(pluginResult);
     }
 
-    private void _cordovaSendMovementRequest(String direction) {
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, direction);
+    private void _cordovaSendExternal(String data) {
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
         pluginResult.setKeepCallback(true);
-        if(callbackContextMovement != null) {
-            callbackContextMovement.sendPluginResult(pluginResult);
+        if(callbackContextExternalData != null) {
+            callbackContextExternalData.sendPluginResult(pluginResult);
         }
     }
 }

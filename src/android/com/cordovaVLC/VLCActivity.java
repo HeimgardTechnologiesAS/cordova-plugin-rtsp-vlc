@@ -14,6 +14,8 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.util.TypedValue;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
@@ -26,6 +28,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView;
 import android.view.MotionEvent;
+import android.view.Surface;
+import android.widget.RelativeLayout;
+import android.support.constraint.ConstraintLayout;
+import android.widget.Chronometer;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -71,10 +77,19 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     private boolean _autoPlay = false;
     private boolean _hideControls = false;
+    private boolean isLayoutToched = false;
+    private boolean isRecording = false;
+    private boolean isPTZVisible = false;
+    private boolean isRecordingBtnVisible = true;
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
-    private ImageView arrowUp, arrowDown, arrowLeft, arrowRight;
+    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt, rlClose;
+    private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle, ivRecordingActive;
+    private ConstraintLayout clJoystick, recordSavedLayout, mainLayout;
+    private Chronometer cmRecordingTimer;
+
+
     public static String UP = "1";
     public static String DOWN = "2";
     public static String LEFT = "3";
@@ -112,13 +127,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         }
                     }
                     else if (method.equals("close")) {
-                        if (vlcVideoLibrary.isPlaying()) {
-                            vlcVideoLibrary.stop();
-                        }
-                        if(vlcVideoLibrary.getVlcInstance() != null) {
-                            vlcVideoLibrary.getVlcInstance().release();
-                        }
-                        activity.finish();
+              
                     }
                     else if (method.equals("getPosition")) {
                         if (vlcVideoLibrary.isPlaying()) {
@@ -134,24 +143,45 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         }
                     }
                     else if (method.equals("seekPosition")) {
-                        Log.d(TAG, "Seek: " + intent.getFloatExtra("position", 0));
-                        if (vlcVideoLibrary.isPlaying()) {
-                            isSeeking = true;
-                            _changePosition(intent.getFloatExtra("position", 0));
+                 
+                    }
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_SHOW_PTZ_BUTTONS)) {
+                        boolean value = intent.getBooleanExtra("data",false);
+                        isPTZVisible = value;
+                        showPTZBtn(value);
+                    }
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_SHOW_RECORDING_BUTTON)) {
+                        boolean value = intent.getBooleanExtra("data",false);
+                        isRecordingBtnVisible = value;
+                        showRecordingBtn(value);
+                    }
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS)) {
+                        boolean value = intent.getBooleanExtra("data",false);
+                        isRecording = value;
+                        if (value) {
+                            recordingHasStarted(value);
+                        } else {
+                            recordingIsStopped(value);
                         }
+                    }
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY)) {
+                        boolean value = intent.getBooleanExtra("data",false);
+                        showOrHideElements(value);
                     }
                 }
             }
         }
     };
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
-
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+       
 
         activity = this;
         ActionBar actionBar = activity.getActionBar();
@@ -170,43 +200,91 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         // auto play the video after launching
         _autoPlay = intent.getBooleanExtra("autoPlay", false);
 
-        _handlerSeekBar();
-        _handlerMediaControl();
-
         // play
         _initPlayer();
+        joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
+    }
+
+        private void _UIListener() {
+
+        mainLayout = findViewById(_getResource("main_layout", "id"));
+        mSeekBar = (SeekBar) findViewById(_getResource("videoSeekBar", "id"));
+
+        surfaceView = (SurfaceView) findViewById(_getResource("vlc_surfaceView", "id"));
+        bStartStop = (ImageButton) findViewById(_getResource("vlc_start_stop", "id"));
+
+        videoCurrentLoc = (TextView) findViewById(_getResource("videoCurrentLoc", "id"));
+        videoDuration = (TextView) findViewById(_getResource("videoDuration", "id"));
+
+        mediaPlayerView = (LinearLayout) findViewById(_getResource("mediaPlayerView", "id"));
+        mediaPlayerControls = (LinearLayout) findViewById(_getResource("mediaPlayerControls", "id"));
+        mediaPlayerControls.bringToFront();
+
+        rlLive = findViewById(_getResource("rl_live","id"));
+        rlRecordingTimer = findViewById(_getResource("rl_recording_timer","id"));
+        rlRecordingCnt = findViewById(_getResource("rl_recording_cnt","id"));
+        rlClose = findViewById(_getResource("rl_close","id"));
+
+        rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
+        rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
+        rlLeftArrow = findViewById(_getResource("left_arrow_click","id"));
+        rlRightArrow = findViewById(_getResource("right_arrow_click","id"));
+
+        ivClose = findViewById(_getResource("iv_close","id"));
+        ivRecordingIdle = findViewById(_getResource("iv_recording_idle","id"));
+        ivRecordingActive = findViewById(_getResource("iv_record_active","id"));
+
+        upJoy = findViewById(_getResource("iv_up_joy","id"));
+        downJoy = findViewById(_getResource("iv_down_joy","id"));
+        leftJoy = findViewById(_getResource("iv_left_joy","id"));
+        rightJoy = findViewById(_getResource("iv_right_joy","id"));
+
+        clJoystick = findViewById(_getResource("cl_joystick","id"));
+        joystickLayout = findViewById(_getResource("iv_joystick_layout","id"));
+
+        cmRecordingTimer = findViewById(_getResource("cm_recording_timer","id"));
+        recordSavedLayout = findViewById(_getResource("rl_recording_saved","id"));
+
+        setClickListeners();
+
+        bStartStop.setOnClickListener(this);
+        vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
+    }
+
+        /**
+     * Resource ID
+     *
+     * @param name
+     * @param type layout, drawable, id
+     * @return
+     */
+    private int _getResource(String name, String type) {
+        String package_name = getApplication().getPackageName();
+        Resources resources = getApplication().getResources();
+        return resources.getIdentifier(name, type, package_name);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-
-        // if (vlcVideoLibrary.isPlaying()) {
-        //     vlcVideoLibrary.pause();
-        // }
-
-        // when we press back button onPause event is triggered and immediately after that onDestroy event.
-        // expected behavior in our app should be to stop stream, not pause when back button is pressed
-        // TODO: this is workaround and we need to find out how to handle it properly
         if (vlcVideoLibrary.isPlaying()) {
             vlcVideoLibrary.stop();
         }
+        if(vlcVideoLibrary.getVlcInstance() != null) {
+            vlcVideoLibrary.getVlcInstance().release();
+        }
+        closeLayout();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        if (vlcVideoLibrary.isPlaying()) {
-            vlcVideoLibrary.getPlayer().play();
-        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         activity.unregisterReceiver(br);
-
         _sendBroadCast("onDestroyVlc");
     }
 
@@ -265,6 +343,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     @Override
     public void onBuffering(float percentage) {
+        rlLive.setVisibility(View.INVISIBLE); 
         lockOrientation();
         if(percentage < 80) {
             findViewById(_getResource("loadingPanel", "id")).bringToFront();
@@ -278,6 +357,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
          if (percentage == 100) {
             unlockOrientation();
+            rlLive.setVisibility(View.VISIBLE); 
         }
     }
 
@@ -345,173 +425,193 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         activity.registerReceiver(br, filter);
     }
 
-    private void _UIListener() {
-        mSeekBar = (SeekBar) findViewById(_getResource("videoSeekBar", "id"));
-
-        surfaceView = (SurfaceView) findViewById(_getResource("vlc_surfaceView", "id"));
-        bStartStop = (ImageButton) findViewById(_getResource("vlc_start_stop", "id"));
-
-        videoCurrentLoc = (TextView) findViewById(_getResource("videoCurrentLoc", "id"));
-        videoDuration = (TextView) findViewById(_getResource("videoDuration", "id"));
-
-        mediaPlayerView = (LinearLayout) findViewById(_getResource("mediaPlayerView", "id"));
-        mediaPlayerControls = (LinearLayout) findViewById(_getResource("mediaPlayerControls", "id"));
-        mediaPlayerControls.bringToFront();
-        arrowUp = findViewById(_getResource("arrow_up", "id"));
-        arrowDown = findViewById(_getResource("arrow_down", "id"));
-        arrowLeft = findViewById(_getResource("arrow_left", "id"));
-        arrowRight = findViewById(_getResource("arrow_right", "id"));
-        setClickListeners();
-
-        bStartStop.setOnClickListener(this);
-        vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
-    }
-
     private void setClickListeners() {
-        arrowUp.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                _sendBroadCast("onCameraMoveAction", NONE);
-            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-               _sendBroadCast("onCameraMoveAction", UP);
-            }
-            return true;
-        });
 
-        arrowDown.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                _sendBroadCast("onCameraMoveAction", NONE);
-            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _sendBroadCast("onCameraMoveAction", DOWN);
-            }
-            return true;
-        });
-
-        arrowLeft.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                _sendBroadCast("onCameraMoveAction", NONE);
-            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _sendBroadCast("onCameraMoveAction", LEFT);
-            }
-            return true;
-        });
-
-        arrowRight.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-               _sendBroadCast("onCameraMoveAction", NONE);
-            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                _sendBroadCast("onCameraMoveAction", RIGHT);
-            }
-            return true;
-        });
-    }
-
-    private void _handlerSeekBar() {
-        // SEEK BAR
-        handlerSeekBar = new Handler();
-        runnableSeekBar = new Runnable() {
-            @Override
-            public void run() {
+        mainLayout.setOnClickListener(v -> {
+            if(!isRecording) {
                 try {
-                    if (vlcVideoLibrary.getPlayer() != null && vlcVideoLibrary.isPlaying()) {
-                        long curTime = vlcVideoLibrary.getPlayer().getTime();
-                        long totalTime = (long) (curTime / vlcVideoLibrary.getPlayer().getPosition());
-                        int minutes = (int) (curTime / (60 * 1000));
-                        int seconds = (int) ((curTime / 1000) % 60);
-                        int endMinutes = (int) (totalTime / (60 * 1000));
-                        int endSeconds = (int) ((totalTime / 1000) % 60);
-                        currentLoc = String.format(Locale.US, "%02d:%02d", minutes, seconds);
-                        duration = String.format(Locale.US, "%02d:%02d", endMinutes, endSeconds);
-
-                        videoCurrentLoc.setText(currentLoc);
-                        videoDuration.setText(duration);
-
-                        if (!isSeeking) {
-                            playingPos = (int) (vlcVideoLibrary.getPlayer().getPosition() * 100);
-                            mSeekBar.setProgress(playingPos);
-                        }
-                    }
-
-                    handlerSeekBar.postDelayed(runnableSeekBar, 1000);
-                } catch (Exception ignored) {
-
+                    isLayoutToched = !isLayoutToched;
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("type", CordovaAPIKeys.PLAYER_SCREEN_TOUCH_EVENT);
+                    jsonObject.put("value", isLayoutToched);
+                    _sendBroadCast(CordovaAPIKeys.PLAYER_SCREEN_TOUCH_EVENT, jsonObject);
+                }catch (JSONException err){
+                    Log.d("Error", err.toString());
                 }
             }
-        };
-        runnableSeekBar.run();
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress,
-                                          boolean fromUser) {
-                mProgress = progress;
-            }
+        });
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                isSeeking = true;
-            }
+        ivRecordingIdle.setOnClickListener(v -> {
+            activateRecording();
+        });
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                _changePosition((float) mProgress);
+        ivRecordingActive.setOnClickListener(v -> {
+            stopRecording();
+        });
+
+        rlClose.setOnClickListener(v -> {
+            ivClose.setAlpha(0.2f);
+            rlClose.postDelayed(() -> {
+                ivClose.setAlpha(1f);
+                closeLayout();
+                 }, 100);
+        });
+
+        rlUpArrow.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                upJoy.setVisibility(View.INVISIBLE);
+                _requestCameraMove(NONE);
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                upJoy.setVisibility(View.VISIBLE);
+               _requestCameraMove(UP);
             }
+            return true;
+        });
+
+        rlDownArrow.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                downJoy.setVisibility(View.INVISIBLE);
+                _requestCameraMove(NONE);
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                downJoy.setVisibility(View.VISIBLE);
+                _requestCameraMove(DOWN);
+            }
+            return true;
+        });
+
+        rlLeftArrow.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                leftJoy.setVisibility(View.INVISIBLE);
+                _requestCameraMove(NONE);
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                leftJoy.setVisibility(View.VISIBLE);
+               _requestCameraMove(LEFT);
+            }
+            return true;
+        });
+
+        rlRightArrow.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                rightJoy.setVisibility(View.INVISIBLE);
+               _requestCameraMove(NONE);
+            } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                rightJoy.setVisibility(View.VISIBLE);
+                _requestCameraMove(RIGHT);
+            }
+            return true;
         });
     }
 
-    private void _changePosition(float progress) {
-        // progress
-        if (vlcVideoLibrary.getPlayer() != null && vlcVideoLibrary.getPlayer().getTime() > 0 && progress > 0 && isSeeking) {
-            vlcVideoLibrary.getPlayer().pause();
-            vlcVideoLibrary.getPlayer().setPosition((progress / 100.0f));
+    private void activateRecording() {
+        //send recording flag to cordova
+        try {
+            ivRecordingIdle.setAlpha(0.5f);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
+            jsonObject.put("value", true);
+            _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
+        }catch (JSONException err){
+            Log.d("Error", err.toString());
+            ivRecordingIdle.setAlpha(1f);
+        }
+    }
 
-            new Timer().schedule(
-                    new TimerTask() {
-                        @Override
-                        public void run() {
-                            vlcVideoLibrary.getPlayer().play();
-                        }
-                    },
-                    600
-            );
+    private void recordingHasStarted(boolean isStarted){
+        setRecordingViewProperties(isStarted);
+        cmRecordingTimer.setBase(SystemClock.elapsedRealtime());
+        cmRecordingTimer.start();
+    }
+
+
+    private void stopRecording() {
+         //send stop recording flag to cordova
+         try {
+            ivRecordingActive.setAlpha(0.5f);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
+            jsonObject.put("value", false);
+            _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
+        }catch (JSONException err){
+            Log.d("Error", err.toString());
+            ivRecordingActive.setAlpha(1f);
         }
 
-        isSeeking = false;
     }
 
-    private void _handlerMediaControl() {
-        // OVERLAY
-        handlerOverlay = new Handler();
-        runnableOverlay = new Runnable() {
-            @Override
-            public void run() {
-                mediaPlayerControls.setVisibility(View.GONE);
-            }
-        };
-        final long timeToDisappear = 3000;
-        handlerOverlay.postDelayed(runnableOverlay, timeToDisappear);
-        mediaPlayerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!_hideControls) {
-                    mediaPlayerControls.setVisibility(View.VISIBLE);
-                }
-
-                handlerOverlay.removeCallbacks(runnableOverlay);
-                handlerOverlay.postDelayed(runnableOverlay, timeToDisappear);
-            }
-        });
+    private void recordingIsStopped(boolean isStarted) {
+        setRecordingViewProperties(isStarted);
+        cmRecordingTimer.stop();
     }
 
-    /**
-     * Resource ID
-     *
-     * @param name
-     * @param type layout, drawable, id
-     * @return
-     */
-    private int _getResource(String name, String type) {
-        String package_name = getApplication().getPackageName();
-        Resources resources = getApplication().getResources();
-        return resources.getIdentifier(name, type, package_name);
+    private void showOrHideElements(boolean isHidden) {
+        if(isHidden) {
+            rlRecordingCnt.setVisibility(View.INVISIBLE);
+            clJoystick.setVisibility(View.INVISIBLE);
+        } else {
+            showRecordingBtn(isRecordingBtnVisible);
+            showPTZBtn(isPTZVisible);
+        }
+    }
+
+    private void setRecordingViewProperties(boolean isRecordingActivated) {
+        if(isRecordingActivated){
+            ivRecordingIdle.setVisibility(View.INVISIBLE);
+            ivRecordingActive.setAlpha(1f);
+            ivRecordingActive.setVisibility(View.VISIBLE);
+            rlLive.setVisibility(View.INVISIBLE);
+            rlRecordingTimer.setVisibility(View.VISIBLE);
+            
+        } else {
+            ivRecordingActive.setVisibility(View.INVISIBLE);
+            ivRecordingIdle.setAlpha(1f);
+            ivRecordingIdle.setVisibility(View.VISIBLE);
+            rlLive.setVisibility(View.VISIBLE);
+            rlRecordingTimer.setVisibility(View.INVISIBLE);
+
+            // activate notification
+            // recordSavedLayout.setVisibility(View.VISIBLE);
+            // ivClose.setVisibility(View.INVISIBLE);
+            // recordSavedLayout.postDelayed(() -> {
+            //     recordSavedLayout.setVisibility(View.INVISIBLE);
+            //     ivClose.setVisibility(View.VISIBLE);
+            // }, 2000);
+        }
+    }
+
+
+    private void showRecordingBtn(boolean value) {
+        if(value) {
+            rlRecordingCnt.setVisibility(View.VISIBLE);
+        } else {
+            rlRecordingCnt.setVisibility(View.INVISIBLE);
+        }   
+    }
+
+    private void showPTZBtn(boolean value) {
+        if(value) {
+            clJoystick.setVisibility(View.VISIBLE);
+        } else {
+            clJoystick.setVisibility(View.INVISIBLE);
+        }   
+    }
+
+
+    private void _requestCameraMove(String value) {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST);
+            jsonObject.put("value", value);
+            _sendBroadCast(CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST, jsonObject);
+        }catch (JSONException err){
+            Log.d("Error", err.toString());
+        }
+    }
+
+    private void closeLayout() {
+        if(activity != null) {
+            activity.finish();
+        }
+    
     }
 
     private void _sendBroadCast(String methodName) {
@@ -541,14 +641,72 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        // Checks the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            createLandscapeLayoutProperties();
             vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
-
-
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            createPortraitLayoutProperties();
             vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
         }
+    }
+
+    public void createLandscapeLayoutProperties() {
+        joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
+
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
+        params.horizontalBias = 0.9f;
+        params.verticalBias = 0.85f;
+        clJoystick.setLayoutParams(params);
+
+        ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
+        rlLiveParams.horizontalBias = 0.1f;
+        rlLiveParams.verticalBias = 0.05f;
+        rlLive.setLayoutParams(rlLiveParams);
+
+        ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
+        closeParams.horizontalBias = 0.02f;
+        closeParams.verticalBias = 0.05f;
+        rlClose.setLayoutParams(closeParams);
+        
+        ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
+        recordParams.horizontalBias = 0.9f;
+        recordParams.verticalBias = 0.18f;
+        rlRecordingCnt.setLayoutParams(recordParams);
+
+        ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
+        rlRecordingTimerParams.horizontalBias = 0.5f;
+        rlRecordingTimerParams.verticalBias = 0.05f;
+        rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
+    }
+
+    public void createPortraitLayoutProperties() {
+        joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
+        
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
+        params.horizontalBias = 0.5f;
+        params.verticalBias = 0.98f;
+        clJoystick.setLayoutParams(params);
+
+        ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
+        rlLiveParams.horizontalBias = 0.05f;
+        rlLiveParams.verticalBias = 0.4f;
+        rlLive.setLayoutParams(rlLiveParams);
+
+        ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
+        closeParams.horizontalBias = 0.05f;
+        closeParams.verticalBias = 0.05f;
+        rlClose.setLayoutParams(closeParams);
+
+        ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
+        recordParams.horizontalBias = 0.5f;
+        recordParams.verticalBias = 0.98f;
+        rlRecordingCnt.setLayoutParams(recordParams);
+
+        ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
+        rlRecordingTimerParams.horizontalBias = 0.5f;
+        rlRecordingTimerParams.verticalBias = 0.3f;
+        rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
+        
     }
 
     public DisplayMetrics getDisplayMetrics() {
