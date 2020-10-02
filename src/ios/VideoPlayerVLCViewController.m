@@ -26,6 +26,7 @@
 
 @property(strong, nonatomic) UILabel *liveTextLabel;
 @property(strong, nonatomic) UILabel *recordingProgressLabel;
+@property(strong, nonatomic) UILabel *recordingNotificationLabel;
 
 @property(strong, nonatomic) NSTimer *recProgressTimer;
 
@@ -76,6 +77,13 @@
     IBOutlet NSLayoutConstraint *recLableTopLandConstraint;
     IBOutlet NSLayoutConstraint *recLableCenterXLandConstraint;
     
+    IBOutlet NSLayoutConstraint *recNotificationLableHeightPortraitConstraint;
+    IBOutlet NSLayoutConstraint *recNotificationLableHeightLandConstraint;
+    IBOutlet NSLayoutConstraint *recNotificationLableWidthPortraitConstraint;
+    IBOutlet NSLayoutConstraint *recNotificationLableWidthLandConstraint;
+    IBOutlet NSLayoutConstraint *recNotificationLableTopConstraint;
+    IBOutlet NSLayoutConstraint *recNotificationLableCenterXLandConstraint;
+    
 
     
 
@@ -113,6 +121,7 @@
     self.subView.backgroundColor = [UIColor blackColor];
     self.subView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.subView];
+    [self.subView setUserInteractionEnabled:YES];
     
     
     if(@available(iOS 11, *)) {
@@ -130,7 +139,6 @@
     self.liveTextLabel.layer.masksToBounds = YES;
     self.liveTextLabel.textColor = [UIColor whiteColor];
     [self.liveTextLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:12.0f]];
-    [self.liveTextLabel setText:[NSString stringWithFormat:@"  %@  ", @"LIVE"]];
     self.liveTextLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
     self.recordingProgressLabel = [[UILabel alloc] init];
@@ -140,6 +148,17 @@
     self.recordingProgressLabel.textColor = [UIColor whiteColor];
     [self.recordingProgressLabel setFont:[UIFont fontWithName:@"Helvetica-Bold" size:16.0f]];
     self.recordingProgressLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    
+    self.recordingNotificationLabel = [[UILabel alloc] init];
+    self.recordingNotificationLabel.backgroundColor = [self colorFromHex:@"#17a3c4"];
+    self.recordingNotificationLabel.layer.cornerRadius = 4;
+    self.recordingNotificationLabel.layer.masksToBounds = YES;
+    self.recordingNotificationLabel.textColor = [UIColor whiteColor];
+    [self.recordingNotificationLabel setFont:[UIFont fontWithName:@"Helvetica" size:16.0f]];
+    self.recordingNotificationLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    self.recordingNotificationLabel.numberOfLines = 0;
+    self.recordingNotificationLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
     
     self.mediaView = [[UIView alloc] init];
@@ -155,6 +174,7 @@
     self.joystickView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
     [self.joystickView setImage:[UIImage imageNamed:@"joystick-ref-bg.png"]];
     [self.joystickView setContentMode:UIViewContentModeScaleAspectFit];
+    self.joystickView.alpha = 0;
 
     
     self.jstkUpBgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
@@ -217,6 +237,7 @@
     [self.subView addSubview:self.closeButtonView];
     [self.subView addSubview:self.liveTextLabel];
     [self.subView addSubview:self.recordingProgressLabel];
+    [self.subView addSubview:self.recordingNotificationLabel];
     
     [self.subView addSubview:self.jstkUpBgView];
     [self.subView addSubview:self.jstkLeftBgView];
@@ -233,6 +254,7 @@
     [self.subView bringSubviewToFront:self.jstkLeftBgView];
     [self.subView bringSubviewToFront:self.jstkDownBgView];
     [self.subView bringSubviewToFront:self.jstkRightBgView];
+    [self.subView bringSubviewToFront:self.recordingNotificationLabel];
     
     [self.closeButtonView setUserInteractionEnabled:YES];
     
@@ -267,6 +289,13 @@
     liveLableLeftLandConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.closeButtonView attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:12.0];
     liveLableCenterYLandConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.closeButtonView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
     
+    recNotificationLableHeightPortraitConstraint = [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self.subView attribute:NSLayoutAttributeHeight multiplier:(1.0/12.0) constant:0];
+    recNotificationLableHeightLandConstraint = [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.subView attribute:NSLayoutAttributeHeight multiplier:0.15 constant:0];
+    recNotificationLableWidthPortraitConstraint  = [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.subView attribute:NSLayoutAttributeWidth multiplier:1.0 constant:-8];
+    recNotificationLableWidthLandConstraint  = [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.mediaView attribute:NSLayoutAttributeWidth multiplier:0.5 constant:0];
+    recNotificationLableTopConstraint = [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.subView attribute:NSLayoutAttributeTop multiplier:1.0 constant:16.0];
+    recNotificationLableCenterXLandConstraint = [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.subView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0];
+    
 
 
     
@@ -288,6 +317,11 @@
     [self.subView addConstraint:liveLableHeightConstraint];
     [self.subView addConstraint:liveLableTopConstraint];
     [self.subView addConstraint:liveLableLeftPortraitConstraint];
+    
+    [self.subView addConstraint:recNotificationLableHeightPortraitConstraint];
+    [self.subView addConstraint:recNotificationLableWidthPortraitConstraint];
+    [self.subView addConstraint:recNotificationLableTopConstraint];
+    [self.subView addConstraint:recNotificationLableCenterXLandConstraint];
     
     
     [self initRecProgressGenericConstraints];
@@ -311,7 +345,10 @@
     
     
     [self.closeButtonView addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(stop)]];
-    [self.mediaView addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(screenTouchRequest)]];
+//    [self.mediaView addGestureRecognizer:[[UIPinchGestureRecognizer alloc]initWithTarget:self action:@selector(screenTouchRequest:)]];
+//    [self.mediaView addGestureRecognizer:[[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panTouchRequest:)]];
+    [self.mediaView addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(screenTappedRequest:)]];
+    [self.subView addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(screenTappedRequest:)]];
     
     
     UILongPressGestureRecognizer *upBtnPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(upBtnLongPress:)];
@@ -334,6 +371,10 @@
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     self.recActive = NO;
+    self.recordingNotificationLabel.hidden = YES;
+    [[VideoPlayerVLC getInstance] sendVlcState:@"onViewCreated"];
+    
+    
     //[[NSNotificationCenter defaultCenter] addObserver: self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
@@ -343,15 +384,16 @@
 
 -(void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [self.subView removeConstraint:mediaViewTopConstraint];
-    [self.subView removeConstraints:@[mediaViewWidthConstraint,liveLableTopConstraint, liveLableLeftPortraitConstraint, liveLableLeftLandConstraint, liveLableCenterYLandConstraint]];
+    [self.subView removeConstraints:@[mediaViewWidthConstraint,liveLableTopConstraint, liveLableLeftPortraitConstraint, liveLableLeftLandConstraint, liveLableCenterYLandConstraint, recNotificationLableWidthLandConstraint, recNotificationLableWidthPortraitConstraint, recNotificationLableHeightLandConstraint, recNotificationLableHeightPortraitConstraint]];
     [self.view removeConstraint:mediaViewBottomConstraint];
     UILayoutGuide * guide = self.view.safeAreaLayoutGuide;
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
     if(UIDeviceOrientationIsPortrait(orientation)) {
+        [self elementsVisibilityRequest:YES];
         [self.subView.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor].active = NO;
         [self applyJoystickPortraitImages];
         [self applyRecProgressPortraitConstraints];
-        [self.subView addConstraints:@[mediaViewWidthConstraint, liveLableTopConstraint, liveLableLeftPortraitConstraint]];
+        [self.subView addConstraints:@[mediaViewWidthConstraint, liveLableTopConstraint, liveLableLeftPortraitConstraint, recNotificationLableHeightPortraitConstraint, recNotificationLableWidthPortraitConstraint]];
         [self applyRecButtonPortraitConstraints];
         [self applyJoystickPortraitConstraints];
         
@@ -366,6 +408,7 @@
         [self.view addConstraint:mediaViewBottomConstraint];
         [self.subView addConstraint:liveLableLeftLandConstraint];
         [self.subView addConstraint:liveLableCenterYLandConstraint];
+        [self.subView addConstraints:@[recNotificationLableWidthLandConstraint, recNotificationLableHeightLandConstraint]];
         
         
     }
@@ -425,6 +468,21 @@
 
 - (void)mediaPlayerStateChanged:(NSNotification *)aNotification {
     VLCMediaPlayerState vlcState = self.mediaPlayer.state;
+    VLCMediaState mediaState = self.mediaPlayer.media.state;
+    switch (mediaState) {
+        case VLCMediaStateNothingSpecial:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"VLCMediaStateNothingSpecial"];
+            break;
+        case VLCMediaStateBuffering:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"VLCMediaStateBuffering"];
+            break;
+        case VLCMediaStatePlaying:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"VLCMediaStatePlaying"];
+            break;
+        case VLCMediaStateError:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"VLCMediaStateError"];
+            break;
+    }
 
     switch (vlcState) {
         case VLCMediaPlayerStateStopped:
@@ -435,6 +493,7 @@
             [[VideoPlayerVLC getInstance] sendVlcState:@"onBuffering"];
             break;
         case VLCMediaPlayerStateBuffering:
+            [[VideoPlayerVLC getInstance] sendVlcState:@"onBuffering"];
             break;
         case VLCMediaPlayerStateEnded:
             [[VideoPlayerVLC getInstance] sendVlcState:@"onVideoEnd"];
@@ -455,20 +514,50 @@
     };
 }
 
+-(void)screenTappedRequest:(UITapGestureRecognizer *) gesture {
+    if(self.recActive) {
+        return;
+    }
+    BOOL value = NO;
+    if(self.imgView.hidden) {
+        value = YES;
+    }
+    NSMutableDictionary* request = [[NSMutableDictionary alloc] init];
+    [request setValue:@"player_screen_touch_event" forKey:@"type"];
+    [request setValue:@(value) forKey:@"value"];
+    NSError *err;
+    NSData * jsonData = [NSJSONSerialization dataWithJSONObject:request options:0 error:&err];
+    [[VideoPlayerVLC getInstance] sendExternalData:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
+}
+
+-(void) elementsVisibilityRequest: (BOOL) value {
+    if (value) {
+        self.jstkUpBgView.hidden = NO;
+        self.jstkLeftBgView.hidden = NO;
+        self.jstkDownBgView.hidden = NO;
+        self.jstkRightBgView.hidden = NO;
+        self.imgView.hidden = NO;
+        
+    } else {
+        self.jstkUpBgView.hidden = YES;
+        self.jstkLeftBgView.hidden = YES;
+        self.jstkDownBgView.hidden = YES;
+        self.jstkRightBgView.hidden = YES;
+        self.imgView.hidden = YES;
+    }
+}
+
+
 -(void)recButtonPressed:(UITapGestureRecognizer *) gesture {
     if(self.recWaitsForResponse) {
         return;
     }
+    self.recWaitsForResponse = YES;
+    self.imgView.alpha = 0.4;
     if(self.recActive) {
         [self recordingRequest:NO];
-        [self stopTimer];
-        [self.imgView setImage:[UIImage imageNamed:@"recording-button-idle.png"]];
-        self.recActive = NO;
-        [self screenTouchRequest];
     } else{
-        self.recWaitsForResponse = YES;
         [self recordingRequest:YES];
-        self.imgView.alpha = 0.4;
     }
 }
 
@@ -489,8 +578,12 @@
         [self.imgView setImage:[UIImage imageNamed:@"recording-button-active.png"]];
         self.recActive = YES;
     } else {
-        self.recActive = NO;
+        [self stopTimer];
         [self.imgView setImage:[UIImage imageNamed:@"recording-button-idle.png"]];
+        if(self.recActive) {
+            self.recActive = NO;
+            [self showRecordingNotification];
+        }
     }
 }
 
@@ -503,11 +596,15 @@
     [[VideoPlayerVLC getInstance] sendExternalData:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
 }
 
--(void) screenTouchRequest {
-    NSMutableDictionary* request = [[NSMutableDictionary alloc] init];
-    [request setValue:@"player_screen_touch_event" forKey:@"type"];
-    [request setValue:@"value" forKey:@"value"];
-    [[VideoPlayerVLC getInstance] sendExternalDataAsDictionary:request];
+
+-(void) pinchMediaView:(UIPinchGestureRecognizer *)gesture {
+    CGAffineTransform transform = CGAffineTransformMakeScale(gesture.scale,gesture.scale);
+    self.mediaView.transform = transform;
+}
+
+
+-(void) panMediaView:(UIPanGestureRecognizer *)gesture {
+    self.mediaView.center = [gesture locationInView:self.mediaView.superview];
 }
 
 -(void) initRecProgressGenericConstraints {
@@ -629,6 +726,7 @@
         [self stopTimer];
     }
     
+    self.liveTextLabel.hidden = YES;
     self.recordingProgressLabel.text = @"  00:00  ";
     self.recordingProgressLabel.alpha  = 1;
     self.startDate = [NSDate date];
@@ -636,6 +734,7 @@
 }
 
 -(void) stopTimer{
+    self.liveTextLabel.hidden = NO;
     self.recordingProgressLabel.alpha  = 0;
     [self.recProgressTimer invalidate];
     self.recProgressTimer = nil;
@@ -693,5 +792,32 @@
     }
 }
 
+-(void) showRecordingNotification {
+    self.recordingNotificationLabel.hidden = NO;
+    [UIView transitionWithView:self.recordingNotificationLabel duration:0.3 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{self.recordingNotificationLabel.alpha = 1; [NSTimer scheduledTimerWithTimeInterval:4.0 target:self selector:@selector(hideRecordingNotification:) userInfo:nil repeats:NO];} completion:nil];
+    
+}
+
+-(void) hideRecordingNotification:(NSTimer *)timer {
+    [UIView transitionWithView:self.recordingNotificationLabel duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{self.recordingNotificationLabel.alpha = 0;} completion:nil];
+}
+
+-(void) setTranslations: (NSString *) liveIndicator recNotification: (NSString *) recNotification {
+    if(self.liveTextLabel) {
+        [self.liveTextLabel setText:[NSString stringWithFormat:@"  %@  ", [liveIndicator uppercaseString]]];
+    }
+
+    if (self.recordingNotificationLabel) {
+        NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+        //style.alignment = NSTextAlignmentJustified;
+        style.firstLineHeadIndent = 10.0f;
+        style.headIndent = 10.0f;
+        style.tailIndent = -10.0f;
+        NSAttributedString *attrStr = [[NSAttributedString alloc] initWithString:recNotification attributes:@{NSParagraphStyleAttributeName : style}];
+        self.recordingNotificationLabel.attributedText = attrStr;
+    }
+    
+
+}
 
 @end

@@ -20,5 +20,7 @@
 -(void) cameraMoveRequest: (NSString *) value;
 -(void) screenTouchRequest;
 -(void) recordingStatusReceived: (BOOL) value;
+-(void) elementsVisibilityRequest: (BOOL) value;
+-(void) setTranslations: (NSString *) liveIndicator recNotification: (NSString *) recNotification;
 
 @end

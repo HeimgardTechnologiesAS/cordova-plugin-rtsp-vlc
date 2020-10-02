@@ -171,7 +171,7 @@
 			<resource-file src="src/ios/res/close-button.png"/>
 			<resource-file src="src/ios/res/joystick-down-land.png"/>
 			<resource-file src="src/ios/res/joystick-down-portrait.png"/>
-			<resource-file src="src/ios/res/joystick-left-land.png.png"/>
+			<resource-file src="src/ios/res/joystick-left-land.png"/>
 			<resource-file src="src/ios/res/joystick-left-portrait.png"/>
 			<resource-file src="src/ios/res/joystick-ref-bg.png"/>
 			<resource-file src="src/ios/res/joystick-right-land.png"/>

@@ -84,9 +84,22 @@ static CDVInvokedUrlCommand* commandGlobExternalData = nil;
                     else if([type isEqualToString:@"webview_update_rec_status"]) {
                         BOOL value = [JSONObj[@"value"] boolValue];
                         [self.player recordingStatusReceived:value];
-                        // TODO: call method to update recording button style and show recording timer if true
                         return;
-                    } 
+                    }
+                    else if([type isEqualToString:@"webview_elements_visibility"]) {
+                        BOOL value = [JSONObj[@"value"] boolValue];
+                        [self.player elementsVisibilityRequest:value];
+                        return;
+                    }
+                    else if([type isEqualToString:@"webview_set_translations"]) {
+                        NSMutableDictionary *valueObj = [NSJSONSerialization JSONObjectWithData:[JSONObj[@"value"] dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&err];
+                        if(err == nil) {
+                            NSString *liveIndicator = [valueObj valueForKey:@"live_indicator"];
+                            NSString *recNotification = [valueObj valueForKey:@"rec_notification"];
+                            [self.player setTranslations:liveIndicator recNotification:recNotification];
+                        }
+                        return;
+                    }
                 }
             }
         }
