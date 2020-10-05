@@ -33,6 +33,9 @@ import android.widget.RelativeLayout;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.widget.Chronometer;
+import android.transition.TransitionManager;
+import android.view.animation.AnticipateInterpolator;
+import android.transition.ChangeBounds;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -129,12 +132,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         }
                     }
                     else if (method.equals("stop")) {
-                        if (vlcVideoLibrary.isPlaying()) {
-                            vlcVideoLibrary.stop();
-                        }
+                        closeLayout();
                     }
                     else if (method.equals("close")) {
-              
+                        closeLayout();
                     }
                     else if (method.equals("getPosition")) {
                         if (vlcVideoLibrary.isPlaying()) {
@@ -283,7 +284,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     @Override
     public void onPause() {
         super.onPause();
-        if (vlcVideoLibrary.isPlaying()) {
+        if (vlcVideoLibrary != null && vlcVideoLibrary.isPlaying()) {
             vlcVideoLibrary.stop();
         }
         if(vlcVideoLibrary.getVlcInstance() != null) {
@@ -345,10 +346,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     @Override
     public void onError() {
         _sendBroadCast("onError");
-
-        if (vlcVideoLibrary != null) {
-            vlcVideoLibrary.stop();
-        }
+        closeLayout();
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
     }
@@ -420,7 +418,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     }
 
                     if (_autoPlay && vlcVideoLibrary != null && _url != null) {
-                        if (vlcVideoLibrary.isPlaying()) {
+                        if (vlcVideoLibrary != null && vlcVideoLibrary.isPlaying()) {
                             vlcVideoLibrary.stop();
                         }
 
@@ -702,6 +700,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         ConstraintLayout recordBtnMainLayout = findViewById(_getResource("main_layout", "id"));
         recordBtnSet.clone(recordBtnMainLayout);
         recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID,ConstraintSet.TOP, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
         recordBtnSet.applyTo(recordBtnMainLayout);
     
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
@@ -723,7 +724,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
         rlRecordingTimerParams.horizontalBias = 0.5f;
-        rlRecordingTimerParams.verticalBias = 0.05f;
+        rlRecordingTimerParams.verticalBias = 0.02f;
         rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
         //-----------------------------------------------------------------------------------------------------------------------------------
     }
@@ -752,6 +753,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         ConstraintLayout recordBtnMainLayout = findViewById(_getResource("main_layout", "id"));
         recordBtnSet.clone(recordBtnMainLayout);
         recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP,_getResource("rl_camera_layout","id"), ConstraintSet.BOTTOM, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM,_getResource("cl_joystick","id"), ConstraintSet.TOP, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
         recordBtnSet.applyTo(recordBtnMainLayout);
 
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
@@ -787,8 +791,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
              width = getDisplayMetrics().widthPixels;
             cameraViewParams.height = height;
             cameraViewParams.width = width;
-        }
-        else if(orientation.equals(LANDSCAPE)) {
+        } else if(orientation.equals(LANDSCAPE)) {
             height = (int) getDisplayMetrics().heightPixels;
             width = (int) (getDisplayMetrics().heightPixels * ratio);
             cameraViewParams.height = height;
