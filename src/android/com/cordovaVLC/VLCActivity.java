@@ -31,7 +31,11 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.widget.RelativeLayout;
 import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.widget.Chronometer;
+import android.transition.TransitionManager;
+import android.view.animation.AnticipateInterpolator;
+import android.transition.ChangeBounds;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -63,7 +67,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     int mProgress = 0;
     boolean isSeeking = false;
     private VlcVideoLibrary vlcVideoLibrary;
-    private ImageButton bStartStop;
     private Handler handlerSeekBar;
     private Runnable runnableSeekBar;
     private TextView videoCurrentLoc;
@@ -81,13 +84,15 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private boolean isRecording = false;
     private boolean isPTZVisible = false;
     private boolean isRecordingBtnVisible = true;
+    private boolean isRecordingStoped = false;
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
-    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt, rlClose;
+    private RelativeLayout rlUpArrow, rlDownArrow, rlLeftArrow, rlRightArrow, rlLive, rlRecordingTimer,rlRecordingCnt, rlClose, rlCameraView;
     private ImageView upJoy, downJoy, leftJoy, rightJoy, ivClose, joystickLayout, ivRecordingIdle, ivRecordingActive;
     private ConstraintLayout clJoystick, recordSavedLayout, mainLayout;
     private Chronometer cmRecordingTimer;
+    private TextView tvLive, tvRecordingSaved;
 
 
     public static String UP = "1";
@@ -96,13 +101,18 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     public static String RIGHT = "4";
     public static String NONE = "0";
 
+    public static String PORTRAIT = "portrait";
+    public static String LANDSCAPE = "landscape";
+
+    public static final float RATIO  = 16f/9f;
+
     BroadcastReceiver br = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
                 String method = intent.getStringExtra("method");
-
+                Log.d("usao u redive", method);
                 if (method != null) {
                     if (method.equals("playNext")) {
                         _url = intent.getStringExtra("url");
@@ -122,12 +132,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         }
                     }
                     else if (method.equals("stop")) {
-                        if (vlcVideoLibrary.isPlaying()) {
-                            vlcVideoLibrary.stop();
-                        }
+                        closeLayout();
                     }
                     else if (method.equals("close")) {
-              
+                        closeLayout();
                     }
                     else if (method.equals("getPosition")) {
                         if (vlcVideoLibrary.isPlaying()) {
@@ -168,15 +176,23 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         boolean value = intent.getBooleanExtra("data",false);
                         showOrHideElements(value);
                     }
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_SET_TRANSLATIONS)) {
+                        try {
+                            String value = intent.getStringExtra("data");
+                            JSONObject translationJson = new JSONObject(value);
+                            setTranslations(translationJson);
+                        } catch (JSONException err){
+                            Log.d("Error", err.toString());
+                        }
+                       
+                    }
                 }
             }
         }
     };
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -199,7 +215,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _hideControls = intent.getBooleanExtra("hideControls", false);
         // auto play the video after launching
         _autoPlay = intent.getBooleanExtra("autoPlay", false);
-
+        
         // play
         _initPlayer();
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
@@ -211,8 +227,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         mSeekBar = (SeekBar) findViewById(_getResource("videoSeekBar", "id"));
 
         surfaceView = (SurfaceView) findViewById(_getResource("vlc_surfaceView", "id"));
-        bStartStop = (ImageButton) findViewById(_getResource("vlc_start_stop", "id"));
-
+    
         videoCurrentLoc = (TextView) findViewById(_getResource("videoCurrentLoc", "id"));
         videoDuration = (TextView) findViewById(_getResource("videoDuration", "id"));
 
@@ -224,6 +239,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlRecordingTimer = findViewById(_getResource("rl_recording_timer","id"));
         rlRecordingCnt = findViewById(_getResource("rl_recording_cnt","id"));
         rlClose = findViewById(_getResource("rl_close","id"));
+        rlCameraView = findViewById(_getResource("rl_camera_layout","id"));
 
         rlUpArrow = findViewById(_getResource("up_arrow_click","id"));
         rlDownArrow = findViewById(_getResource("down_arrow_click","id"));
@@ -244,11 +260,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         cmRecordingTimer = findViewById(_getResource("cm_recording_timer","id"));
         recordSavedLayout = findViewById(_getResource("rl_recording_saved","id"));
+        tvLive = findViewById(_getResource("tv_live","id"));
+        tvRecordingSaved = findViewById(_getResource("tv_recording_saved","id"));
 
         setClickListeners();
-
-        bStartStop.setOnClickListener(this);
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
+        changeVideoViewProperties(PORTRAIT, RATIO);
     }
 
         /**
@@ -267,7 +284,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     @Override
     public void onPause() {
         super.onPause();
-        if (vlcVideoLibrary.isPlaying()) {
+        if (vlcVideoLibrary != null && vlcVideoLibrary.isPlaying()) {
             vlcVideoLibrary.stop();
         }
         if(vlcVideoLibrary.getVlcInstance() != null) {
@@ -279,6 +296,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     @Override
     public void onResume() {
         super.onResume();
+        _sendBroadCast("onViewCreated");
     }
 
     @Override
@@ -302,7 +320,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _sendBroadCast("onPlayVlc");
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_pause_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -310,7 +327,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _sendBroadCast("onPauseVlc");
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -318,7 +334,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _sendBroadCast("onStopVlc");
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -326,19 +341,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         _sendBroadCast("onVideoEnd");
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
     public void onError() {
         _sendBroadCast("onError");
-
-        if (vlcVideoLibrary != null) {
-            vlcVideoLibrary.stop();
-        }
+        closeLayout();
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
-        bStartStop.setImageDrawable(drawableIcon);
     }
 
     @Override
@@ -408,7 +418,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     }
 
                     if (_autoPlay && vlcVideoLibrary != null && _url != null) {
-                        if (vlcVideoLibrary.isPlaying()) {
+                        if (vlcVideoLibrary != null && vlcVideoLibrary.isPlaying()) {
                             vlcVideoLibrary.stop();
                         }
 
@@ -502,6 +512,16 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         });
     }
 
+    private void setTranslations(JSONObject jsonObject) {
+        try {
+            tvLive.setText(jsonObject.getString(CordovaAPIKeys.LIVE_TRANSLATION));
+            tvRecordingSaved.setText(jsonObject.getString(CordovaAPIKeys.FINISHED_RECORDING_TRANSLATION));
+        } catch (JSONException e){
+            Log.d("jsonException", e.toString());
+        }
+        
+    }
+
     private void activateRecording() {
         //send recording flag to cordova
         try {
@@ -531,6 +551,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
             jsonObject.put("value", false);
             _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
+            isRecordingStoped = true;
         }catch (JSONException err){
             Log.d("Error", err.toString());
             ivRecordingActive.setAlpha(1f);
@@ -541,6 +562,21 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private void recordingIsStopped(boolean isStarted) {
         setRecordingViewProperties(isStarted);
         cmRecordingTimer.stop();
+        if (isRecordingStoped) {
+            activateNotification();
+        }
+       
+    }
+
+    private void activateNotification() {
+         // activate notification
+        recordSavedLayout.setVisibility(View.VISIBLE);
+        ivClose.setVisibility(View.INVISIBLE);
+        recordSavedLayout.postDelayed(() -> {
+            recordSavedLayout.setVisibility(View.INVISIBLE);
+            ivClose.setVisibility(View.VISIBLE);
+            isRecordingStoped = false;
+        }, 3000);
     }
 
     private void showOrHideElements(boolean isHidden) {
@@ -567,14 +603,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             ivRecordingIdle.setVisibility(View.VISIBLE);
             rlLive.setVisibility(View.VISIBLE);
             rlRecordingTimer.setVisibility(View.INVISIBLE);
-
-            // activate notification
-            // recordSavedLayout.setVisibility(View.VISIBLE);
-            // ivClose.setVisibility(View.INVISIBLE);
-            // recordSavedLayout.postDelayed(() -> {
-            //     recordSavedLayout.setVisibility(View.INVISIBLE);
-            //     ivClose.setVisibility(View.VISIBLE);
-            // }, 2000);
         }
     }
 
@@ -643,14 +671,13 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             createLandscapeLayoutProperties();
-            vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             createPortraitLayoutProperties();
-            vlcVideoLibrary.changeVideoResolution(getDisplayMetrics().widthPixels,getDisplayMetrics().heightPixels);
         }
     }
 
     public void createLandscapeLayoutProperties() {
+        changeVideoViewProperties(LANDSCAPE, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
 
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
@@ -664,22 +691,46 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlLive.setLayoutParams(rlLiveParams);
 
         ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
-        closeParams.horizontalBias = 0.02f;
-        closeParams.verticalBias = 0.05f;
+        closeParams.horizontalBias = 0.03f;
+        closeParams.verticalBias = 0.035f;
         rlClose.setLayoutParams(closeParams);
         
+        // adding new constraints to record button -------------------------------------------------------------------------------
+        ConstraintSet recordBtnSet = new ConstraintSet();
+        ConstraintLayout recordBtnMainLayout = findViewById(_getResource("main_layout", "id"));
+        recordBtnSet.clone(recordBtnMainLayout);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID,ConstraintSet.TOP, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        recordBtnSet.applyTo(recordBtnMainLayout);
+    
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.9f;
-        recordParams.verticalBias = 0.18f;
+        recordParams.verticalBias = 0.3f;
         rlRecordingCnt.setLayoutParams(recordParams);
+        // ----------------------------------------------------------------------------------------------------------------------
+
+
+        // adding new constraints to recording time image -----------------------------------------------------------------------------
+        ConstraintSet recordTimeSet = new ConstraintSet();
+        ConstraintLayout recordTimeLayout = findViewById(_getResource("main_layout", "id"));
+        recordTimeSet.clone(recordTimeLayout);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        recordTimeSet.applyTo(recordTimeLayout);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
         rlRecordingTimerParams.horizontalBias = 0.5f;
-        rlRecordingTimerParams.verticalBias = 0.05f;
+        rlRecordingTimerParams.verticalBias = 0.02f;
         rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
+        //-----------------------------------------------------------------------------------------------------------------------------------
     }
 
     public void createPortraitLayoutProperties() {
+        changeVideoViewProperties(PORTRAIT, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
         
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
@@ -689,7 +740,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
         rlLiveParams.horizontalBias = 0.05f;
-        rlLiveParams.verticalBias = 0.4f;
+        rlLiveParams.verticalBias = 0.1f;
         rlLive.setLayoutParams(rlLiveParams);
 
         ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
@@ -697,21 +748,73 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         closeParams.verticalBias = 0.05f;
         rlClose.setLayoutParams(closeParams);
 
+        // adding new constraints to record button -----------------------------------------------------------------------------
+        ConstraintSet recordBtnSet = new ConstraintSet();
+        ConstraintLayout recordBtnMainLayout = findViewById(_getResource("main_layout", "id"));
+        recordBtnSet.clone(recordBtnMainLayout);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP,_getResource("rl_camera_layout","id"), ConstraintSet.BOTTOM, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM,_getResource("cl_joystick","id"), ConstraintSet.TOP, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        recordBtnSet.applyTo(recordBtnMainLayout);
+
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.5f;
-        recordParams.verticalBias = 0.98f;
+        recordParams.verticalBias = 0.9f;
         rlRecordingCnt.setLayoutParams(recordParams);
+        // ----------------------------------------------------------------------------------------------------------------------
+
+        // adding new constraints to recording time image -----------------------------------------------------------------------------
+        ConstraintSet recordTimeSet = new ConstraintSet();
+        ConstraintLayout recordTimeLayout = findViewById(_getResource("main_layout", "id"));
+        recordTimeSet.clone(recordTimeLayout);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM, _getResource("rl_camera_layout","id"), ConstraintSet.TOP, 0);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        recordTimeSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        recordTimeSet.applyTo(recordTimeLayout);
 
         ConstraintLayout.LayoutParams rlRecordingTimerParams = (ConstraintLayout.LayoutParams) rlRecordingTimer.getLayoutParams();
         rlRecordingTimerParams.horizontalBias = 0.5f;
-        rlRecordingTimerParams.verticalBias = 0.3f;
+        rlRecordingTimerParams.verticalBias = 0.95f;
         rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
         
+    }
+
+    public void changeVideoViewProperties(String orientation, float ratio) {
+        ConstraintLayout.LayoutParams cameraViewParams = (ConstraintLayout.LayoutParams) rlCameraView.getLayoutParams();
+        int height = 0;
+        int width = 0;
+
+        if(orientation.equals(PORTRAIT)) {
+            height = (int) (getDisplayMetrics().widthPixels/ratio);
+             width = getDisplayMetrics().widthPixels;
+            cameraViewParams.height = height;
+            cameraViewParams.width = width;
+        } else if(orientation.equals(LANDSCAPE)) {
+            height = (int) getDisplayMetrics().heightPixels;
+            width = (int) (getDisplayMetrics().heightPixels * ratio);
+            cameraViewParams.height = height;
+            cameraViewParams.width = width;
+        }
+
+        rlCameraView.setLayoutParams(cameraViewParams);
+
+        Log.d("resolutionsCameraHeigth",  String.valueOf(cameraViewParams.height));
+        Log.d("resolutionsCameraWidth",  String.valueOf(cameraViewParams.width));
+
+        if (vlcVideoLibrary != null)
+            vlcVideoLibrary.changeVideoResolution(width, height);
     }
 
     public DisplayMetrics getDisplayMetrics() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics;
+    }
+
+    public float getAutoRatio() {
+        DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
+        return ((float)metrics.heightPixels / (float)metrics.widthPixels);
     }
 }

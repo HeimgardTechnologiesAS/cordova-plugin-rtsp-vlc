@@ -60,6 +60,9 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     else if (method.equals("getPosition")) {
                         _cordovaSendResult("getPosition", data);
                     }
+                    else if (method.equals("onViewCreated")) {
+                        _cordovaSendResult("onViewCreated", data);
+                    }
                     else if (method.equals(CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST)) {
                         _cordovaSendExternal(data);
                     }
@@ -136,6 +139,10 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     boolean areElementsShown = jsonObject.getBoolean("value");
                     _filters(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY, areElementsShown);
                 }
+                else if (type.equals(CordovaAPIKeys.WEBVIEW_SET_TRANSLATIONS)) {
+                    JSONObject translationJson = new JSONObject(jsonObject.getString("value"));
+                    _filters(CordovaAPIKeys.WEBVIEW_SET_TRANSLATIONS, translationJson);
+                }
                 return true;
             }catch (JSONException err){
                 Log.d("Error", err.toString());
@@ -208,6 +215,14 @@ public class VideoPlayerVLC extends CordovaPlugin {
         intent.setAction(BROADCAST_METHODS);
         intent.putExtra("method", methodName);
         intent.putExtra("data", data);
+        activity.sendBroadcast(intent);
+    }
+
+    private void _filters(String methodName, JSONObject data) {
+        Intent intent = new Intent();
+        intent.setAction(BROADCAST_METHODS);
+        intent.putExtra("method", methodName);
+        intent.putExtra("data", data.toString());
         activity.sendBroadcast(intent);
     }
 
