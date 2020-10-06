@@ -85,6 +85,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private boolean isPTZVisible = false;
     private boolean isRecordingBtnVisible = true;
     private boolean isRecordingStoped = false;
+    private boolean isBuffering = false;
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
@@ -103,6 +104,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     public static String PORTRAIT = "portrait";
     public static String LANDSCAPE = "landscape";
+    private String orientation = PORTRAIT;
 
     public static final float RATIO  = 16f/9f;
 
@@ -353,7 +355,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     @Override
     public void onBuffering(float percentage) {
-        rlLive.setVisibility(View.INVISIBLE); 
+        //rlLive.setVisibility(View.INVISIBLE); 
+        isBuffering = true;
         lockOrientation();
         if(percentage < 80) {
             findViewById(_getResource("loadingPanel", "id")).bringToFront();
@@ -367,7 +370,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
          if (percentage == 100) {
             unlockOrientation();
-            rlLive.setVisibility(View.VISIBLE); 
+            isBuffering = false;
+            //rlLive.setVisibility(View.VISIBLE); 
         }
     }
 
@@ -452,7 +456,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         });
 
         ivRecordingIdle.setOnClickListener(v -> {
-            activateRecording();
+            if(!isBuffering) {
+                activateRecording();
+            }
         });
 
         ivRecordingActive.setOnClickListener(v -> {
@@ -580,7 +586,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     private void showOrHideElements(boolean isHidden) {
-        if(isHidden) {
+        if(isHidden && orientation.equals(LANDSCAPE)) {
             rlRecordingCnt.setVisibility(View.INVISIBLE);
             clJoystick.setVisibility(View.INVISIBLE);
         } else {
@@ -676,38 +682,65 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
     }
 
+
     public void createLandscapeLayoutProperties() {
+        orientation = LANDSCAPE;
         changeVideoViewProperties(LANDSCAPE, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
 
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
-        params.horizontalBias = 0.9f;
-        params.verticalBias = 0.85f;
-        clJoystick.setLayoutParams(params);
+        ConstraintLayout.LayoutParams joystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
+        joystickParams.horizontalBias = 0.9f;
+        joystickParams.verticalBias = 0.85f;
+        clJoystick.setLayoutParams(joystickParams);
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
-        rlLiveParams.horizontalBias = 0.1f;
+        rlLiveParams.horizontalBias = 0.15f;
         rlLiveParams.verticalBias = 0.05f;
         rlLive.setLayoutParams(rlLiveParams);
 
+        // adding new constraints to notification -------------------------------------------------------------------------------
+        ConstraintSet notificationSet = new ConstraintSet();
+        ConstraintLayout notificationLayout = findViewById(_getResource("main_layout", "id"));
+        notificationSet.clone(notificationLayout);
+        notificationSet.connect(_getResource("rl_recording_saved","id"), ConstraintSet.TOP, _getResource("rl_camera_layout","id"),ConstraintSet.TOP, 0);
+        notificationSet.connect(_getResource("rl_recording_saved","id"), ConstraintSet.BOTTOM, _getResource("rl_camera_layout","id"), ConstraintSet.BOTTOM, 0);
+        notificationSet.connect(_getResource("rl_recording_saved","id"), ConstraintSet.START, _getResource("rl_camera_layout","id"), ConstraintSet.START, (int) (getDisplayMetrics().widthPixels*0.1));
+        notificationSet.connect(_getResource("rl_recording_saved","id"), ConstraintSet.END, _getResource("rl_camera_layout","id"), ConstraintSet.END, (int) (getDisplayMetrics().widthPixels*0.1));
+        notificationSet.applyTo(notificationLayout);
+
+        ConstraintLayout.LayoutParams recordSavedParams = (ConstraintLayout.LayoutParams) recordSavedLayout.getLayoutParams();
+        recordSavedParams.verticalBias = 0.025f;
+        recordSavedLayout.setLayoutParams(recordSavedParams);
+
+        // adding new constraints to close button -------------------------------------------------------------------------------
+        ConstraintSet closeBtnSet = new ConstraintSet();
+        ConstraintLayout closeBtnMainLayout = findViewById(_getResource("main_layout", "id"));
+        closeBtnSet.clone(closeBtnMainLayout);
+        closeBtnSet.connect(_getResource("rl_close","id"), ConstraintSet.TOP, _getResource("rl_camera_layout","id"),ConstraintSet.TOP, 0);
+        closeBtnSet.connect(_getResource("rl_close","id"), ConstraintSet.BOTTOM, _getResource("rl_camera_layout","id"), ConstraintSet.BOTTOM, 0);
+        closeBtnSet.connect(_getResource("rl_close","id"), ConstraintSet.START, _getResource("rl_camera_layout","id"), ConstraintSet.START, 0);
+        closeBtnSet.connect(_getResource("rl_close","id"), ConstraintSet.END, _getResource("rl_camera_layout","id"), ConstraintSet.END, 0);
+        closeBtnSet.applyTo(closeBtnMainLayout);
+
         ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
-        closeParams.horizontalBias = 0.03f;
+        closeParams.horizontalBias = 0.02f;
         closeParams.verticalBias = 0.035f;
         rlClose.setLayoutParams(closeParams);
+        //-----------------------------------------------------------------------------------------------------------------------------
         
         // adding new constraints to record button -------------------------------------------------------------------------------
         ConstraintSet recordBtnSet = new ConstraintSet();
         ConstraintLayout recordBtnMainLayout = findViewById(_getResource("main_layout", "id"));
         recordBtnSet.clone(recordBtnMainLayout);
         recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID,ConstraintSet.TOP, 0);
-        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
-        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
-        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
         recordBtnSet.applyTo(recordBtnMainLayout);
     
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.9f;
-        recordParams.verticalBias = 0.3f;
+        recordParams.verticalBias = 0.15f;
         rlRecordingCnt.setLayoutParams(recordParams);
         // ----------------------------------------------------------------------------------------------------------------------
 
@@ -730,32 +763,59 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     public void createPortraitLayoutProperties() {
+        orientation = PORTRAIT;
         changeVideoViewProperties(PORTRAIT, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
         
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
-        params.horizontalBias = 0.5f;
-        params.verticalBias = 0.98f;
-        clJoystick.setLayoutParams(params);
+        ConstraintLayout.LayoutParams joystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
+        joystickParams.horizontalBias = 0.5f;
+        joystickParams.verticalBias = 0.98f;
+        clJoystick.setLayoutParams(joystickParams);
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
         rlLiveParams.horizontalBias = 0.05f;
         rlLiveParams.verticalBias = 0.1f;
         rlLive.setLayoutParams(rlLiveParams);
 
+
+        // adding new constraints to notification -------------------------------------------------------------------------------
+        ConstraintSet notificationSet = new ConstraintSet();
+        ConstraintLayout notificationLayout = findViewById(_getResource("main_layout", "id"));
+        notificationSet.clone(notificationLayout);
+        notificationSet.connect(_getResource("rl_recording_saved","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID,ConstraintSet.TOP, 0);
+        notificationSet.connect(_getResource("rl_recording_saved","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        notificationSet.connect(_getResource("rl_recording_saved","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, getPixelsFromDP(15));
+        notificationSet.connect(_getResource("rl_recording_saved","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, getPixelsFromDP(15));
+        notificationSet.applyTo(notificationLayout);
+
+        ConstraintLayout.LayoutParams recordSavedParams = (ConstraintLayout.LayoutParams) recordSavedLayout.getLayoutParams();
+        recordSavedParams.verticalBias = 0.025f;
+        recordSavedLayout.setLayoutParams(recordSavedParams);
+
+        // adding new constraints to close button -------------------------------------------------------------------------------
+        ConstraintSet closeBtnSet = new ConstraintSet();
+        ConstraintLayout closeBtnMainLayout = findViewById(_getResource("main_layout", "id"));
+        closeBtnSet.clone(closeBtnMainLayout);
+        closeBtnSet.connect(_getResource("rl_close","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+        closeBtnSet.connect(_getResource("rl_close","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        closeBtnSet.connect(_getResource("rl_close","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        closeBtnSet.connect(_getResource("rl_close","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        closeBtnSet.applyTo(closeBtnMainLayout);
+
         ConstraintLayout.LayoutParams closeParams = (ConstraintLayout.LayoutParams) rlClose.getLayoutParams();
         closeParams.horizontalBias = 0.05f;
         closeParams.verticalBias = 0.05f;
         rlClose.setLayoutParams(closeParams);
+        //------------------------------------------------------------------------------------------------------------------------
 
         // adding new constraints to record button -----------------------------------------------------------------------------
         ConstraintSet recordBtnSet = new ConstraintSet();
         ConstraintLayout recordBtnMainLayout = findViewById(_getResource("main_layout", "id"));
         recordBtnSet.clone(recordBtnMainLayout);
         recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP,_getResource("rl_camera_layout","id"), ConstraintSet.BOTTOM, 0);
-        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.BOTTOM,_getResource("cl_joystick","id"), ConstraintSet.TOP, 0);
-        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
-        recordBtnSet.connect(_getResource("rl_recording_timer","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.BOTTOM,_getResource("cl_joystick","id"), ConstraintSet.TOP, 0);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
         recordBtnSet.applyTo(recordBtnMainLayout);
 
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
@@ -778,7 +838,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlRecordingTimerParams.horizontalBias = 0.5f;
         rlRecordingTimerParams.verticalBias = 0.95f;
         rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
+        //------------------------------------------------------------------------------------------------------------------------------------------
         
+    }
+
+    public int getPixelsFromDP(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, activity.getResources().getDisplayMetrics());
     }
 
     public void changeVideoViewProperties(String orientation, float ratio) {
@@ -800,7 +865,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         rlCameraView.setLayoutParams(cameraViewParams);
 
-        Log.d("resolutionsCameraHeigth",  String.valueOf(cameraViewParams.height));
+        Log.d("resolutionsCameraHeight",  String.valueOf(cameraViewParams.height));
         Log.d("resolutionsCameraWidth",  String.valueOf(cameraViewParams.width));
 
         if (vlcVideoLibrary != null)

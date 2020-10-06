@@ -96,7 +96,6 @@
 
     <RelativeLayout
         android:id="@+id/rl_live"
-        android:visibility="invisible"
         android:background="@drawable/live_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -358,7 +357,7 @@
             android:layout_height="wrap_content"/>
 
         <TextView
-            android:visibility="invisible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
