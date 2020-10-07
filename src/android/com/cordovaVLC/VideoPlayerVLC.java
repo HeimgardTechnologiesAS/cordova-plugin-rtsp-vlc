@@ -29,6 +29,10 @@ public class VideoPlayerVLC extends CordovaPlugin {
 
     private CallbackContext callbackContext;
     private CallbackContext callbackContextExternalData;
+    /**
+     * Receives data from VLCActivity.java and sends data to cordova from player using _cordovaSendExternal method
+     * PLAYER_ prefix means that data is sent from player
+     */
     BroadcastReceiver br = new BroadcastReceiver() {
 
         @Override
@@ -84,6 +88,10 @@ public class VideoPlayerVLC extends CordovaPlugin {
         super.initialize(cordova, webView);
     }
 
+    /**
+     * this method receive data from cordova and then distribute data via broadcast receiver (_filters methods) to VLCActivity using keys from CordovaAPIKeys
+     * if the prefix of the key is WEBVIEW_ means that data is sent from cordova to player
+     */
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         // application context

@@ -107,20 +107,21 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private String orientation = PORTRAIT;
 
     public static final float RATIO  = 16f/9f;
-
+    /**
+     * Broadcast receiver that receive messages dfrom VideoPlayerVLC.java
+     * This is used when we receive data from cordova
+     */
     BroadcastReceiver br = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
                 String method = intent.getStringExtra("method");
-                Log.d("usao u redive", method);
                 if (method != null) {
                     if (method.equals("playNext")) {
                         _url = intent.getStringExtra("url");
                         _autoPlay = intent.getBooleanExtra("autoPlay", false);
                         _hideControls = intent.getBooleanExtra("hideControls", false);
-
                         _initPlayer();
                     }
                     else if (method.equals("pause")) {
@@ -137,7 +138,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         closeLayout();
                     }
                     else if (method.equals("close")) {
-                        closeLayout();
+                        
                     }
                     else if (method.equals("getPosition")) {
                         if (vlcVideoLibrary.isPlaying()) {
@@ -156,17 +157,17 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                  
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_SHOW_PTZ_BUTTONS)) {
-                        boolean value = intent.getBooleanExtra("data",false);
+                        boolean value = intent.getBooleanExtra("data", false);
                         isPTZVisible = value;
                         showPTZBtn(value);
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_SHOW_RECORDING_BUTTON)) {
-                        boolean value = intent.getBooleanExtra("data",false);
+                        boolean value = intent.getBooleanExtra("data", false);
                         isRecordingBtnVisible = value;
                         showRecordingBtn(value);
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS)) {
-                        boolean value = intent.getBooleanExtra("data",false);
+                        boolean value = intent.getBooleanExtra("data", false);
                         isRecording = value;
                         if (value) {
                             recordingHasStarted(value);
@@ -175,7 +176,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         }
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY)) {
-                        boolean value = intent.getBooleanExtra("data",false);
+                        boolean value = intent.getBooleanExtra("data", false);
                         showOrHideElements(value);
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_SET_TRANSLATIONS)) {
@@ -282,6 +283,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         Resources resources = getApplication().getResources();
         return resources.getIdentifier(name, type, package_name);
     }
+    /*
+    onPause is part of android lifecycle that triggers everytime when the activity starts to become
+     unactive (if app is in the background, or if the activity get destroyed).
+     Because of that this event is used for releasing and stoping vlc. 
+    */
 
     @Override
     public void onPause() {
@@ -348,7 +354,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     @Override
     public void onError() {
         _sendBroadCast("onError");
-        closeLayout();
 
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
     }
@@ -375,6 +380,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
     }
 
+    /** 
+     * Locks orientation based on current orientation.
+     * This is needed to lock orientation if the buffering of stream starts
+    */
     public void lockOrientation() {
         int rotation = getWindowManager().getDefaultDisplay().getRotation();
 
@@ -440,7 +449,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     private void setClickListeners() {
-
+        /**
+         * click listener on mainLayout that will send touch command from player to cordova if.
+         * If recording is on, command will not be send.
+         */
         mainLayout.setOnClickListener(v -> {
             if(!isRecording) {
                 try {
@@ -465,6 +477,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             stopRecording();
         });
 
+        /**
+         * Click listener on close icon. It will preform click animation and finish activity.
+         */
         rlClose.setOnClickListener(v -> {
             ivClose.setAlpha(0.2f);
             rlClose.postDelayed(() -> {
@@ -472,6 +487,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                 closeLayout();
                  }, 100);
         });
+        /**
+         * ----------------------------------------------------------------------------------------
+         * Next 4 touch listneres are used for PTZ camera joystick arrows
+         */
 
         rlUpArrow.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -516,8 +535,13 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             }
             return true;
         });
+        //-----------------------------------------------------------------------------------------
     }
 
+    /**
+     * sets translation sent from cordova
+     * jsonObject -> json that contains all translations
+     */ 
     private void setTranslations(JSONObject jsonObject) {
         try {
             tvLive.setText(jsonObject.getString(CordovaAPIKeys.LIVE_TRANSLATION));
@@ -525,32 +549,37 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         } catch (JSONException e){
             Log.d("jsonException", e.toString());
         }
-        
     }
 
+    /**
+     * sends recording flag to cordova
+     */
     private void activateRecording() {
-        //send recording flag to cordova
         try {
             ivRecordingIdle.setAlpha(0.5f);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
             jsonObject.put("value", true);
             _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
-        }catch (JSONException err){
+        } catch (JSONException err){
             Log.d("Error", err.toString());
             ivRecordingIdle.setAlpha(1f);
         }
     }
-
+    
+    /**
+     * starts recording timer
+     */
     private void recordingHasStarted(boolean isStarted){
         setRecordingViewProperties(isStarted);
         cmRecordingTimer.setBase(SystemClock.elapsedRealtime());
         cmRecordingTimer.start();
     }
 
-
+    /**
+     * send stop recording flag to cordova
+     */
     private void stopRecording() {
-         //send stop recording flag to cordova
          try {
             ivRecordingActive.setAlpha(0.5f);
             JSONObject jsonObject = new JSONObject();
@@ -565,6 +594,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
     }
 
+    /**
+     * stops recording timer and shows notification
+     */
     private void recordingIsStopped(boolean isStarted) {
         setRecordingViewProperties(isStarted);
         cmRecordingTimer.stop();
@@ -574,8 +606,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
        
     }
 
+    /**
+     * shows notification that recording is finished
+     */
     private void activateNotification() {
-         // activate notification
         recordSavedLayout.setVisibility(View.VISIBLE);
         ivClose.setVisibility(View.INVISIBLE);
         recordSavedLayout.postDelayed(() -> {
@@ -585,6 +619,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }, 3000);
     }
 
+    /**
+     * shows or hide elements from screen if the orientation is in the landscape
+     * isHidden -> if true, hide elements
+     */
     private void showOrHideElements(boolean isHidden) {
         if(isHidden && orientation.equals(LANDSCAPE)) {
             rlRecordingCnt.setVisibility(View.INVISIBLE);
@@ -595,6 +633,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
     }
 
+    /**
+     * Method that shows layout images for active or inactive recording based on isRecordingActivated
+     */
     private void setRecordingViewProperties(boolean isRecordingActivated) {
         if(isRecordingActivated){
             ivRecordingIdle.setVisibility(View.INVISIBLE);
@@ -620,7 +661,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             rlRecordingCnt.setVisibility(View.INVISIBLE);
         }   
     }
-
+    
     private void showPTZBtn(boolean value) {
         if(value) {
             clJoystick.setVisibility(View.VISIBLE);
@@ -629,7 +670,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }   
     }
 
-
+    /**
+     * sends value to cordova, which arrow is clicked
+     */
     private void _requestCameraMove(String value) {
         try {
             JSONObject jsonObject = new JSONObject();
@@ -641,6 +684,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
     }
 
+    /**
+     * activity destroy
+     */
     private void closeLayout() {
         if(activity != null) {
             activity.finish();
@@ -648,6 +694,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     
     }
 
+    /**
+     * all _sendBroadCast methods are responsible for communication with VideoPlayerVLC via broadcast
+     */
     private void _sendBroadCast(String methodName) {
         Intent intent = new Intent();
         intent.setAction(BROADCAST_LISTENER);
@@ -671,10 +720,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         activity.sendBroadcast(intent);
     }
 
+    /**
+     * Triggers on every configuration change, in our case orientation change
+     */
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             createLandscapeLayoutProperties();
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
@@ -682,7 +733,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
     }
 
-
+    /**
+     * method responsible for creating landscape layout using constraints
+     */
     public void createLandscapeLayoutProperties() {
         orientation = LANDSCAPE;
         changeVideoViewProperties(LANDSCAPE, RATIO);
@@ -762,6 +815,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         //-----------------------------------------------------------------------------------------------------------------------------------
     }
 
+    /**
+     * method responsible for creating portrait layout using constraints
+     */
     public void createPortraitLayoutProperties() {
         orientation = PORTRAIT;
         changeVideoViewProperties(PORTRAIT, RATIO);
@@ -842,10 +898,19 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         
     }
 
+    /**
+     * tranforms dp to pixels
+     * dp -> density-independent pixels
+     */
     public int getPixelsFromDP(int dp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, activity.getResources().getDisplayMetrics());
     }
 
+    /**
+     * Calculate layout width and height based on ratio
+     * orientation -> screen oritentation 
+     * ratio -> ratio of the camera stream video
+     */
     public void changeVideoViewProperties(String orientation, float ratio) {
         ConstraintLayout.LayoutParams cameraViewParams = (ConstraintLayout.LayoutParams) rlCameraView.getLayoutParams();
         int height = 0;
@@ -872,12 +937,18 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             vlcVideoLibrary.changeVideoResolution(width, height);
     }
 
+    /**
+     * gets metrics of the devices screen (width and height)
+     */
     public DisplayMetrics getDisplayMetrics() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics;
     }
 
+    /**
+     * calculate ratio of the device screen
+     */
     public float getAutoRatio() {
         DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
         return ((float)metrics.heightPixels / (float)metrics.widthPixels);
