@@ -820,6 +820,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     public void createPortraitLayoutProperties() {
         orientation = PORTRAIT;
+        showOrHideElements(false);
         changeVideoViewProperties(PORTRAIT, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
         
