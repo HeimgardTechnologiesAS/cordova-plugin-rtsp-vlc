@@ -95,17 +95,6 @@
     return self;
 }
 
-- (UIColor*)colorFromHex:(NSString*)hexColor {
-    unsigned rgbValue = 0;
-    NSScanner* scanner = [NSScanner scannerWithString:hexColor];
-    [scanner setScanLocation:1];
-    [scanner scanHexInt:&rgbValue];
-    return [UIColor colorWithRed:((rgbValue & 0XFF0000) >> 16) / 255.0
-                           green:((rgbValue & 0XFF00) >> 8) / 255.0
-                            blue:(rgbValue & 0XFF) / 255.0
-                           alpha:1.0];
-}
-
 - (void)viewDidLoad {
     NSLog(@"[VideoPlayerVLCViewController viewDidLoad]");
     [super viewDidLoad];
@@ -136,6 +125,7 @@
     [self.view layoutIfNeeded];
     
     self.joystickButtonsVisible = NO;
+    self.recActive = NO;
     
     self.indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     self.indicatorView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -168,58 +158,45 @@
     
     self.mediaView = [[UIView alloc] init];
     self.mediaView.backgroundColor = [UIColor greenColor];
+    self.mediaView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.mediaView.backgroundColor = [UIColor blackColor];
     
     self.recButtonView =
-    [[UIImageView alloc] initWithFrame:CGRectMake(self.view.frame.size.width / 2 - 25,
-                                                  self.view.frame.size.height / 2 + 170, 50, 50)];
-    [self.recButtonView setImage:[UIImage imageNamed:@"recording-button-idle.png"]];
+    [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"recording-button-idle.png"]];
     self.recButtonView.contentMode = UIViewContentModeScaleAspectFit;
     [self.recButtonView setUserInteractionEnabled:YES];
+    self.recButtonView.translatesAutoresizingMaskIntoConstraints = NO;
     
-    self.joystickView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
-    [self.joystickView setImage:[UIImage imageNamed:@"joystick-ref-bg.png"]];
+    self.joystickView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"joystick-ref-bg.png"]];
     [self.joystickView setContentMode:UIViewContentModeScaleAspectFit];
     self.joystickView.alpha = 0;
+    self.joystickView.translatesAutoresizingMaskIntoConstraints = NO;
     
-    self.jstkUpBgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
-    [self.jstkUpBgView setImage:[UIImage imageNamed:@"joystick-up-portrait.png"]];
+    self.jstkUpBgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"joystick-up-portrait.png"]];
     [self.jstkUpBgView setContentMode:UIViewContentModeScaleAspectFit];
     self.jstkUpBgView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.jstkUpBgView setUserInteractionEnabled:YES];
     
-    self.jstkLeftBgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
-    [self.jstkLeftBgView setImage:[UIImage imageNamed:@"joystick-left-portrait.png"]];
+    self.jstkLeftBgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"joystick-left-portrait.png"]];
     [self.jstkLeftBgView setContentMode:UIViewContentModeScaleAspectFit];
     self.jstkLeftBgView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.jstkLeftBgView setUserInteractionEnabled:YES];
     
-    self.jstkDownBgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
-    [self.jstkDownBgView setImage:[UIImage imageNamed:@"joystick-down-portrait.png"]];
+    self.jstkDownBgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"joystick-down-portrait.png"]];
     [self.jstkDownBgView setContentMode:UIViewContentModeScaleAspectFit];
     self.jstkDownBgView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.jstkDownBgView setUserInteractionEnabled:YES];
     
-    self.jstkRightBgView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
-    [self.jstkRightBgView setImage:[UIImage imageNamed:@"joystick-right-portrait.png"]];
+    self.jstkRightBgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"joystick-right-portrait.png"]];
     [self.jstkRightBgView setContentMode:UIViewContentModeScaleAspectFit];
     self.jstkRightBgView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.jstkRightBgView setUserInteractionEnabled:YES];
     
-    self.closeButtonView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 20.0)];
-    [self.closeButtonView setImage:[UIImage imageNamed:@"close-button-land.png"]];
+    self.closeButtonView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"close-button-land.png"]];
     [self.closeButtonView setContentMode:UIViewContentModeScaleAspectFit];
     self.closeButtonView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.closeButtonView setUserInteractionEnabled:YES];
     
-    self.mediaPlayer = [[VLCMediaPlayer alloc]
-                        initWithOptions:@[ @"--network-caching=2000 --clock-jitter=0 --clock-synchro=0" ]];
-    self.mediaPlayer.delegate = self;
-    
-    self.recButtonView.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    self.joystickView.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    self.mediaView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.mediaView.backgroundColor = [UIColor blackColor];
     
     [self.subView addSubview:self.mediaView];
     [self.subView addSubview:self.recButtonView];
@@ -237,7 +214,6 @@
     
     [self.subView bringSubviewToFront:self.recButtonView];
     [self.subView bringSubviewToFront:self.closeButtonView];
-    //[self.subView bringSubviewToFront:self.joystickView];
     [self.subView bringSubviewToFront:self.liveTextLabel];
     [self.subView bringSubviewToFront:self.recordingProgressLabel];
     [self.subView bringSubviewToFront:self.jstkUpBgView];
@@ -248,285 +224,44 @@
     [self.subView bringSubviewToFront:self.indicatorView];
     
     [self updateJoystickButtonsVisibility:NO];
+    self.recordingNotificationLabel.hidden = YES;
     
-    [self.closeButtonView setUserInteractionEnabled:YES];
-    
-    mediaViewWidthConstraint = [NSLayoutConstraint constraintWithItem:self.mediaView
-                                                            attribute:NSLayoutAttributeWidth
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:self.subView
-                                                            attribute:NSLayoutAttributeWidth
-                                                           multiplier:1.0
-                                                             constant:0];
-    mediaViewHeightConstraint = [NSLayoutConstraint constraintWithItem:self.mediaView
-                                                             attribute:NSLayoutAttributeHeight
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self.mediaView
-                                                             attribute:NSLayoutAttributeWidth
-                                                            multiplier:(9.0 / 16.0)
-                                                              constant:0];
-    mediaViewCenterHorizontallyConstraint =
-    [NSLayoutConstraint constraintWithItem:self.mediaView
-                                 attribute:NSLayoutAttributeCenterX
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeCenterX
-                                multiplier:1.0
-                                  constant:0];
-    mediaViewCenterVertiacllyConstraint =
-    [NSLayoutConstraint constraintWithItem:self.mediaView
-                                 attribute:NSLayoutAttributeCenterY
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeCenterY
-                                multiplier:1.0
-                                  constant:0];
-    mediaViewTopConstraint = [NSLayoutConstraint constraintWithItem:self.mediaView
-                                                          attribute:NSLayoutAttributeTop
-                                                          relatedBy:NSLayoutRelationEqual
-                                                             toItem:self.subView
-                                                          attribute:NSLayoutAttributeTop
-                                                         multiplier:1.0
-                                                           constant:0];
-    mediaViewBottomConstraint = [NSLayoutConstraint constraintWithItem:self.mediaView
-                                                             attribute:NSLayoutAttributeBottom
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self.view
-                                                             attribute:NSLayoutAttributeBottom
-                                                            multiplier:1.0
-                                                              constant:0];
-    
-    closeButtonHeightConstraint =
-    [NSLayoutConstraint constraintWithItem:self.closeButtonView
-                                 attribute:NSLayoutAttributeHeight
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:nil
-                                 attribute:NSLayoutAttributeNotAnAttribute
-                                multiplier:1.0
-                                  constant:25.0];
-    closeButtonAspectConstraint =
-    [NSLayoutConstraint constraintWithItem:self.closeButtonView
-                                 attribute:NSLayoutAttributeWidth
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.closeButtonView
-                                 attribute:NSLayoutAttributeHeight
-                                multiplier:self.closeButtonView.image.size.width /
-     self.closeButtonView.image.size.height
-                                  constant:0];
-    closeButtonTopConstraint = [NSLayoutConstraint constraintWithItem:self.closeButtonView
-                                                            attribute:NSLayoutAttributeTop
-                                                            relatedBy:NSLayoutRelationEqual
-                                                               toItem:self.subView
-                                                            attribute:NSLayoutAttributeTop
-                                                           multiplier:1.0
-                                                             constant:16.0];
-    closeButtonLeftConstraint = [NSLayoutConstraint constraintWithItem:self.closeButtonView
-                                                             attribute:NSLayoutAttributeLeft
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self.mediaView
-                                                             attribute:NSLayoutAttributeLeft
-                                                            multiplier:1.0
-                                                              constant:8.0];
-    
-    recButtonHeightConstraint = [NSLayoutConstraint constraintWithItem:self.recButtonView
-                                                             attribute:NSLayoutAttributeHeight
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:self.subView
-                                                             attribute:NSLayoutAttributeHeight
-                                                            multiplier:(1.0 / 12.0)
-                                                              constant:0];
-    recButtonHeightLandscapeConstraint =
-    [NSLayoutConstraint constraintWithItem:self.recButtonView
-                                 attribute:NSLayoutAttributeHeight
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.joystickView
-                                 attribute:NSLayoutAttributeHeight
-                                multiplier:(1.0 / 2.5)
-                                  constant:0];
-    recButtonAspectConstraint = [NSLayoutConstraint
-                                 constraintWithItem:self.recButtonView
-                                 attribute:NSLayoutAttributeWidth
-                                 relatedBy:NSLayoutRelationEqual
-                                 toItem:self.recButtonView
-                                 attribute:NSLayoutAttributeHeight
-                                 multiplier:self.recButtonView.image.size.width / self.recButtonView.image.size.height
-                                 constant:0];
-    recButtonHorizontallyPortraitConstraint =
-    [NSLayoutConstraint constraintWithItem:self.recButtonView
-                                 attribute:NSLayoutAttributeCenterX
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.mediaView
-                                 attribute:NSLayoutAttributeCenterX
-                                multiplier:1.0
-                                  constant:0.0];
-    recButtonTopPortraitConstraint = [NSLayoutConstraint constraintWithItem:self.recButtonView
-                                                                  attribute:NSLayoutAttributeTop
-                                                                  relatedBy:NSLayoutRelationEqual
-                                                                     toItem:self.mediaView
-                                                                  attribute:NSLayoutAttributeBottom
-                                                                 multiplier:1.0
-                                                                   constant:8];
-    recButtonTopLandscapeConstraint = [NSLayoutConstraint constraintWithItem:self.recButtonView
-                                                                   attribute:NSLayoutAttributeTop
-                                                                   relatedBy:NSLayoutRelationEqual
-                                                                      toItem:self.subView
-                                                                   attribute:NSLayoutAttributeTop
-                                                                  multiplier:1.0
-                                                                    constant:40];
-    recButtonRightLandscapeConstraint = [NSLayoutConstraint constraintWithItem:self.recButtonView
-                                                                     attribute:NSLayoutAttributeRight
-                                                                     relatedBy:NSLayoutRelationEqual
-                                                                        toItem:self.mediaView
-                                                                     attribute:NSLayoutAttributeRight
-                                                                    multiplier:1.0
-                                                                      constant:-8];
-    
-    liveLableHeightConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
-                                                             attribute:NSLayoutAttributeHeight
-                                                             relatedBy:NSLayoutRelationEqual
-                                                                toItem:nil
-                                                             attribute:NSLayoutAttributeNotAnAttribute
-                                                            multiplier:1.0
-                                                              constant:16.0];
-    liveLableTopConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
-                                                          attribute:NSLayoutAttributeTop
-                                                          relatedBy:NSLayoutRelationEqual
-                                                             toItem:self.mediaView
-                                                          attribute:NSLayoutAttributeTop
-                                                         multiplier:1.0
-                                                           constant:16.0];
-    liveLableLeftPortraitConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
-                                                                   attribute:NSLayoutAttributeLeft
-                                                                   relatedBy:NSLayoutRelationEqual
-                                                                      toItem:self.mediaView
-                                                                   attribute:NSLayoutAttributeLeft
-                                                                  multiplier:1.0
-                                                                    constant:8.0];
-    liveLableLeftLandConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
-                                                               attribute:NSLayoutAttributeLeading
-                                                               relatedBy:NSLayoutRelationEqual
-                                                                  toItem:self.closeButtonView
-                                                               attribute:NSLayoutAttributeTrailing
-                                                              multiplier:1.0
-                                                                constant:12.0];
-    liveLableCenterYLandConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
-                                                                  attribute:NSLayoutAttributeCenterY
-                                                                  relatedBy:NSLayoutRelationEqual
-                                                                     toItem:self.closeButtonView
-                                                                  attribute:NSLayoutAttributeCenterY
-                                                                 multiplier:1.0
-                                                                   constant:0];
-    
-    recNotificationLableHeightPortraitConstraint =
-    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
-                                 attribute:NSLayoutAttributeHeight
-                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeHeight
-                                multiplier:(1.0 / 12.0)
-                                  constant:0];
-    recNotificationLableHeightLandConstraint =
-    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
-                                 attribute:NSLayoutAttributeHeight
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeHeight
-                                multiplier:0.15
-                                  constant:0];
-    recNotificationLableWidthPortraitConstraint =
-    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
-                                 attribute:NSLayoutAttributeWidth
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeWidth
-                                multiplier:1.0
-                                  constant:-8];
-    recNotificationLableWidthLandConstraint =
-    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
-                                 attribute:NSLayoutAttributeWidth
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.mediaView
-                                 attribute:NSLayoutAttributeWidth
-                                multiplier:0.5
-                                  constant:0];
-    recNotificationLableTopConstraint =
-    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
-                                 attribute:NSLayoutAttributeTop
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeTop
-                                multiplier:1.0
-                                  constant:16.0];
-    recNotificationLableCenterXLandConstraint =
-    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
-                                 attribute:NSLayoutAttributeCenterX
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeCenterX
-                                multiplier:1.0
-                                  constant:0];
-    
+    // create view constraints and apply generic constraints which are equal to both, portrait and landscape mode
+    [self createMediaViewConstraints];
+    [self createCloseButtonConstraints];
+    [self createRecButtonConstraints];
+    [self createLiveLabelConstraints];
+    [self createRecNotificationLabelConstraints];
     [self createJoystickRefBgConstraints];
-    
-    NSLayoutConstraint *indicatorHorizontallyConstraint =
-    [NSLayoutConstraint constraintWithItem:self.indicatorView
-                                 attribute:NSLayoutAttributeCenterX
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.mediaView
-                                 attribute:NSLayoutAttributeCenterX
-                                multiplier:1.0
-                                  constant:0];
-    NSLayoutConstraint *indicatorverticallyConstraint =
-    [NSLayoutConstraint constraintWithItem:self.indicatorView
-                                 attribute:NSLayoutAttributeCenterY
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.mediaView
-                                 attribute:NSLayoutAttributeCenterY
-                                multiplier:1.0
-                                  constant:0];
-    
-    [self.subView addConstraint:mediaViewWidthConstraint];
-    [self.subView addConstraint:mediaViewHeightConstraint];
-    [self.subView addConstraint:mediaViewCenterHorizontallyConstraint];
-    [self.subView addConstraint:mediaViewCenterVertiacllyConstraint];
-    
-    [self.subView addConstraint:closeButtonHeightConstraint];
-    [self.subView addConstraint:closeButtonAspectConstraint];
-    [self.subView addConstraint:closeButtonTopConstraint];
-    [self.subView addConstraint:closeButtonLeftConstraint];
-    
-    [self.subView addConstraint:liveLableHeightConstraint];
-    [self.subView addConstraint:liveLableTopConstraint];
-    [self.subView addConstraint:liveLableLeftPortraitConstraint];
-    
-    [self.subView addConstraint:recNotificationLableHeightPortraitConstraint];
-    [self.subView addConstraint:recNotificationLableWidthPortraitConstraint];
-    [self.subView addConstraint:recNotificationLableTopConstraint];
-    [self.subView addConstraint:recNotificationLableCenterXLandConstraint];
-    
-    [self.subView addConstraint:indicatorHorizontallyConstraint];
-    [self.subView addConstraint:indicatorverticallyConstraint];
-    
-    [self initRecProgressGenericConstraints];
-    [self applyRecProgressPortraitConstraints];
-    
-    [self applyRecButtonGenericConstarints];
-    [self applyRecButtonPortraitConstraints];
-    
-    [self applyJoystickGenericConstarints];
-    [self applyJoystickPortraitConstraints];
-    
+    [self createLoadingIndicatorConstraints];
+    [self createRecProgressConstraints];
     [self createJoystickConstraints];
     
+    // view will be loaded in portrait mode, so apply portrait constraints
+    [self applyMediaViewPortraitConstraints];
+    [self applyLiveLabelPortraitConstraints];
+    [self applyRecNotificationPortraitConstraints];
+    [self applyRecProgressPortraitConstraints];
+    [self applyRecButtonPortraitConstraints];
+    [self applyJoystickPortraitConstraints];
+    
+    
+    self.mediaPlayer = [[VLCMediaPlayer alloc]
+                        initWithOptions:@[ @"--network-caching=2000 --clock-jitter=0 --clock-synchro=0" ]];
+    self.mediaPlayer.delegate = self;
     self.mediaPlayer.drawable = self.mediaView;
     
+    [self initViewGestures];
+    
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    
+    [[VideoPlayerVLC getInstance] sendVlcState:@"onViewCreated"];
+}
+
+-(void) initViewGestures {
     [self.closeButtonView
      addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self
                                                                   action:@selector(stop)]];
-    //    [self.mediaView addGestureRecognizer:[[UIPinchGestureRecognizer
-    //    alloc]initWithTarget:self action:@selector(screenTouchRequest:)]];
-    //    [self.mediaView addGestureRecognizer:[[UIPanGestureRecognizer
-    //    alloc]initWithTarget:self action:@selector(panTouchRequest:)]];
     [self.mediaView addGestureRecognizer:[[UITapGestureRecognizer alloc]
                                           initWithTarget:self
                                           action:@selector(screenTappedRequest:)]];
@@ -560,14 +295,13 @@
     [self.recButtonView addGestureRecognizer:[[UITapGestureRecognizer alloc]
                                               initWithTarget:self
                                               action:@selector(recButtonPressed:)]];
-    
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    self.recActive = NO;
-    self.recordingNotificationLabel.hidden = YES;
-    //[self.indicatorView startAnimating];
-    [[VideoPlayerVLC getInstance] sendVlcState:@"onViewCreated"];
-    
+    // TODO: needed for pinch/zoom feature
+    //    [self.mediaView addGestureRecognizer:[[UIPinchGestureRecognizer
+    //    alloc]initWithTarget:self action:@selector(screenTouchRequest:)]];
+    //    [self.mediaView addGestureRecognizer:[[UIPanGestureRecognizer
+    //    alloc]initWithTarget:self action:@selector(panTouchRequest:)]];
 }
+
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
@@ -575,56 +309,30 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size
        withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    [self.subView removeConstraint:mediaViewTopConstraint];
-    [self.subView removeConstraints:@[
-        mediaViewWidthConstraint, liveLableTopConstraint, liveLableLeftPortraitConstraint,
-        liveLableLeftLandConstraint, liveLableCenterYLandConstraint,
-        recNotificationLableWidthLandConstraint, recNotificationLableWidthPortraitConstraint,
-        recNotificationLableHeightLandConstraint, recNotificationLableHeightPortraitConstraint
-    ]];
-    [self.view removeConstraint:mediaViewBottomConstraint];
-    UILayoutGuide* guide = self.view.safeAreaLayoutGuide;
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    if (UIDeviceOrientationIsPortrait(orientation)) {
+    
+    if (UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
         [self elementsVisibilityRequest:YES];
-        [self.subView.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor].active = NO;
+        [self.subView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor].active = NO;
+        
         [self applyJoystickPortraitImages];
+        [self applyMediaViewPortraitConstraints];
+        [self applyLiveLabelPortraitConstraints];
         [self applyRecProgressPortraitConstraints];
-        [self.subView addConstraints:@[
-            mediaViewWidthConstraint, liveLableTopConstraint, liveLableLeftPortraitConstraint,
-            recNotificationLableHeightPortraitConstraint, recNotificationLableWidthPortraitConstraint
-        ]];
+        [self applyRecNotificationPortraitConstraints];
         [self applyRecButtonPortraitConstraints];
         [self applyJoystickPortraitConstraints];
         
-    } else if (UIDeviceOrientationIsLandscape(orientation)) {
-        [self.subView.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor].active = NO;
+    } else if (UIDeviceOrientationIsLandscape([[UIDevice currentDevice] orientation])) {
+        [self.subView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor].active = NO;
+        
         [self applyJoystickLandscapeImages];
+        [self applyMediaViewLandscapeConstraints];
+        [self applyLiveLabelLandscapeConstraints];
         [self applyRecButtonLandscapeConstraints];
         [self applyRecProgressLandConstraints];
         [self applyJoystickLandscapeConstraints];
-        [self.subView addConstraint:mediaViewTopConstraint];
-        [self.view addConstraint:mediaViewBottomConstraint];
-        [self.subView addConstraint:liveLableLeftLandConstraint];
-        [self.subView addConstraint:liveLableCenterYLandConstraint];
-        [self.subView addConstraints:@[
-            recNotificationLableWidthLandConstraint, recNotificationLableHeightLandConstraint
-        ]];
+        [self applyRecNotificationLandscapeConstraints];
     }
-}
-
-- (void)applyJoystickPortraitImages {
-    [self.jstkUpBgView setImage:[UIImage imageNamed:@"joystick-up-portrait.png"]];
-    [self.jstkLeftBgView setImage:[UIImage imageNamed:@"joystick-left-portrait.png"]];
-    [self.jstkDownBgView setImage:[UIImage imageNamed:@"joystick-down-portrait.png"]];
-    [self.jstkRightBgView setImage:[UIImage imageNamed:@"joystick-right-portrait.png"]];
-}
-
-- (void)applyJoystickLandscapeImages {
-    [self.jstkUpBgView setImage:[UIImage imageNamed:@"joystick-up-land.png"]];
-    [self.jstkLeftBgView setImage:[UIImage imageNamed:@"joystick-left-land.png"]];
-    [self.jstkDownBgView setImage:[UIImage imageNamed:@"joystick-down-land.png"]];
-    [self.jstkRightBgView setImage:[UIImage imageNamed:@"joystick-right-land.png"]];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -805,7 +513,504 @@
     self.mediaView.center = [gesture locationInView:self.mediaView.superview];
 }
 
-- (void)initRecProgressGenericConstraints {
+- (void)startRecordingTimer {
+    if (self.recProgressTimer) {
+        [self stopRecordingTimer];
+    }
+    [UIView transitionWithView:self.liveTextLabel
+                      duration:0.3
+                       options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+        self.liveTextLabel.alpha = 0;
+    }
+                    completion:nil];
+    
+    self.recordingProgressLabel.text = @"  00:00  ";
+    [UIView transitionWithView:self.recordingProgressLabel
+                      duration:0.3
+                       options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+        self.recordingProgressLabel.alpha = 1;
+    }
+                    completion:nil];
+    
+    self.startDate = [NSDate date];
+    self.recProgressTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
+                                                             target:self
+                                                           selector:@selector(updateRecordingTimer:)
+                                                           userInfo:nil
+                                                            repeats:YES];
+}
+
+- (void)stopRecordingTimer {
+    [UIView transitionWithView:self.liveTextLabel
+                      duration:0.3
+                       options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+        self.liveTextLabel.alpha = 1;
+    }
+                    completion:nil];
+    
+    [UIView transitionWithView:self.recordingProgressLabel
+                      duration:0.3
+                       options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+        self.recordingProgressLabel.alpha = 0;
+    }
+                    completion:nil];
+    [self.recProgressTimer invalidate];
+    self.recProgressTimer = nil;
+}
+
+- (void)updateRecordingTimer:(NSTimer*)timer {
+    NSDate* currentDate = [NSDate date];
+    NSTimeInterval timeInterval = [currentDate timeIntervalSinceDate:self.startDate];
+    NSDate* timerDate = [NSDate dateWithTimeIntervalSince1970:timeInterval];
+    NSString* timeString = [self.dateFormatter stringFromDate:timerDate];
+    self.recordingProgressLabel.text = [NSString stringWithFormat:@"  %@  ", timeString];
+}
+
+- (void)upBtnLongPress:(UILongPressGestureRecognizer*)gesture {
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        [self cameraMoveRequest:@"1"];
+        self.jstkUpBgView.alpha = 0.5;
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
+        [self cameraMoveRequest:@"0"];
+        self.jstkUpBgView.alpha = 1;
+    }
+}
+
+- (void)leftBtnLongPress:(UILongPressGestureRecognizer*)gesture {
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        [self cameraMoveRequest:@"3"];
+        self.jstkLeftBgView.alpha = 0.5;
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
+        [self cameraMoveRequest:@"0"];
+        self.jstkLeftBgView.alpha = 1;
+    }
+}
+
+- (void)downBtnLongPress:(UILongPressGestureRecognizer*)gesture {
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        [self cameraMoveRequest:@"2"];
+        self.jstkDownBgView.alpha = 0.5;
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
+        [self cameraMoveRequest:@"0"];
+        self.jstkDownBgView.alpha = 1;
+    }
+}
+
+- (void)rightBtnLongPress:(UILongPressGestureRecognizer*)gesture {
+    if (gesture.state == UIGestureRecognizerStateBegan) {
+        [self cameraMoveRequest:@"4"];
+        self.jstkRightBgView.alpha = 0.5;
+    } else if (gesture.state == UIGestureRecognizerStateEnded) {
+        [self cameraMoveRequest:@"0"];
+        self.jstkRightBgView.alpha = 1;
+    }
+}
+
+- (void)showRecordingNotification {
+    self.recordingNotificationLabel.hidden = NO;
+    [UIView transitionWithView:self.recordingNotificationLabel
+                      duration:0.3
+                       options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+        self.recordingNotificationLabel.alpha = 1;
+        [NSTimer scheduledTimerWithTimeInterval:4.0
+                                         target:self
+                                       selector:@selector(hideRecordingNotification:)
+                                       userInfo:nil
+                                        repeats:NO];
+    }
+                    completion:nil];
+}
+
+- (void)hideRecordingNotification:(NSTimer*)timer {
+    [UIView transitionWithView:self.recordingNotificationLabel
+                      duration:0.5
+                       options:UIViewAnimationOptionTransitionCrossDissolve
+                    animations:^{
+        self.recordingNotificationLabel.alpha = 0;
+    }
+                    completion:nil];
+}
+
+- (void)setTranslations:(NSString*)liveIndicator recNotification:(NSString*)recNotification {
+    if (self.liveTextLabel) {
+        [self.liveTextLabel
+         setText:[NSString stringWithFormat:@"  %@  ", [liveIndicator uppercaseString]]];
+    }
+    
+    if (self.recordingNotificationLabel) {
+        NSMutableParagraphStyle* style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+        style.firstLineHeadIndent = 10.0f;
+        style.headIndent = 10.0f;
+        style.tailIndent = -10.0f;
+        NSAttributedString* attrStr =
+        [[NSAttributedString alloc] initWithString:recNotification
+                                        attributes:@{NSParagraphStyleAttributeName : style}];
+        self.recordingNotificationLabel.attributedText = attrStr;
+    }
+}
+
+- (void) delayedDismissLoadingAnimation {
+    if(self.loadingIndicatorDismissTimer) {
+        [self.loadingIndicatorDismissTimer invalidate];
+    }
+    [self.indicatorView startAnimating];
+    self.loadingIndicatorDismissTimer = [NSTimer scheduledTimerWithTimeInterval:0.8
+                                                                         target:self
+                                                                       selector:@selector(dismissLoadingIndicator:)
+                                                                       userInfo:nil
+                                                                        repeats:NO];
+}
+
+- (void)dismissLoadingIndicator:(NSTimer*)timer {
+    [self.indicatorView stopAnimating];
+}
+
+
+- (void)applyJoystickPortraitImages {
+    [self.jstkUpBgView setImage:[UIImage imageNamed:@"joystick-up-portrait.png"]];
+    [self.jstkLeftBgView setImage:[UIImage imageNamed:@"joystick-left-portrait.png"]];
+    [self.jstkDownBgView setImage:[UIImage imageNamed:@"joystick-down-portrait.png"]];
+    [self.jstkRightBgView setImage:[UIImage imageNamed:@"joystick-right-portrait.png"]];
+}
+
+- (void)applyJoystickLandscapeImages {
+    [self.jstkUpBgView setImage:[UIImage imageNamed:@"joystick-up-land.png"]];
+    [self.jstkLeftBgView setImage:[UIImage imageNamed:@"joystick-left-land.png"]];
+    [self.jstkDownBgView setImage:[UIImage imageNamed:@"joystick-down-land.png"]];
+    [self.jstkRightBgView setImage:[UIImage imageNamed:@"joystick-right-land.png"]];
+}
+
+-(void) applyMediaViewPortraitConstraints {
+    [self.subView
+     removeConstraint: mediaViewTopConstraint];
+    [self.view
+     removeConstraint: mediaViewBottomConstraint ];
+    [self.subView addConstraint:
+     mediaViewWidthConstraint
+     ];
+}
+
+-(void) applyMediaViewLandscapeConstraints {
+    [self.subView
+     removeConstraint: mediaViewWidthConstraint];
+    [self.subView addConstraint:
+     mediaViewTopConstraint];
+    [self.view addConstraint: mediaViewBottomConstraint];
+}
+
+-(void) applyLiveLabelPortraitConstraints {
+    [self.subView removeConstraints:@[liveLableLeftLandConstraint, liveLableCenterYLandConstraint]];
+    [self.subView addConstraints:@[liveLableTopConstraint,liveLableLeftPortraitConstraint]];
+}
+
+-(void) applyLiveLabelLandscapeConstraints {
+    [self.subView removeConstraints:@[liveLableTopConstraint,liveLableLeftPortraitConstraint]];
+    [self.subView addConstraints:@[liveLableLeftLandConstraint, liveLableCenterYLandConstraint]];
+}
+
+- (void)applyRecProgressPortraitConstraints {
+    [self.subView removeConstraint:recLableTopLandConstraint];
+    [self.subView addConstraint:recLableBottomPortraitConstraint];
+}
+
+- (void)applyRecProgressLandConstraints {
+    [self.subView removeConstraint:recLableBottomPortraitConstraint];
+    [self.subView addConstraint:recLableTopLandConstraint];
+}
+
+- (void)applyRecButtonPortraitConstraints {
+    [self.subView
+     removeConstraints:@[ recButtonHeightLandscapeConstraint, recButtonTopLandscapeConstraint ]];
+    [self.subView removeConstraint:recButtonRightLandscapeConstraint];
+    [self.subView addConstraints:@[
+        recButtonHeightConstraint, recButtonHorizontallyPortraitConstraint,
+        recButtonTopPortraitConstraint
+    ]];
+}
+
+- (void)applyRecButtonLandscapeConstraints {
+    [self.subView removeConstraints:@[
+        recButtonHeightConstraint, recButtonHorizontallyPortraitConstraint,
+        recButtonTopPortraitConstraint
+    ]];
+    [self.subView
+     addConstraints:@[ recButtonHeightLandscapeConstraint, recButtonTopLandscapeConstraint ]];
+    [self.subView addConstraint:recButtonRightLandscapeConstraint];
+}
+
+-(void) applyRecNotificationPortraitConstraints{
+    [self.subView
+     removeConstraints:@[ recNotificationLableWidthLandConstraint, recNotificationLableHeightLandConstraint ]];
+    [self.subView
+     addConstraints:@[ recNotificationLableWidthPortraitConstraint, recNotificationLableHeightPortraitConstraint ]];
+}
+
+-(void) applyRecNotificationLandscapeConstraints{
+    [self.subView
+     removeConstraints:@[ recNotificationLableWidthPortraitConstraint, recNotificationLableHeightPortraitConstraint ]];
+    [self.subView
+     addConstraints:@[ recNotificationLableWidthLandConstraint, recNotificationLableHeightLandConstraint ]];
+}
+
+- (void)applyJoystickPortraitConstraints {
+    [self.subView removeConstraints:@[ jstckBgHeightLandscapeConstraint ]];
+    [self.subView removeConstraints:@[ jstckBgRightConstraint ]];
+    [self.subView addConstraints:@[ jstckBgCenterHorizonzallyConstarint, jstckBgTopConstraint ]];
+}
+
+- (void)applyJoystickLandscapeConstraints {
+    [self.subView removeConstraints:@[ jstckBgCenterHorizonzallyConstarint, jstckBgTopConstraint ]];
+    [self.subView addConstraints:@[ jstckBgHeightLandscapeConstraint ]];
+    [self.subView addConstraint:jstckBgRightConstraint];
+}
+
+
+-(void)createMediaViewConstraints {
+    mediaViewWidthConstraint = [NSLayoutConstraint constraintWithItem:self.mediaView
+                                                            attribute:NSLayoutAttributeWidth
+                                                            relatedBy:NSLayoutRelationEqual
+                                                               toItem:self.subView
+                                                            attribute:NSLayoutAttributeWidth
+                                                           multiplier:1.0
+                                                             constant:0];
+    mediaViewHeightConstraint = [NSLayoutConstraint constraintWithItem:self.mediaView
+                                                             attribute:NSLayoutAttributeHeight
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:self.mediaView
+                                                             attribute:NSLayoutAttributeWidth
+                                                            multiplier:(9.0 / 16.0)
+                                                              constant:0];
+    mediaViewCenterHorizontallyConstraint =
+    [NSLayoutConstraint constraintWithItem:self.mediaView
+                                 attribute:NSLayoutAttributeCenterX
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.subView
+                                 attribute:NSLayoutAttributeCenterX
+                                multiplier:1.0
+                                  constant:0];
+    mediaViewCenterVertiacllyConstraint =
+    [NSLayoutConstraint constraintWithItem:self.mediaView
+                                 attribute:NSLayoutAttributeCenterY
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.subView
+                                 attribute:NSLayoutAttributeCenterY
+                                multiplier:1.0
+                                  constant:0];
+    mediaViewTopConstraint = [NSLayoutConstraint constraintWithItem:self.mediaView
+                                                          attribute:NSLayoutAttributeTop
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.subView
+                                                          attribute:NSLayoutAttributeTop
+                                                         multiplier:1.0
+                                                           constant:0];
+    mediaViewBottomConstraint = [NSLayoutConstraint constraintWithItem:self.mediaView
+                                                             attribute:NSLayoutAttributeBottom
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:self.view
+                                                             attribute:NSLayoutAttributeBottom
+                                                            multiplier:1.0
+                                                              constant:0];
+    
+    [self.subView addConstraint:mediaViewHeightConstraint];
+    [self.subView addConstraint:mediaViewCenterHorizontallyConstraint];
+    [self.subView addConstraint:mediaViewCenterVertiacllyConstraint];
+}
+
+-(void) createCloseButtonConstraints {
+    closeButtonHeightConstraint =
+    [NSLayoutConstraint constraintWithItem:self.closeButtonView
+                                 attribute:NSLayoutAttributeHeight
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:nil
+                                 attribute:NSLayoutAttributeNotAnAttribute
+                                multiplier:1.0
+                                  constant:25.0];
+    closeButtonAspectConstraint =
+    [NSLayoutConstraint constraintWithItem:self.closeButtonView
+                                 attribute:NSLayoutAttributeWidth
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.closeButtonView
+                                 attribute:NSLayoutAttributeHeight
+                                multiplier:self.closeButtonView.image.size.width /
+     self.closeButtonView.image.size.height
+                                  constant:0];
+    closeButtonTopConstraint = [NSLayoutConstraint constraintWithItem:self.closeButtonView
+                                                            attribute:NSLayoutAttributeTop
+                                                            relatedBy:NSLayoutRelationEqual
+                                                               toItem:self.subView
+                                                            attribute:NSLayoutAttributeTop
+                                                           multiplier:1.0
+                                                             constant:16.0];
+    closeButtonLeftConstraint = [NSLayoutConstraint constraintWithItem:self.closeButtonView
+                                                             attribute:NSLayoutAttributeLeft
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:self.mediaView
+                                                             attribute:NSLayoutAttributeLeft
+                                                            multiplier:1.0
+                                                              constant:8.0];
+    [self.subView addConstraint:closeButtonHeightConstraint];
+    [self.subView addConstraint:closeButtonAspectConstraint];
+    [self.subView addConstraint:closeButtonTopConstraint];
+    [self.subView addConstraint:closeButtonLeftConstraint];
+}
+
+-(void) createRecButtonConstraints {
+    recButtonHeightConstraint = [NSLayoutConstraint constraintWithItem:self.recButtonView
+                                                             attribute:NSLayoutAttributeHeight
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:self.subView
+                                                             attribute:NSLayoutAttributeHeight
+                                                            multiplier:(1.0 / 12.0)
+                                                              constant:0];
+    recButtonHeightLandscapeConstraint =
+    [NSLayoutConstraint constraintWithItem:self.recButtonView
+                                 attribute:NSLayoutAttributeHeight
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.joystickView
+                                 attribute:NSLayoutAttributeHeight
+                                multiplier:(1.0 / 2.5)
+                                  constant:0];
+    recButtonAspectConstraint = [NSLayoutConstraint
+                                 constraintWithItem:self.recButtonView
+                                 attribute:NSLayoutAttributeWidth
+                                 relatedBy:NSLayoutRelationEqual
+                                 toItem:self.recButtonView
+                                 attribute:NSLayoutAttributeHeight
+                                 multiplier:self.recButtonView.image.size.width / self.recButtonView.image.size.height
+                                 constant:0];
+    recButtonHorizontallyPortraitConstraint =
+    [NSLayoutConstraint constraintWithItem:self.recButtonView
+                                 attribute:NSLayoutAttributeCenterX
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.mediaView
+                                 attribute:NSLayoutAttributeCenterX
+                                multiplier:1.0
+                                  constant:0.0];
+    recButtonTopPortraitConstraint = [NSLayoutConstraint constraintWithItem:self.recButtonView
+                                                                  attribute:NSLayoutAttributeTop
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self.mediaView
+                                                                  attribute:NSLayoutAttributeBottom
+                                                                 multiplier:1.0
+                                                                   constant:8];
+    recButtonTopLandscapeConstraint = [NSLayoutConstraint constraintWithItem:self.recButtonView
+                                                                   attribute:NSLayoutAttributeTop
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:self.subView
+                                                                   attribute:NSLayoutAttributeTop
+                                                                  multiplier:1.0
+                                                                    constant:40];
+    recButtonRightLandscapeConstraint = [NSLayoutConstraint constraintWithItem:self.recButtonView
+                                                                     attribute:NSLayoutAttributeRight
+                                                                     relatedBy:NSLayoutRelationEqual
+                                                                        toItem:self.mediaView
+                                                                     attribute:NSLayoutAttributeRight
+                                                                    multiplier:1.0
+                                                                      constant:-8];
+    
+    [self.subView addConstraint:recButtonAspectConstraint];
+}
+
+-(void)createLiveLabelConstraints {
+    
+    liveLableHeightConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
+                                                             attribute:NSLayoutAttributeHeight
+                                                             relatedBy:NSLayoutRelationEqual
+                                                                toItem:nil
+                                                             attribute:NSLayoutAttributeNotAnAttribute
+                                                            multiplier:1.0
+                                                              constant:16.0];
+    liveLableTopConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
+                                                          attribute:NSLayoutAttributeTop
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:self.mediaView
+                                                          attribute:NSLayoutAttributeTop
+                                                         multiplier:1.0
+                                                           constant:16.0];
+    liveLableLeftPortraitConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
+                                                                   attribute:NSLayoutAttributeLeft
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:self.mediaView
+                                                                   attribute:NSLayoutAttributeLeft
+                                                                  multiplier:1.0
+                                                                    constant:8.0];
+    liveLableLeftLandConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
+                                                               attribute:NSLayoutAttributeLeading
+                                                               relatedBy:NSLayoutRelationEqual
+                                                                  toItem:self.closeButtonView
+                                                               attribute:NSLayoutAttributeTrailing
+                                                              multiplier:1.0
+                                                                constant:12.0];
+    liveLableCenterYLandConstraint = [NSLayoutConstraint constraintWithItem:self.liveTextLabel
+                                                                  attribute:NSLayoutAttributeCenterY
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self.closeButtonView
+                                                                  attribute:NSLayoutAttributeCenterY
+                                                                 multiplier:1.0
+                                                                   constant:0];
+    [self.subView addConstraint:liveLableHeightConstraint];
+}
+
+-(void)createRecNotificationLabelConstraints{
+    recNotificationLableHeightPortraitConstraint =
+    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
+                                 attribute:NSLayoutAttributeHeight
+                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                    toItem:self.subView
+                                 attribute:NSLayoutAttributeHeight
+                                multiplier:(1.0 / 12.0)
+                                  constant:0];
+    recNotificationLableHeightLandConstraint =
+    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
+                                 attribute:NSLayoutAttributeHeight
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.subView
+                                 attribute:NSLayoutAttributeHeight
+                                multiplier:0.15
+                                  constant:0];
+    recNotificationLableWidthPortraitConstraint =
+    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
+                                 attribute:NSLayoutAttributeWidth
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.subView
+                                 attribute:NSLayoutAttributeWidth
+                                multiplier:1.0
+                                  constant:-8];
+    recNotificationLableWidthLandConstraint =
+    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
+                                 attribute:NSLayoutAttributeWidth
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.mediaView
+                                 attribute:NSLayoutAttributeWidth
+                                multiplier:0.5
+                                  constant:0];
+    recNotificationLableTopConstraint =
+    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
+                                 attribute:NSLayoutAttributeTop
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.subView
+                                 attribute:NSLayoutAttributeTop
+                                multiplier:1.0
+                                  constant:16.0];
+    recNotificationLableCenterXLandConstraint =
+    [NSLayoutConstraint constraintWithItem:self.recordingNotificationLabel
+                                 attribute:NSLayoutAttributeCenterX
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.subView
+                                 attribute:NSLayoutAttributeCenterX
+                                multiplier:1.0
+                                  constant:0];
+    
+    [self.subView addConstraint:recNotificationLableTopConstraint];
+    [self.subView addConstraint:recNotificationLableCenterXLandConstraint];
+}
+
+- (void)createRecProgressConstraints {
     recLableHeightConstraint = [NSLayoutConstraint constraintWithItem:self.recordingProgressLabel
                                                             attribute:NSLayoutAttributeHeight
                                                             relatedBy:NSLayoutRelationEqual
@@ -840,38 +1045,25 @@
     [self.subView addConstraint:recLableHeightConstraint];
 }
 
-- (void)applyRecProgressPortraitConstraints {
-    [self.subView removeConstraint:recLableTopLandConstraint];
-    [self.subView addConstraint:recLableBottomPortraitConstraint];
-}
-
-- (void)applyRecProgressLandConstraints {
-    [self.subView removeConstraint:recLableBottomPortraitConstraint];
-    [self.subView addConstraint:recLableTopLandConstraint];
-}
-
-- (void)applyRecButtonGenericConstarints {
-    [self.subView addConstraint:recButtonAspectConstraint];
-}
-
-- (void)applyRecButtonPortraitConstraints {
-    [self.subView
-     removeConstraints:@[ recButtonHeightLandscapeConstraint, recButtonTopLandscapeConstraint ]];
-    [self.subView removeConstraint:recButtonRightLandscapeConstraint];
-    [self.subView addConstraints:@[
-        recButtonHeightConstraint, recButtonHorizontallyPortraitConstraint,
-        recButtonTopPortraitConstraint
-    ]];
-}
-
-- (void)applyRecButtonLandscapeConstraints {
-    [self.subView removeConstraints:@[
-        recButtonHeightConstraint, recButtonHorizontallyPortraitConstraint,
-        recButtonTopPortraitConstraint
-    ]];
-    [self.subView
-     addConstraints:@[ recButtonHeightLandscapeConstraint, recButtonTopLandscapeConstraint ]];
-    [self.subView addConstraint:recButtonRightLandscapeConstraint];
+-(void)createLoadingIndicatorConstraints{
+    NSLayoutConstraint *indicatorHorizontallyConstraint =
+    [NSLayoutConstraint constraintWithItem:self.indicatorView
+                                 attribute:NSLayoutAttributeCenterX
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.mediaView
+                                 attribute:NSLayoutAttributeCenterX
+                                multiplier:1.0
+                                  constant:0];
+    NSLayoutConstraint *indicatorverticallyConstraint =
+    [NSLayoutConstraint constraintWithItem:self.indicatorView
+                                 attribute:NSLayoutAttributeCenterY
+                                 relatedBy:NSLayoutRelationEqual
+                                    toItem:self.mediaView
+                                 attribute:NSLayoutAttributeCenterY
+                                multiplier:1.0
+                                  constant:0];
+    [self.subView addConstraint:indicatorHorizontallyConstraint];
+    [self.subView addConstraint:indicatorverticallyConstraint];
 }
 
 - (void)createJoystickRefBgConstraints {
@@ -919,23 +1111,8 @@
                                                           attribute:NSLayoutAttributeRight
                                                          multiplier:1.0
                                                            constant:-8];
-}
-
-- (void)applyJoystickGenericConstarints {
     [self.subView addConstraint:jstckBgAspectConstraint];
     [self.subView addConstraint:jstckBgBottomConstraint];
-}
-
-- (void)applyJoystickPortraitConstraints {
-    [self.subView removeConstraints:@[ jstckBgHeightLandscapeConstraint ]];
-    [self.subView removeConstraints:@[ jstckBgRightConstraint ]];
-    [self.subView addConstraints:@[ jstckBgCenterHorizonzallyConstarint, jstckBgTopConstraint ]];
-}
-
-- (void)applyJoystickLandscapeConstraints {
-    [self.subView removeConstraints:@[ jstckBgCenterHorizonzallyConstarint, jstckBgTopConstraint ]];
-    [self.subView addConstraints:@[ jstckBgHeightLandscapeConstraint ]];
-    [self.subView addConstraint:jstckBgRightConstraint];
 }
 
 - (void)createJoystickConstraints {
@@ -1092,163 +1269,16 @@
     [self.subView addConstraint:jstkRightRight];
 }
 
-- (void)startRecordingTimer {
-    if (self.recProgressTimer) {
-        [self stopRecordingTimer];
-    }
-    [UIView transitionWithView:self.liveTextLabel
-                      duration:0.3
-                       options:UIViewAnimationOptionTransitionCrossDissolve
-                    animations:^{
-        self.liveTextLabel.alpha = 0;
-    }
-                    completion:nil];
-    
-    self.recordingProgressLabel.text = @"  00:00  ";
-    [UIView transitionWithView:self.recordingProgressLabel
-                      duration:0.3
-                       options:UIViewAnimationOptionTransitionCrossDissolve
-                    animations:^{
-        self.recordingProgressLabel.alpha = 1;
-    }
-                    completion:nil];
-    
-    self.startDate = [NSDate date];
-    self.recProgressTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
-                                                             target:self
-                                                           selector:@selector(updateRecordingTimer:)
-                                                           userInfo:nil
-                                                            repeats:YES];
+- (UIColor*)colorFromHex:(NSString*)hexColor {
+    unsigned rgbValue = 0;
+    NSScanner* scanner = [NSScanner scannerWithString:hexColor];
+    [scanner setScanLocation:1];
+    [scanner scanHexInt:&rgbValue];
+    return [UIColor colorWithRed:((rgbValue & 0XFF0000) >> 16) / 255.0
+                           green:((rgbValue & 0XFF00) >> 8) / 255.0
+                            blue:(rgbValue & 0XFF) / 255.0
+                           alpha:1.0];
 }
 
-- (void)stopRecordingTimer {
-    [UIView transitionWithView:self.liveTextLabel
-                      duration:0.3
-                       options:UIViewAnimationOptionTransitionCrossDissolve
-                    animations:^{
-        self.liveTextLabel.alpha = 1;
-    }
-                    completion:nil];
-    
-    [UIView transitionWithView:self.recordingProgressLabel
-                      duration:0.3
-                       options:UIViewAnimationOptionTransitionCrossDissolve
-                    animations:^{
-        self.recordingProgressLabel.alpha = 0;
-    }
-                    completion:nil];
-    //    self.liveTextLabel.hidden = NO;
-    //    self.recordingProgressLabel.alpha = 0;
-    [self.recProgressTimer invalidate];
-    self.recProgressTimer = nil;
-}
-
-- (void)updateRecordingTimer:(NSTimer*)timer {
-    NSDate* currentDate = [NSDate date];
-    NSTimeInterval timeInterval = [currentDate timeIntervalSinceDate:self.startDate];
-    NSDate* timerDate = [NSDate dateWithTimeIntervalSince1970:timeInterval];
-    NSString* timeString = [self.dateFormatter stringFromDate:timerDate];
-    self.recordingProgressLabel.text = [NSString stringWithFormat:@"  %@  ", timeString];
-}
-
-- (void)upBtnLongPress:(UILongPressGestureRecognizer*)gesture {
-    if (gesture.state == UIGestureRecognizerStateBegan) {
-        [self cameraMoveRequest:@"1"];
-        self.jstkUpBgView.alpha = 0.5;
-    } else if (gesture.state == UIGestureRecognizerStateEnded) {
-        [self cameraMoveRequest:@"0"];
-        self.jstkUpBgView.alpha = 1;
-    }
-}
-
-- (void)leftBtnLongPress:(UILongPressGestureRecognizer*)gesture {
-    if (gesture.state == UIGestureRecognizerStateBegan) {
-        [self cameraMoveRequest:@"3"];
-        self.jstkLeftBgView.alpha = 0.5;
-    } else if (gesture.state == UIGestureRecognizerStateEnded) {
-        [self cameraMoveRequest:@"0"];
-        self.jstkLeftBgView.alpha = 1;
-    }
-}
-
-- (void)downBtnLongPress:(UILongPressGestureRecognizer*)gesture {
-    if (gesture.state == UIGestureRecognizerStateBegan) {
-        [self cameraMoveRequest:@"2"];
-        self.jstkDownBgView.alpha = 0.5;
-    } else if (gesture.state == UIGestureRecognizerStateEnded) {
-        [self cameraMoveRequest:@"0"];
-        self.jstkDownBgView.alpha = 1;
-    }
-}
-
-- (void)rightBtnLongPress:(UILongPressGestureRecognizer*)gesture {
-    if (gesture.state == UIGestureRecognizerStateBegan) {
-        [self cameraMoveRequest:@"4"];
-        self.jstkRightBgView.alpha = 0.5;
-    } else if (gesture.state == UIGestureRecognizerStateEnded) {
-        [self cameraMoveRequest:@"0"];
-        self.jstkRightBgView.alpha = 1;
-    }
-}
-
-- (void)showRecordingNotification {
-    self.recordingNotificationLabel.hidden = NO;
-    [UIView transitionWithView:self.recordingNotificationLabel
-                      duration:0.3
-                       options:UIViewAnimationOptionTransitionCrossDissolve
-                    animations:^{
-        self.recordingNotificationLabel.alpha = 1;
-        [NSTimer scheduledTimerWithTimeInterval:4.0
-                                         target:self
-                                       selector:@selector(hideRecordingNotification:)
-                                       userInfo:nil
-                                        repeats:NO];
-    }
-                    completion:nil];
-}
-
-- (void)hideRecordingNotification:(NSTimer*)timer {
-    [UIView transitionWithView:self.recordingNotificationLabel
-                      duration:0.5
-                       options:UIViewAnimationOptionTransitionCrossDissolve
-                    animations:^{
-        self.recordingNotificationLabel.alpha = 0;
-    }
-                    completion:nil];
-}
-
-- (void)setTranslations:(NSString*)liveIndicator recNotification:(NSString*)recNotification {
-    if (self.liveTextLabel) {
-        [self.liveTextLabel
-         setText:[NSString stringWithFormat:@"  %@  ", [liveIndicator uppercaseString]]];
-    }
-    
-    if (self.recordingNotificationLabel) {
-        NSMutableParagraphStyle* style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
-        style.firstLineHeadIndent = 10.0f;
-        style.headIndent = 10.0f;
-        style.tailIndent = -10.0f;
-        NSAttributedString* attrStr =
-        [[NSAttributedString alloc] initWithString:recNotification
-                                        attributes:@{NSParagraphStyleAttributeName : style}];
-        self.recordingNotificationLabel.attributedText = attrStr;
-    }
-}
-
-- (void) delayedDismissLoadingAnimation {
-    if(self.loadingIndicatorDismissTimer) {
-        [self.loadingIndicatorDismissTimer invalidate];
-    }
-    [self.indicatorView startAnimating];
-    self.loadingIndicatorDismissTimer = [NSTimer scheduledTimerWithTimeInterval:0.8
-                                                                         target:self
-                                                                       selector:@selector(dismissLoadingIndicator:)
-                                                                       userInfo:nil
-                                                                        repeats:NO];
-}
-
-- (void)dismissLoadingIndicator:(NSTimer*)timer {
-    [self.indicatorView stopAnimating];
-}
 
 @end

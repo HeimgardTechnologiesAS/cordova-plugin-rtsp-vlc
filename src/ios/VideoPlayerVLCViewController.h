@@ -16,13 +16,11 @@
 
 - (void)play;
 - (void)stop;
-- (UIColor *)colorFromHex:(NSString *)hexColor;
 - (void)recordingRequest:(BOOL)value;
 - (void)cameraMoveRequest:(NSString *)value;
-- (void)screenTouchRequest;
 - (void)recordingStatusReceived:(BOOL)value;
 - (void)elementsVisibilityRequest:(BOOL)value;
 - (void)setTranslations:(NSString *)liveIndicator recNotification:(NSString *)recNotification;
-- (void) setJoystickButtonViewEnabled;
+- (void)setJoystickButtonViewEnabled;
 
 @end
