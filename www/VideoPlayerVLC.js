@@ -25,7 +25,7 @@ module.exports = {
     exec(success, failure, "VideoPlayerVLC", "play", [uri]);
   },
   stop: function(success, failure) {
-    exec(success, failure, "VideoPlayerVLC", "close");
+    exec(success, failure, "VideoPlayerVLC", "stop");
   },
   sendExternalDataToPlayer: function(data, success, failure) {
     exec(success, failure, "VideoPlayerVLC", "receiveExternalData", [data]);

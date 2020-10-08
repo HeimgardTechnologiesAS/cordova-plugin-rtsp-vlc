@@ -122,23 +122,9 @@ static CDVInvokedUrlCommand* commandGlobExternalData = nil;
 
 - (void)stop:(CDVInvokedUrlCommand*)command
 {
-    
-    CDVPluginResult* pluginResult = nil;
-    if (self.player != nil) {
-        @try {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-                                             messageAsString:@"onDestroyVlc"];
-        } @catch (NSException* exception) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
-                                             messageAsString:exception.reason];
-        }
-    } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
-                                         messageAsString:@"not-playing"];
+    if(self.player != nil) {
+        [self.player stop];
     }
-    [pluginResult setKeepCallback:@YES];
-    [self.commandDelegate sendPluginResult:pluginResult
-                                callbackId:commandGlobPlay.callbackId];
 }
 
 - (void)sendVlcState:(NSString*)event
