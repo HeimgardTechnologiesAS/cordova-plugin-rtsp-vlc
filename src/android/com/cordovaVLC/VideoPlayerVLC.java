@@ -114,20 +114,12 @@ public class VideoPlayerVLC extends CordovaPlugin {
         else if (action.equals("stop")) {
             _filters("stop");
             return true;
-        }
-        else if (action.equals("close")) {
-            _filters("close");
+        } else if (action.equals("setExternalDataCallback")) {
+            this.callbackContextExternalData = callbackContext;
+            _cordovaSendExternal("set_external_callback");
             return true;
-        } else if (action.equals("receiveExternalData")) {
-
-
+        } else if (action.equals("sendExternalDataToPlayer")) {
             String externalData = args.getString(0);
-            if(externalData.equals("set_external_callback")) {
-                this.callbackContextExternalData = callbackContext;
-                _cordovaSendExternal("set_external_callback");
-                return true;
-            }
-
             try {
                 JSONObject jsonObject = new JSONObject(externalData);
                 String type = jsonObject.getString("type");

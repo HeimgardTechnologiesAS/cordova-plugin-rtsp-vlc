@@ -58,58 +58,59 @@ static CDVInvokedUrlCommand* commandGlobExternalData = nil;
     }
 }
 
-- (void)receiveExternalData:(CDVInvokedUrlCommand*)command
+
+- (void)setExternalDataCallback:(CDVInvokedUrlCommand*)command
 {
-    
+    commandGlobExternalData = command;
+    [self sendExternalData:@"set_external_callback"];
+}
+
+
+- (void)sendExternalDataToPlayer:(CDVInvokedUrlCommand*)command
+{
     NSString* externalCommandString = [command.arguments objectAtIndex:0];
     if (externalCommandString != nil) {
-        if ([externalCommandString isEqualToString:@"set_external_callback"]) {
-            commandGlobExternalData = command;
-            [self sendExternalData:@"set_external_callback"];
-            return;
-        } else {
-            NSError* err = nil;
-            NSMutableDictionary* JSONObj = [NSJSONSerialization
-                                            JSONObjectWithData:[externalCommandString
-                                                                dataUsingEncoding:NSUTF8StringEncoding]
-                                            options:0
-                                            error:&err];
-            if (err == nil) {
-                NSString* type = [JSONObj valueForKey:@"type"];
-                if (type != nil) {
-                    if ([type isEqualToString:@"webview_show_ptz_buttons"]) {
-                        if([JSONObj[@"value"] boolValue]) {
-                            [self.player setJoystickButtonViewEnabled];
-                        }
-                        return;
-                    } else if ([type isEqualToString:@"webview_show_recording_button"]) {
-                        BOOL value = [JSONObj[@"value"] boolValue];
-                        // TODO: call method to show/hide recording buton
-                        return;
-                    } else if ([type isEqualToString:@"webview_update_rec_status"]) {
-                        BOOL value = [JSONObj[@"value"] boolValue];
-                        [self.player recordingStatusReceived:value];
-                        return;
-                    } else if ([type isEqualToString:@"webview_elements_visibility"]) {
-                        BOOL value = [JSONObj[@"value"] boolValue];
-                        [self.player elementsVisibilityRequest:value];
-                        return;
-                    } else if ([type isEqualToString:@"webview_set_translations"]) {
-                        NSMutableDictionary* valueObj = [NSJSONSerialization
-                                                         JSONObjectWithData:[JSONObj[@"value"]
-                                                                             dataUsingEncoding:NSUTF8StringEncoding]
-                                                         options:0
-                                                         error:&err];
-                        if (err == nil) {
-                            NSString* liveIndicator =
-                            [valueObj valueForKey:@"live_indicator"];
-                            NSString* recNotification =
-                            [valueObj valueForKey:@"rec_notification"];
-                            [self.player setTranslations:liveIndicator
-                                         recNotification:recNotification];
-                        }
-                        return;
+        NSError* err = nil;
+        NSMutableDictionary* JSONObj = [NSJSONSerialization
+                                        JSONObjectWithData:[externalCommandString
+                                                            dataUsingEncoding:NSUTF8StringEncoding]
+                                        options:0
+                                        error:&err];
+        if (err == nil) {
+            NSString* type = [JSONObj valueForKey:@"type"];
+            if (type != nil) {
+                if ([type isEqualToString:@"webview_show_ptz_buttons"]) {
+                    if([JSONObj[@"value"] boolValue]) {
+                        [self.player setJoystickButtonViewEnabled];
                     }
+                    return;
+                } else if ([type isEqualToString:@"webview_show_recording_button"]) {
+                    BOOL value = [JSONObj[@"value"] boolValue];
+                    // TODO: call method to show/hide recording buton
+                    return;
+                } else if ([type isEqualToString:@"webview_update_rec_status"]) {
+                    BOOL value = [JSONObj[@"value"] boolValue];
+                    [self.player recordingStatusReceived:value];
+                    return;
+                } else if ([type isEqualToString:@"webview_elements_visibility"]) {
+                    BOOL value = [JSONObj[@"value"] boolValue];
+                    [self.player elementsVisibilityRequest:value];
+                    return;
+                } else if ([type isEqualToString:@"webview_set_translations"]) {
+                    NSMutableDictionary* valueObj = [NSJSONSerialization
+                                                        JSONObjectWithData:[JSONObj[@"value"]
+                                                                            dataUsingEncoding:NSUTF8StringEncoding]
+                                                        options:0
+                                                        error:&err];
+                    if (err == nil) {
+                        NSString* liveIndicator =
+                        [valueObj valueForKey:@"live_indicator"];
+                        NSString* recNotification =
+                        [valueObj valueForKey:@"rec_notification"];
+                        [self.player setTranslations:liveIndicator
+                                        recNotification:recNotification];
+                    }
+                    return;
                 }
             }
         }

@@ -37,7 +37,8 @@
 - (void)stopInner;
 - (void)stop:(CDVInvokedUrlCommand *)command;
 - (void)sendVlcState:(NSString *)event;
-- (void)receiveExternalData:(CDVInvokedUrlCommand *)command;
+- (void)setExternalDataCallback:(CDVInvokedUrlCommand *)command;
+- (void)sendExternalDataToPlayer:(CDVInvokedUrlCommand *)command;
 - (void)sendExternalData:(NSString *)data;
 - (void)sendExternalDataAsDictionary:(NSMutableDictionary *)data;
 

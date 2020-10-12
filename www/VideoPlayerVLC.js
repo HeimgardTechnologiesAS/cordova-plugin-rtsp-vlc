@@ -16,19 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  *
-*/
+ */
 
-var exec = require("cordova/exec");
+var exec = require('cordova/exec');
 
 module.exports = {
-  play: function(uri, success, failure) {
-    exec(success, failure, "VideoPlayerVLC", "play", [uri]);
-  },
-  stop: function(success, failure) {
-    exec(success, failure, "VideoPlayerVLC", "stop");
-  },
-  sendExternalDataToPlayer: function(data, success, failure) {
-    exec(success, failure, "VideoPlayerVLC", "receiveExternalData", [data]);
-  }
-
+	play: function (uri, success, failure) {
+		exec(success, failure, 'VideoPlayerVLC', 'play', [uri]);
+	},
+	stop: function () {
+		exec(null, null, 'VideoPlayerVLC', 'stop');
+	},
+	setExternalDataFromPlayerReceiveCallback: function (success, failure) {
+		exec(success, failure, 'VideoPlayerVLC', 'setExternalDataCallback');
+	},
+	sendExternalDataToPlayer: function (data) {
+		exec(null, null, 'VideoPlayerVLC', 'sendExternalDataToPlayer', [data]);
+	},
 };
