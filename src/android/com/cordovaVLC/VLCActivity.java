@@ -84,7 +84,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private boolean isRecording = false;
     private boolean isPTZVisible = false;
     private boolean isRecordingBtnVisible = true;
-    private boolean isRecordingStoped = false;
+    private boolean showRecordingNotification = false;
     private boolean isBuffering = false;
 
     private String currentLoc = "00:00";
@@ -173,6 +173,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                             recordingHasStarted(value);
                         } else {
                             recordingIsStopped(value);
+                            showRecordingNotification = true;
                         }
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY)) {
@@ -574,6 +575,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         setRecordingViewProperties(isStarted);
         cmRecordingTimer.setBase(SystemClock.elapsedRealtime());
         cmRecordingTimer.start();
+        showRecordingNotification = true;
     }
 
     /**
@@ -586,7 +588,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
             jsonObject.put("value", false);
             _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
-            isRecordingStoped = true;
         }catch (JSONException err){
             Log.d("Error", err.toString());
             ivRecordingActive.setAlpha(1f);
@@ -600,7 +601,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private void recordingIsStopped(boolean isStarted) {
         setRecordingViewProperties(isStarted);
         cmRecordingTimer.stop();
-        if (isRecordingStoped) {
+        if (showRecordingNotification) {
             activateNotification();
         }
        
@@ -615,7 +616,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         recordSavedLayout.postDelayed(() -> {
             recordSavedLayout.setVisibility(View.INVISIBLE);
             ivClose.setVisibility(View.VISIBLE);
-            isRecordingStoped = false;
         }, 3000);
     }
 
