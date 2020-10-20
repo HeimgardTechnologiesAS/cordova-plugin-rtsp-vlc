@@ -82,6 +82,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private boolean _hideControls = false;
     private boolean isLayoutToched = false;
     private boolean isRecording = false;
+    private boolean _recordingTransitionActive = false;
     private boolean isPTZVisible = false;
     private boolean isRecordingBtnVisible = true;
     private boolean showRecordingNotification = false;
@@ -169,6 +170,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_UPDATE_REC_STATUS)) {
                         boolean value = intent.getBooleanExtra("data", false);
                         isRecording = value;
+                        _recordingTransitionActive = false;
                         if (value) {
                             recordingHasStarted(value);
                         } else {
@@ -469,13 +471,15 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         });
 
         ivRecordingIdle.setOnClickListener(v -> {
-            if(!isBuffering) {
+            if(!isBuffering && !_recordingTransitionActive) {
                 activateRecording();
             }
         });
 
         ivRecordingActive.setOnClickListener(v -> {
-            stopRecording();
+            if(!_recordingTransitionActive) {
+                stopRecording();
+            }
         });
 
         /**
@@ -557,6 +561,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     private void activateRecording() {
         try {
+            _recordingTransitionActive = true;
             ivRecordingIdle.setAlpha(0.5f);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
@@ -583,6 +588,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     private void stopRecording() {
          try {
+             _recordingTransitionActive = true;
             ivRecordingActive.setAlpha(0.5f);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
