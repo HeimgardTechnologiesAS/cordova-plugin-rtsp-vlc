@@ -747,9 +747,19 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         changeVideoViewProperties(LANDSCAPE, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
 
+        ConstraintSet joystickSet = new ConstraintSet();
+        ConstraintLayout joystickMainLayout = findViewById(_getResource("main_layout", "id"));
+        joystickSet.clone(joystickMainLayout);
+        joystickSet.connect(_getResource("cl_joystick","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
+        joystickSet.connect(_getResource("cl_joystick","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        joystickSet.connect(_getResource("cl_joystick","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        joystickSet.connect(_getResource("cl_joystick","id"), ConstraintSet.END, _getResource("rl_camera_layout","id"), ConstraintSet.END, 0);
+        joystickSet.applyTo(joystickMainLayout);
+
         ConstraintLayout.LayoutParams joystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
-        joystickParams.horizontalBias = 0.9f;
+        joystickParams.horizontalBias = 0.98f;
         joystickParams.verticalBias = 0.85f;
+
         clJoystick.setLayoutParams(joystickParams);
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
@@ -794,12 +804,13 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.TOP, ConstraintSet.PARENT_ID,ConstraintSet.TOP, 0);
         recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
         recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
-        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        recordBtnSet.connect(_getResource("rl_recording_cnt","id"), ConstraintSet.END, _getResource("rl_camera_layout","id"), ConstraintSet.END, 0);
         recordBtnSet.applyTo(recordBtnMainLayout);
     
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
-        recordParams.horizontalBias = 0.9f;
+        recordParams.horizontalBias = 0.98f;
         recordParams.verticalBias = 0.15f;
+    
         rlRecordingCnt.setLayoutParams(recordParams);
         // ----------------------------------------------------------------------------------------------------------------------
 
@@ -829,10 +840,20 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         showOrHideElements(false);
         changeVideoViewProperties(PORTRAIT, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
+
+        ConstraintSet joystickSet = new ConstraintSet();
+        ConstraintLayout joystickMainLayout = findViewById(_getResource("main_layout", "id"));
+        joystickSet.clone(joystickMainLayout);
+        joystickSet.connect(_getResource("cl_joystick","id"), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 0);
+        joystickSet.connect(_getResource("cl_joystick","id"), ConstraintSet.TOP, _getResource("rl_camera_layout","id"), ConstraintSet.BOTTOM, 0);
+        joystickSet.connect(_getResource("cl_joystick","id"), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 0);
+        joystickSet.connect(_getResource("cl_joystick","id"), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 0);
+        joystickSet.applyTo(joystickMainLayout);
+
         
         ConstraintLayout.LayoutParams joystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
         joystickParams.horizontalBias = 0.5f;
-        joystickParams.verticalBias = 0.98f;
+        joystickParams.verticalBias = 0.9f;
         clJoystick.setLayoutParams(joystickParams);
 
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
@@ -883,7 +904,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         ConstraintLayout.LayoutParams recordParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
         recordParams.horizontalBias = 0.5f;
-        recordParams.verticalBias = 0.9f;
+        recordParams.verticalBias = 0.5f;
         rlRecordingCnt.setLayoutParams(recordParams);
         // ----------------------------------------------------------------------------------------------------------------------
 

@@ -162,11 +162,10 @@
 
     <RelativeLayout
         android:id="@+id/rl_recording_cnt"
-        app:layout_constraintBottom_toTopOf="@+id/cl_joystick"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rl_camera_layout"
-        app:layout_constraintVertical_bias="0.9"
+        app:layout_constraintBottom_toTopOf="@id/cl_joystick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -187,14 +186,13 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/cl_joystick"
-        android:visibility="invisible"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rl_camera_layout"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.98"
+        app:layout_constraintVertical_bias="0.9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
