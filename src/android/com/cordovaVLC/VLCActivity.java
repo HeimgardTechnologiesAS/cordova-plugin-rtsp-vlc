@@ -935,7 +935,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      * getViewTreeObserver is triggered when the view is created so that we can know exact dimensions
      */
     public void changeJoystickSize() {
-            if(getScreenInchSize() <= 5.2) {
+            if(getScreenInchSize() <= 5.5) {
                 rlRecordingCnt.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
@@ -1020,10 +1020,10 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, activity.getResources().getDisplayMetrics());
     }
 
-    public double getScreenInchSize() {
+    public double getScreenInchSize() {        
         double x = Math.pow(getDisplayMetrics().widthPixels / getDisplayMetrics().xdpi, 2);
         double y = Math.pow(getDisplayMetrics().heightPixels / getDisplayMetrics().ydpi, 2);
-        double screenInches = Math.sqrt(x + y) * getDisplayMetrics().scaledDensity;
+        double screenInches = Math.sqrt(x + y);
         Log.d("debug", "Screen inches : " + screenInches);
         return screenInches;
     }
@@ -1037,7 +1037,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         ConstraintLayout.LayoutParams cameraViewParams = (ConstraintLayout.LayoutParams) rlCameraView.getLayoutParams();
         int height = 0;
         int width = 0;
-
+        Log.d("uso",  "uso");
         if(orientation.equals(PORTRAIT)) {
             activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             height = (int) (getDisplayMetrics().widthPixels/ratio);
