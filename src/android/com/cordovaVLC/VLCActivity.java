@@ -36,6 +36,7 @@ import android.widget.Chronometer;
 import android.transition.TransitionManager;
 import android.view.animation.AnticipateInterpolator;
 import android.transition.ChangeBounds;
+import android.view.ViewTreeObserver;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -108,6 +109,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private String orientation = PORTRAIT;
 
     public static final float RATIO  = 16f/9f;
+    int joystickSize = 0;
     /**
      * Broadcast receiver that receive messages dfrom VideoPlayerVLC.java
      * This is used when we receive data from cordova
@@ -497,45 +499,45 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
          * Next 4 touch listneres are used for PTZ camera joystick arrows
          */
 
-        rlUpArrow.setOnTouchListener((v, event) -> {
+        upJoy.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                upJoy.setVisibility(View.INVISIBLE);
+                upJoy.setAlpha(1f);
                 _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                upJoy.setVisibility(View.VISIBLE);
+                upJoy.setAlpha(0.5f);
                _requestCameraMove(UP);
             }
             return true;
         });
 
-        rlDownArrow.setOnTouchListener((v, event) -> {
+        downJoy.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                downJoy.setVisibility(View.INVISIBLE);
+                downJoy.setAlpha(1f);
                 _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                downJoy.setVisibility(View.VISIBLE);
+                downJoy.setAlpha(0.5f);
                 _requestCameraMove(DOWN);
             }
             return true;
         });
 
-        rlLeftArrow.setOnTouchListener((v, event) -> {
+        leftJoy.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                leftJoy.setVisibility(View.INVISIBLE);
+                leftJoy.setAlpha(1f);
                 _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                leftJoy.setVisibility(View.VISIBLE);
+                leftJoy.setAlpha(0.5f);
                _requestCameraMove(LEFT);
             }
             return true;
         });
 
-        rlRightArrow.setOnTouchListener((v, event) -> {
+        rightJoy.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                rightJoy.setVisibility(View.INVISIBLE);
+                rightJoy.setAlpha(1f);
                _requestCameraMove(NONE);
             } else if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                rightJoy.setVisibility(View.VISIBLE);
+                rightJoy.setAlpha(0.5f);
                 _requestCameraMove(RIGHT);
             }
             return true;
@@ -746,6 +748,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         orientation = LANDSCAPE;
         changeVideoViewProperties(LANDSCAPE, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
+        joystickLayout.setAlpha(1f);
 
         ConstraintSet joystickSet = new ConstraintSet();
         ConstraintLayout joystickMainLayout = findViewById(_getResource("main_layout", "id"));
@@ -840,6 +843,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         showOrHideElements(false);
         changeVideoViewProperties(PORTRAIT, RATIO);
         joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
+        joystickLayout.setAlpha(0f);
 
         ConstraintSet joystickSet = new ConstraintSet();
         ConstraintLayout joystickMainLayout = findViewById(_getResource("main_layout", "id"));
@@ -927,6 +931,88 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     /**
+     * change joystick size based on device resolution, if the display is smaller then 5 inches, the joystick will be smaller
+     * getViewTreeObserver is triggered when the view is created so that we can know exact dimensions
+     */
+    public void changeJoystickSize() {
+            if(getScreenInchSize() <= 5.2) {
+                rlRecordingCnt.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        ConstraintLayout.LayoutParams rlRecordingParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
+                        rlRecordingCnt.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        if (joystickSize == 0) {
+                            rlRecordingParams.height = (int) (rlRecordingCnt.getHeight() * 0.85);
+                            rlRecordingParams.width = (int) (rlRecordingCnt.getHeight() * 0.85);
+                            rlRecordingCnt.setLayoutParams(rlRecordingParams);
+                        }
+                    }
+                });
+    
+                clJoystick.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        ConstraintLayout.LayoutParams clJoystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
+                        clJoystick.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        if (joystickSize == 0){
+                            joystickSize = (int) (clJoystick.getHeight() * 0.9);
+                            clJoystickParams.height = joystickSize;
+                            clJoystickParams.width = joystickSize;
+                            clJoystick.setLayoutParams(clJoystickParams);
+                            setJoystickArrowsSizes(joystickSize);
+                        }
+                    }
+                });
+            } else {
+                rlRecordingCnt.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        ConstraintLayout.LayoutParams rlRecordingParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
+                        rlRecordingCnt.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        if (joystickSize == 0) {
+                            rlRecordingParams.height = (int) (rlRecordingCnt.getHeight());
+                            rlRecordingParams.width = (int) (rlRecordingCnt.getHeight());
+                            rlRecordingCnt.setLayoutParams(rlRecordingParams);
+                        }
+                    }
+                });
+    
+                clJoystick.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        ConstraintLayout.LayoutParams clJoystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
+                        clJoystick.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        if (joystickSize == 0) {
+                            joystickSize = (int) (clJoystick.getHeight());
+                            clJoystickParams.height = joystickSize;
+                            clJoystickParams.width = joystickSize;
+                            clJoystick.setLayoutParams(clJoystickParams);
+                        }
+                    }
+                });
+            } 
+    }
+
+    public void setJoystickArrowsSizes(int size) {
+        ConstraintLayout.LayoutParams upJoystickParams = (ConstraintLayout.LayoutParams) upJoy.getLayoutParams();
+        ConstraintLayout.LayoutParams leftJoystickParams = (ConstraintLayout.LayoutParams) leftJoy.getLayoutParams();
+        ConstraintLayout.LayoutParams rightJoystickParams = (ConstraintLayout.LayoutParams) rightJoy.getLayoutParams();
+        ConstraintLayout.LayoutParams downJoystickParams = (ConstraintLayout.LayoutParams) downJoy.getLayoutParams();
+
+        upJoystickParams.width = (int) (size * 0.7);
+        upJoy.setLayoutParams(upJoystickParams);
+
+        leftJoystickParams.height = (int) (size * 0.7);
+        leftJoy.setLayoutParams(leftJoystickParams);
+
+        rightJoystickParams.height = (int) (size * 0.7);
+        rightJoy.setLayoutParams(rightJoystickParams);
+
+        downJoystickParams.width = (int) (size * 0.7);
+        downJoy.setLayoutParams(downJoystickParams);
+    }
+
+    /**
      * tranforms dp to pixels
      * dp -> density-independent pixels
      */
@@ -934,8 +1020,16 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, activity.getResources().getDisplayMetrics());
     }
 
+    public double getScreenInchSize() {
+        double x = Math.pow(getDisplayMetrics().widthPixels / getDisplayMetrics().xdpi, 2);
+        double y = Math.pow(getDisplayMetrics().heightPixels / getDisplayMetrics().ydpi, 2);
+        double screenInches = Math.sqrt(x + y) * getDisplayMetrics().scaledDensity;
+        Log.d("debug", "Screen inches : " + screenInches);
+        return screenInches;
+    }
+
     /**
-     * Calculate layout width and height based on ratio
+     * Calculate layout width and height based on ratio and change joystick size if the display is smaller the 5 inch
      * orientation -> screen oritentation 
      * ratio -> ratio of the camera stream video
      */
@@ -950,6 +1044,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
              width = getDisplayMetrics().widthPixels;
             cameraViewParams.height = height;
             cameraViewParams.width = width;
+           
+        
         } else if(orientation.equals(LANDSCAPE)) {
             activity.getWindow().getDecorView().setSystemUiVisibility(
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -971,6 +1067,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         if (vlcVideoLibrary != null)
             vlcVideoLibrary.changeVideoResolution(width, height);
+
+        changeJoystickSize();
     }
 
     /**

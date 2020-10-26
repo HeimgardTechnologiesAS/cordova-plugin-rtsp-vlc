@@ -50,6 +50,10 @@
 			<resource-file src="src/android/res/drawable/ic_joystick_landscape.xml" target="res/drawable/ic_joystick_landscape.xml" />
 			<resource-file src="src/android/res/drawable/record_saved_layout.xml" target="res/drawable/record_saved_layout.xml" />
 			<resource-file src="src/android/res/drawable/ic_x_circle.xml" target="res/drawable/ic_x_circle.xml" />
+			<resource-file src="src/android/res/drawable/ic_joy_down.xml" target="res/drawable/ic_joy_down.xml" />
+			<resource-file src="src/android/res/drawable/ic_joy_left.xml" target="res/drawable/ic_joy_left.xml" />
+			<resource-file src="src/android/res/drawable/ic_joy_right.xml" target="res/drawable/ic_joy_right.xml" />
+			<resource-file src="src/android/res/drawable/ic_joy_up.xml" target="res/drawable/ic_joy_up.xml" />
 
 
 			<resource-file src="src/android/res/drawable-hdpi/ic_arrow_down.xml" target="res/drawable-hdpi/ic_arrow_down.xml" />

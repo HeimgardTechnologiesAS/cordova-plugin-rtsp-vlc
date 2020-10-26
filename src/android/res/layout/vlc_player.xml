@@ -162,10 +162,10 @@
 
     <RelativeLayout
         android:id="@+id/rl_recording_cnt"
+        app:layout_constraintBottom_toTopOf="@+id/cl_joystick"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rl_camera_layout"
-        app:layout_constraintBottom_toTopOf="@id/cl_joystick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -184,8 +184,9 @@
 
     </RelativeLayout>
 
-    <android.support.constraint.ConstraintLayout
+ <android.support.constraint.ConstraintLayout
         android:id="@+id/cl_joystick"
+        android:adjustViewBounds="true"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         app:layout_constraintEnd_toEndOf="parent"
@@ -197,6 +198,8 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:adjustViewBounds="true"
+            android:alpha="0"
             android:id="@+id/iv_joystick_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -208,17 +211,18 @@
 
         <ImageView
             android:id="@+id/iv_left_joy"
-            android:visibility="invisible"
+            android:adjustViewBounds="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="0"
-            android:src="@drawable/ic_joystick_background_left"
+            android:src="@drawable/ic_joy_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <RelativeLayout
+            android:visibility="gone"
             android:id="@+id/left_arrow_click"
             android:layout_width="38dp"
             android:layout_height="65dp"
@@ -238,17 +242,18 @@
 
         <ImageView
             android:id="@+id/iv_up_joy"
-            android:visibility="invisible"
+            android:adjustViewBounds="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0"
-            android:src="@drawable/ic_joystick_background_up"
+            android:src="@drawable/ic_joy_up"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <RelativeLayout
+            android:visibility="gone"
             android:id="@+id/up_arrow_click"
             android:layout_width="69dp"
             android:layout_height="37dp"
@@ -268,17 +273,18 @@
 
         <ImageView
             android:id="@+id/iv_right_joy"
-            android:visibility="invisible"
+            android:adjustViewBounds="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="1"
-            android:src="@drawable/ic_joystick_background_right"
+            android:src="@drawable/ic_joy_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <RelativeLayout
+            android:visibility="gone"
             android:id="@+id/right_arrow_click"
             android:layout_width="38dp"
             android:layout_height="65dp"
@@ -297,17 +303,18 @@
 
         <ImageView
             android:id="@+id/iv_down_joy"
-            android:visibility="invisible"
+            android:adjustViewBounds="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1"
-            android:src="@drawable/ic_joystick_background_down"
+            android:src="@drawable/ic_joy_down"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <RelativeLayout
+            android:visibility="gone"
             android:id="@+id/down_arrow_click"
             android:layout_width="68dp"
             android:layout_height="33dp"
