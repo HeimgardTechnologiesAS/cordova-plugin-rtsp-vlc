@@ -226,7 +226,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         
         // play
         _initPlayer();
-        joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
     }
 
         private void _UIListener() {
@@ -273,7 +272,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
 
         setClickListeners();
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
-        changeVideoViewProperties(PORTRAIT, RATIO);
+        changeVideoViewProperties(orientation, RATIO);
+        createJoystickLayout(orientation);
     }
 
         /**
@@ -616,7 +616,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     /**
-     * shows notification that recording is finished
+     * shows notification that recording has finished
      */
     private void activateNotification() {
         recordSavedLayout.setVisibility(View.VISIBLE);
@@ -628,7 +628,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     /**
-     * shows or hide elements from screen if the orientation is in the landscape
+     * shows or hide elements from screen if the orientation is in the landscape mode
      * isHidden -> if true, hide elements
      */
     private void showOrHideElements(boolean isHidden) {
@@ -642,7 +642,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     }
 
     /**
-     * Method that shows layout images for active or inactive recording based on isRecordingActivated
+     * Method that shows/hide layout images for active or inactive recording based on isRecordingActivated
      */
     private void setRecordingViewProperties(boolean isRecordingActivated) {
         if(isRecordingActivated){
@@ -746,10 +746,15 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     public void createLandscapeLayoutProperties() {
         orientation = LANDSCAPE;
-        changeVideoViewProperties(LANDSCAPE, RATIO);
-        joystickLayout.setBackgroundResource(_getResource("ic_joystick_landscape","drawable"));
-        joystickLayout.setAlpha(1f);
+        if(isRecording) {
+            showOrHideElements(false);
+        } else {
+            showOrHideElements(isLayoutToched);
+        }
+        changeVideoViewProperties(orientation, RATIO);
+        createJoystickLayout(orientation);
 
+         // adding new constraints for joystick -------------------------------------------------------------------------------
         ConstraintSet joystickSet = new ConstraintSet();
         ConstraintLayout joystickMainLayout = findViewById(_getResource("main_layout", "id"));
         joystickSet.clone(joystickMainLayout);
@@ -762,11 +767,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         ConstraintLayout.LayoutParams joystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
         joystickParams.horizontalBias = 0.98f;
         joystickParams.verticalBias = 0.85f;
-
         clJoystick.setLayoutParams(joystickParams);
 
+
+        // adding new constraints for live img -------------------------------------------------------------------------------   
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
-        rlLiveParams.horizontalBias = 0.15f;
+        rlLiveParams.horizontalBias = 0.18f;
         rlLiveParams.verticalBias = 0.05f;
         rlLive.setLayoutParams(rlLiveParams);
 
@@ -840,11 +846,13 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     public void createPortraitLayoutProperties() {
         orientation = PORTRAIT;
+        //reseting hiden elements from landscape mode because in portrait mode all elements must be visible----------------
         showOrHideElements(false);
-        changeVideoViewProperties(PORTRAIT, RATIO);
-        joystickLayout.setBackgroundResource(_getResource("ic_joystick_background","drawable"));
-        joystickLayout.setAlpha(0f);
-
+        //--------------------------------------------------------------------------------------------------------------------
+        changeVideoViewProperties(orientation, RATIO);
+        createJoystickLayout(orientation);
+       
+        // adding new constraints for joystick -------------------------------------------------------------------------------
         ConstraintSet joystickSet = new ConstraintSet();
         ConstraintLayout joystickMainLayout = findViewById(_getResource("main_layout", "id"));
         joystickSet.clone(joystickMainLayout);
@@ -860,6 +868,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         joystickParams.verticalBias = 0.9f;
         clJoystick.setLayoutParams(joystickParams);
 
+
+        // adding new constraints for live img -------------------------------------------------------------------------------   
         ConstraintLayout.LayoutParams rlLiveParams = (ConstraintLayout.LayoutParams) rlLive.getLayoutParams();
         rlLiveParams.horizontalBias = 0.05f;
         rlLiveParams.verticalBias = 0.1f;
@@ -928,6 +938,24 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         rlRecordingTimer.setLayoutParams(rlRecordingTimerParams);
         //------------------------------------------------------------------------------------------------------------------------------------------
         
+    }
+
+    /**
+     * joystick has 2 types of background color, white and black with alpha
+     * one, black is for landscape mode, and the other, white is for portrait mode
+     */
+    public void createJoystickLayout(String orientation) {
+        if(orientation.equals(PORTRAIT)) {
+            leftJoy.setBackgroundResource(_getResource("ic_joy_left","drawable"));
+            rightJoy.setBackgroundResource(_getResource("ic_joy_right","drawable"));
+            upJoy.setBackgroundResource(_getResource("ic_joy_up","drawable"));
+            downJoy.setBackgroundResource(_getResource("ic_joy_down","drawable"));
+        } else if (orientation.equals(LANDSCAPE)) {
+            leftJoy.setBackgroundResource(_getResource("ic_joy_left_landscape","drawable"));
+            rightJoy.setBackgroundResource(_getResource("ic_joy_right_landscape","drawable"));
+            upJoy.setBackgroundResource(_getResource("ic_joy_up_landscape","drawable"));
+            downJoy.setBackgroundResource(_getResource("ic_joy_down_landscape","drawable"));
+        } 
     }
 
     /**

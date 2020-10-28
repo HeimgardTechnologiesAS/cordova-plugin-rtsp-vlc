@@ -199,6 +199,7 @@
 
         <ImageView
             android:adjustViewBounds="true"
+            android:src="@drawable/ic_joystick_background"
             android:alpha="0"
             android:id="@+id/iv_joystick_layout"
             android:layout_width="wrap_content"
@@ -217,7 +218,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="0"
-            android:src="@drawable/ic_joy_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -248,7 +248,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0"
-            android:src="@drawable/ic_joy_up"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -279,7 +278,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="1"
-            android:src="@drawable/ic_joy_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -309,7 +307,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1"
-            android:src="@drawable/ic_joy_down"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
