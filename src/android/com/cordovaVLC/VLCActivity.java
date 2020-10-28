@@ -942,8 +942,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         ConstraintLayout.LayoutParams rlRecordingParams = (ConstraintLayout.LayoutParams) rlRecordingCnt.getLayoutParams();
                         rlRecordingCnt.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                         if (joystickSize == 0) {
-                            rlRecordingParams.height = (int) (rlRecordingCnt.getHeight() * 0.85);
-                            rlRecordingParams.width = (int) (rlRecordingCnt.getHeight() * 0.85);
+                            rlRecordingParams.height = (int) (rlRecordingCnt.getHeight() * 0.8);
+                            rlRecordingParams.width = (int) (rlRecordingCnt.getHeight() * 0.8);
                             rlRecordingCnt.setLayoutParams(rlRecordingParams);
                         }
                     }
@@ -955,7 +955,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                         ConstraintLayout.LayoutParams clJoystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
                         clJoystick.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                         if (joystickSize == 0){
-                            joystickSize = (int) (clJoystick.getHeight() * 0.9);
+                            joystickSize = (int) (clJoystick.getHeight() * 0.8);
                             clJoystickParams.height = joystickSize;
                             clJoystickParams.width = joystickSize;
                             clJoystick.setLayoutParams(clJoystickParams);
