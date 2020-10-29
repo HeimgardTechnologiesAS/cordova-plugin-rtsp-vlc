@@ -182,7 +182,9 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_ELEMENTS_VISIBILITY)) {
                         boolean value = intent.getBooleanExtra("data", false);
-                        showOrHideElements(value);
+                        if(orientation.equals(LANDSCAPE)) {
+                            showOrHideElements(value);
+                        }
                     }
                     else if (method.equals(CordovaAPIKeys.WEBVIEW_SET_TRANSLATIONS)) {
                         try {
@@ -946,16 +948,25 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     public void createJoystickLayout(String orientation) {
         if(orientation.equals(PORTRAIT)) {
-            leftJoy.setBackgroundResource(_getResource("ic_joy_left","drawable"));
-            rightJoy.setBackgroundResource(_getResource("ic_joy_right","drawable"));
-            upJoy.setBackgroundResource(_getResource("ic_joy_up","drawable"));
-            downJoy.setBackgroundResource(_getResource("ic_joy_down","drawable"));
+            leftJoy.setImageResource(_getResource("ic_joy_left","drawable"));
+            leftJoy.setAdjustViewBounds(true);
+            rightJoy.setImageResource(_getResource("ic_joy_right","drawable"));
+            rightJoy.setAdjustViewBounds(true);
+            upJoy.setImageResource(_getResource("ic_joy_up","drawable"));
+            rightJoy.setAdjustViewBounds(true);
+            downJoy.setImageResource(_getResource("ic_joy_down","drawable"));
+            downJoy.setAdjustViewBounds(true);
         } else if (orientation.equals(LANDSCAPE)) {
-            leftJoy.setBackgroundResource(_getResource("ic_joy_left_landscape","drawable"));
-            rightJoy.setBackgroundResource(_getResource("ic_joy_right_landscape","drawable"));
-            upJoy.setBackgroundResource(_getResource("ic_joy_up_landscape","drawable"));
-            downJoy.setBackgroundResource(_getResource("ic_joy_down_landscape","drawable"));
+            leftJoy.setImageResource(_getResource("ic_joy_left_landscape","drawable"));
+            leftJoy.setAdjustViewBounds(true);
+            rightJoy.setImageResource(_getResource("ic_joy_right_landscape","drawable"));
+            rightJoy.setAdjustViewBounds(true);
+            upJoy.setImageResource(_getResource("ic_joy_up_landscape","drawable"));
+            rightJoy.setAdjustViewBounds(true);
+            downJoy.setImageResource(_getResource("ic_joy_down_landscape","drawable"));
+            downJoy.setAdjustViewBounds(true);
         } 
+        
     }
 
     /**
