@@ -88,6 +88,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private boolean isRecordingBtnVisible = true;
     private boolean showRecordingNotification = false;
     private boolean isBuffering = false;
+    private boolean isRecordingClicked = false;
 
     private String currentLoc = "00:00";
     private String duration = "00:00";
@@ -461,7 +462,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
          * If recording is on, command will not be send.
          */
         mainLayout.setOnClickListener(v -> {
-            if(!isRecording) {
+            if(!isRecording && !isRecordingClicked) {
                 try {
                     isLayoutToched = !isLayoutToched;
                     JSONObject jsonObject = new JSONObject();
@@ -474,7 +475,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             }
         });
 
-        ivRecordingIdle.setOnClickListener(v -> {
+        ivRecordingIdle.setOnClickListener(v -> { 
+            isRecordingClicked = true;
             if(!isBuffering && !_recordingTransitionActive) {
                 activateRecording();
             }
@@ -648,6 +650,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     private void setRecordingViewProperties(boolean isRecordingActivated) {
         if(isRecordingActivated){
+            isRecordingClicked = false;
             ivRecordingIdle.setVisibility(View.INVISIBLE);
             ivRecordingActive.setAlpha(1f);
             ivRecordingActive.setVisibility(View.VISIBLE);
