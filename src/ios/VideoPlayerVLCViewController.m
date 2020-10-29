@@ -419,7 +419,7 @@
 }
 
 - (void)screenTappedRequest:(UITapGestureRecognizer*)gesture {
-    if (self.recActive || UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
+    if (self.recWaitsForResponse || self.recActive || UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
         return;
     }
     BOOL value = NO;
