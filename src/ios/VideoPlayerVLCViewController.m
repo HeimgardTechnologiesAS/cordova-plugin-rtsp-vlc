@@ -155,6 +155,7 @@
     self.recordingNotificationLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.recordingNotificationLabel.numberOfLines = 0;
     self.recordingNotificationLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    self.recordingNotificationLabel.userInteractionEnabled = YES;
     
     self.mediaView = [[UIView alloc] init];
     self.mediaView.backgroundColor = [UIColor greenColor];
@@ -295,6 +296,10 @@
     [self.recButtonView addGestureRecognizer:[[UITapGestureRecognizer alloc]
                                               initWithTarget:self
                                               action:@selector(recButtonPressed:)]];
+    
+    [self.recordingNotificationLabel addGestureRecognizer:[[UITapGestureRecognizer alloc]
+                                              initWithTarget:self
+                                              action:@selector(recordingNotificationPressed:)]];
     // TODO: needed for pinch/zoom feature
     //    [self.mediaView addGestureRecognizer:[[UIPinchGestureRecognizer
     //    alloc]initWithTarget:self action:@selector(screenTouchRequest:)]];
@@ -434,6 +439,19 @@
     [[VideoPlayerVLC getInstance]
      sendExternalData:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
 }
+
+
+- (void)recordingNotificationPressed:(UITapGestureRecognizer*)gesture {
+    NSMutableDictionary* request = [[NSMutableDictionary alloc] init];
+    [request setValue:@"player_request_recording_page" forKey:@"type"];
+    [request setValue:@(YES) forKey:@"value"];
+    NSError* err;
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:request options:0 error:&err];
+    [[VideoPlayerVLC getInstance]
+     sendExternalData:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
+    [self stop];
+}
+
 
 - (void)elementsVisibilityRequest:(BOOL)value {
     self.recButtonView.hidden = !value;
