@@ -498,6 +498,12 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                 closeLayout();
                  }, 100);
         });
+
+
+        recordSavedLayout.setOnClickListener(v -> {
+            requestRecordingsPage();
+            closeLayout();
+        });
         /**
          * ----------------------------------------------------------------------------------------
          * Next 4 touch listneres are used for PTZ camera joystick arrows
@@ -692,6 +698,20 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             jsonObject.put("type", CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST);
             jsonObject.put("value", value);
             _sendBroadCast(CordovaAPIKeys.PLAYER_CAMERA_MOVE_REQUEST, jsonObject);
+        }catch (JSONException err){
+            Log.d("Error", err.toString());
+        }
+    }
+
+    /**
+     * sends request to cordova to open recordings page
+     */
+    private void requestRecordingsPage() {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", CordovaAPIKeys.PLAYER_REQUEST_RECORDING_PAGE);
+            jsonObject.put("value", "");
+            _sendBroadCast(CordovaAPIKeys.PLAYER_REQUEST_RECORDING_PAGE, jsonObject);
         }catch (JSONException err){
             Log.d("Error", err.toString());
         }
@@ -1079,7 +1099,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         ConstraintLayout.LayoutParams cameraViewParams = (ConstraintLayout.LayoutParams) rlCameraView.getLayoutParams();
         int height = 0;
         int width = 0;
-        Log.d("uso",  "uso");
         if(orientation.equals(PORTRAIT)) {
             activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             height = (int) (getDisplayMetrics().widthPixels/ratio);

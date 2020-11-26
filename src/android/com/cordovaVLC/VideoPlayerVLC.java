@@ -76,6 +76,9 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     else if (method.equals(CordovaAPIKeys.PLAYER_SCREEN_TOUCH_EVENT)) {
                         _cordovaSendExternal(data);
                     }
+                    else if (method.equals(CordovaAPIKeys.PLAYER_REQUEST_RECORDING_PAGE)) {
+                        _cordovaSendExternal(data);
+                    }
                    
                 }
             }
