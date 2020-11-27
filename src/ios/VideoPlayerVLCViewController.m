@@ -847,7 +847,7 @@
                                     toItem:nil
                                  attribute:NSLayoutAttributeNotAnAttribute
                                 multiplier:1.0
-                                  constant:25.0];
+                                  constant:40.0];
     closeButtonAspectConstraint =
     [NSLayoutConstraint constraintWithItem:self.closeButtonView
                                  attribute:NSLayoutAttributeWidth
