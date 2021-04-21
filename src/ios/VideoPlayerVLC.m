@@ -111,6 +111,24 @@ static CDVInvokedUrlCommand* commandGlobExternalData = nil;
                                         recNotification:recNotification];
                     }
                     return;
+                } else if ([type isEqualToString:@"webview_set_theme_colors"]) {
+                    NSMutableDictionary* valueObj = [NSJSONSerialization
+                                                        JSONObjectWithData:[JSONObj[@"value"]
+                                                                            dataUsingEncoding:NSUTF8StringEncoding]
+                                                        options:0
+                                                        error:&err];
+                    if (err == nil) {
+                        NSString* primaryColor =
+                        [valueObj valueForKey:@"primary_color"];
+                        NSString* secondaryColor =
+                        [valueObj valueForKey:@"secondary_color"];
+                        NSString* contrastSecondaryColor =
+                        [valueObj valueForKey:@"color_secondary_contrast"];
+                        [self.player setThemeColors:primaryColor
+                                        secondaryColor:secondaryColor
+                                        contrastSecondaryColor:contrastSecondaryColor];
+                    }
+                    return;
                 }
             }
         }
