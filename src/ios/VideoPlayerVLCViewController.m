@@ -34,6 +34,9 @@
 
 @property(strong, nonatomic) NSDateFormatter* dateFormatter;
 @property(strong, nonatomic) NSDate* startDate;
+@property(strong, nonatomic) NSString* primaryColor;
+@property(strong, nonatomic) NSString* secondaryColor;
+@property(strong, nonatomic) NSString* contrastSecondaryColor;
 
 @property BOOL recActive;
 @property BOOL recWaitsForResponse;
@@ -147,10 +150,10 @@
     self.recordingProgressLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
     self.recordingNotificationLabel = [[UILabel alloc] init];
-    self.recordingNotificationLabel.backgroundColor = [self colorFromHex:@"#17a3c4"];
+    self.recordingNotificationLabel.backgroundColor = [self colorFromHex:self.secondaryColor];
     self.recordingNotificationLabel.layer.cornerRadius = 4;
     self.recordingNotificationLabel.layer.masksToBounds = YES;
-    self.recordingNotificationLabel.textColor = [UIColor whiteColor];
+    self.recordingNotificationLabel.textColor = [self colorFromHex:self.contrastSecondaryColor];
     [self.recordingNotificationLabel setFont:[UIFont fontWithName:@"Helvetica" size:16.0f]];
     self.recordingNotificationLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.recordingNotificationLabel.numberOfLines = 0;
@@ -654,12 +657,18 @@
                     completion:nil];
 }
 
+- (void)setThemeColors:(NSString*)primaryColor secondaryColor:(NSString*)secondaryColor contrastSecondaryColor:(NSString*)contrastSecondaryColor {
+    self.primaryColor = primaryColor
+    self.secondaryColor = secondaryColor
+    self.contrastSecondaryColor = contrastSecondaryColor
+}
+
 - (void)setTranslations:(NSString*)liveIndicator recNotification:(NSString*)recNotification {
     if (self.liveTextLabel) {
         [self.liveTextLabel
          setText:[NSString stringWithFormat:@"  %@  ", [liveIndicator uppercaseString]]];
     }
-    
+
     if (self.recordingNotificationLabel) {
         NSMutableParagraphStyle* style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
         style.firstLineHeadIndent = 10.0f;
