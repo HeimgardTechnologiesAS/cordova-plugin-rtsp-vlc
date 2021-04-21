@@ -12,8 +12,14 @@ public class CordovaAPIKeys {
     public static final String WEBVIEW_SHOW_PTZ_BUTTONS = "webview_show_ptz_buttons";
     public static final String WEBVIEW_ELEMENTS_VISIBILITY = "webview_elements_visibility";
     public static final String WEBVIEW_SET_TRANSLATIONS = "webview_set_translations";
+    public static final String WEBVIEW_SET_THEME_COLORS = "webview_set_theme_colors";
 
     //translation keys
     public static final String LIVE_TRANSLATION = "live_indicator";
     public static final String FINISHED_RECORDING_TRANSLATION = "rec_notification";
+
+    //color keys
+    public static final String PRIMARY_COLOR = "primary_color";
+    public static final String SECONDARY_COLOR = "secondary_color";
+    public static final String COLOR_SECONDARY_CONTRAST = "color_secondary_contrast";
 }

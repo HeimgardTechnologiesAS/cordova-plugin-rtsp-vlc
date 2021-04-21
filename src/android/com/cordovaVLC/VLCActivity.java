@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +33,7 @@ import android.view.Surface;
 import android.widget.RelativeLayout;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.widget.Chronometer;
 import android.transition.TransitionManager;
 import android.view.animation.AnticipateInterpolator;
@@ -192,6 +194,16 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
                             String value = intent.getStringExtra("data");
                             JSONObject translationJson = new JSONObject(value);
                             setTranslations(translationJson);
+                        } catch (JSONException err){
+                            Log.d("Error", err.toString());
+                        }
+                       
+                    }
+                    else if (method.equals(CordovaAPIKeys.WEBVIEW_SET_THEME_COLORS)) {
+                        try {
+                            String value = intent.getStringExtra("data");
+                            JSONObject colorsJson = new JSONObject(value);
+                            setColors(colorsJson);
                         } catch (JSONException err){
                             Log.d("Error", err.toString());
                         }
@@ -563,6 +575,20 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         try {
             tvLive.setText(jsonObject.getString(CordovaAPIKeys.LIVE_TRANSLATION));
             tvRecordingSaved.setText(jsonObject.getString(CordovaAPIKeys.FINISHED_RECORDING_TRANSLATION));
+        } catch (JSONException e){
+            Log.d("jsonException", e.toString());
+        }
+    }
+
+        /**
+     * sets colors sent from cordova
+     * jsonObject -> json that contains primary and secondary color
+     */ 
+    private void setColors(JSONObject jsonObject) {
+        try {
+            Drawable backgroundDrawable = DrawableCompat.wrap(recordSavedLayout.getBackground()).mutate();
+            DrawableCompat.setTint(backgroundDrawable, Color.parseColor(jsonObject.getString(CordovaAPIKeys.SECONDARY_COLOR)));
+            tvRecordingSaved.setTextColor(Color.parseColor(jsonObject.getString(CordovaAPIKeys.COLOR_SECONDARY_CONTRAST)));
         } catch (JSONException e){
             Log.d("jsonException", e.toString());
         }
