@@ -146,6 +146,10 @@ public class VideoPlayerVLC extends CordovaPlugin {
                     JSONObject translationJson = new JSONObject(jsonObject.getString("value"));
                     _filters(CordovaAPIKeys.WEBVIEW_SET_TRANSLATIONS, translationJson);
                 }
+                else if (type.equals(CordovaAPIKeys.WEBVIEW_SET_THEME_COLORS)) {
+                    JSONObject colorsJson = new JSONObject(jsonObject.getString("value"));
+                    _filters(CordovaAPIKeys.WEBVIEW_SET_THEME_COLORS, colorsJson);
+                }
                 return true;
             }catch (JSONException err){
                 Log.d("Error", err.toString());
