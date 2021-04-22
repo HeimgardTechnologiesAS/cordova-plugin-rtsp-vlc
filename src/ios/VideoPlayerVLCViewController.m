@@ -658,9 +658,9 @@
 }
 
 - (void)setThemeColors:(NSString*)primaryColor secondaryColor:(NSString*)secondaryColor contrastSecondaryColor:(NSString*)contrastSecondaryColor {
-    self.primaryColor = primaryColor
-    self.secondaryColor = secondaryColor
-    self.contrastSecondaryColor = contrastSecondaryColor
+    self.primaryColor = primaryColor;
+    self.secondaryColor = secondaryColor;
+    self.contrastSecondaryColor = contrastSecondaryColor;
 }
 
 - (void)setTranslations:(NSString*)liveIndicator recNotification:(NSString*)recNotification {
