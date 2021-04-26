@@ -285,6 +285,15 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         tvLive = findViewById(_getResource("tv_live","id"));
         tvRecordingSaved = findViewById(_getResource("tv_recording_saved","id"));
 
+        // set default colors if new colors are not provided
+        try {
+            Drawable backgroundDrawable = DrawableCompat.wrap(recordSavedLayout.getBackground()).mutate();
+            DrawableCompat.setTint(backgroundDrawable, Color.parseColor("#ffc846"));
+            tvRecordingSaved.setTextColor(Color.parseColor("#000000"));
+        } catch (Exception e){
+            Log.d("Exception", e.toString());
+        }
+
         setClickListeners();
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
         changeVideoViewProperties(orientation, RATIO);
@@ -589,8 +598,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             Drawable backgroundDrawable = DrawableCompat.wrap(recordSavedLayout.getBackground()).mutate();
             DrawableCompat.setTint(backgroundDrawable, Color.parseColor(jsonObject.getString(CordovaAPIKeys.SECONDARY_COLOR)));
             tvRecordingSaved.setTextColor(Color.parseColor(jsonObject.getString(CordovaAPIKeys.COLOR_SECONDARY_CONTRAST)));
-        } catch (JSONException e){
-            Log.d("jsonException", e.toString());
+        } catch (Exception e){
+            Log.d("Exception", e.toString());
         }
     }
 

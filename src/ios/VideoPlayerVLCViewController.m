@@ -150,8 +150,10 @@
     self.recordingProgressLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
     self.recordingNotificationLabel = [[UILabel alloc] init];
+    self.recordingNotificationLabel.backgroundColor = [self colorFromHex:@"#ffc846"];
     self.recordingNotificationLabel.layer.cornerRadius = 4;
     self.recordingNotificationLabel.layer.masksToBounds = YES;
+    self.recordingNotificationLabel.textColor = [self colorFromHex:@"#000000"];
     [self.recordingNotificationLabel setFont:[UIFont fontWithName:@"Helvetica" size:16.0f]];
     self.recordingNotificationLabel.lineBreakMode = NSLineBreakByWordWrapping;
     self.recordingNotificationLabel.numberOfLines = 0;
