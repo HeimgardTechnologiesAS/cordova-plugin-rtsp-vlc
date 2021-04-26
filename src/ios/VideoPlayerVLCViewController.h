@@ -22,6 +22,5 @@
 - (void)elementsVisibilityRequest:(BOOL)value;
 - (void)setTranslations:(NSString *)liveIndicator recNotification:(NSString *)recNotification;
 - (void)setJoystickButtonViewEnabled;
-- (void)setThemeColors:(NSString *)primaryColor secondaryColor:(NSString *)secondaryColor contrastSecondaryColor:(NSString *)contrastSecondaryColor;
 
 @end
