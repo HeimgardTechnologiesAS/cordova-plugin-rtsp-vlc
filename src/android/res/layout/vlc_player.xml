@@ -185,6 +185,7 @@
     </RelativeLayout>
 
  <android.support.constraint.ConstraintLayout
+        android:visibility="invisible"
         android:id="@+id/cl_joystick"
         android:adjustViewBounds="true"
         android:layout_alignParentBottom="true"
