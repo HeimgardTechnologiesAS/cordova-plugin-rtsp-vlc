@@ -39,6 +39,7 @@ import android.transition.TransitionManager;
 import android.view.animation.AnticipateInterpolator;
 import android.transition.ChangeBounds;
 import android.view.ViewTreeObserver;
+import android.widget.MediaController;
 
 import com.libs.vlcLibWrapper.VlcListener;
 import com.libs.vlcLibWrapper.VlcVideoLibrary;
@@ -75,6 +76,8 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private TextView videoCurrentLoc;
     private TextView videoDuration;
 
+    private MediaController controller;
+
     private Handler handlerOverlay;
     private Runnable runnableOverlay;
     private int playingPos;
@@ -82,6 +85,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     private String _url;
 
     private boolean _autoPlay = false;
+    private boolean _isLiveStream = false;
     private boolean _hideControls = false;
     private boolean isLayoutToched = false;
     private boolean isRecording = false;
@@ -228,22 +232,89 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             actionBar.hide();
         }
 
-        setContentView(_getResource("vlc_player", "layout"));
-        _UIListener();
-        _broadcastRCV();
-
         Intent intent = getIntent();
         _url = intent.getStringExtra("url");
         // do not show the controls
         _hideControls = intent.getBooleanExtra("hideControls", false);
         // auto play the video after launching
         _autoPlay = intent.getBooleanExtra("autoPlay", false);
-        
+
+        _isLiveStream = intent.getBooleanExtra("liveStream", _isLiveStream);
+        isRecordingBtnVisible =_isLiveStream;
+        setContentView(_getResource("vlc_player", "layout"));
+        _UIListener();
+        _broadcastRCV();
+
         // play
         _initPlayer();
+
+        if (!_isLiveStream && controller == null) {
+            controller = new MediaController(activity);
+            controller.setEnabled(!_isLiveStream);
+            surfaceView.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    controller.show();     
+                }
+            });
+        }
+
+
+
+
+
     }
 
-        private void _UIListener() {
+    // Implement the MediaController.MediaPlayerControl interface
+    private MediaController.MediaPlayerControl playerInterface = new MediaController.MediaPlayerControl()
+    {
+        public int getBufferPercentage() {
+            return 0;
+        }
+
+        public int getAudioSessionId() {
+            return 0;
+        }
+
+        public int getCurrentPosition() {
+            float pos = vlcVideoLibrary.getPlayer().getPosition();
+            return (int)(pos * getDuration());
+        }
+
+        public int getDuration() {
+            return (int)vlcVideoLibrary.getPlayer().getLength();
+        }
+
+        public boolean isPlaying() {
+            return vlcVideoLibrary.getPlayer().isPlaying();
+        }
+
+        public void pause() {
+            vlcVideoLibrary.getPlayer().pause();
+        }
+
+        public void seekTo(int pos) {
+            vlcVideoLibrary.getPlayer().setPosition((float)pos / getDuration());
+        }
+
+        public void start() {
+            vlcVideoLibrary.getPlayer().play();
+        }
+
+        public boolean canPause() {
+            return true;
+        }
+
+        public boolean canSeekBackward() {
+            return true;
+        }
+
+        public boolean canSeekForward() {
+            return true;
+        }
+    };
+
+
+    private void _UIListener() {
 
         mainLayout = findViewById(_getResource("main_layout", "id"));
         mSeekBar = (SeekBar) findViewById(_getResource("videoSeekBar", "id"));
@@ -254,8 +325,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         videoDuration = (TextView) findViewById(_getResource("videoDuration", "id"));
 
         mediaPlayerView = (LinearLayout) findViewById(_getResource("mediaPlayerView", "id"));
-        mediaPlayerControls = (LinearLayout) findViewById(_getResource("mediaPlayerControls", "id"));
-        mediaPlayerControls.bringToFront();
 
         rlLive = findViewById(_getResource("rl_live","id"));
         rlRecordingTimer = findViewById(_getResource("rl_recording_timer","id"));
@@ -293,11 +362,17 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         } catch (Exception e){
             Log.d("Exception", e.toString());
         }
-
+        
         setClickListeners();
         vlcVideoLibrary = new VlcVideoLibrary(this, this, surfaceView);
         changeVideoViewProperties(orientation, RATIO);
         createJoystickLayout(orientation);
+
+        if(!_isLiveStream) {
+            showRecordingBtn(false);
+            showPTZBtn(false);
+            rlLive.setVisibility(View.INVISIBLE);
+        }
     }
 
         /**
@@ -355,36 +430,33 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
     @Override
     public void onPlayVlc() {
         _sendBroadCast("onPlayVlc");
-
+        if(controller != null) {
+            controller.show();
+        }
         Drawable drawableIcon = getResources().getDrawable(_getResource("ic_pause_white_24dp", "drawable"));
     }
 
     @Override
     public void onPauseVlc() {
         _sendBroadCast("onPauseVlc");
-
-        Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
+        if(controller != null) {
+            controller.show();
+        }
     }
 
     @Override
     public void onStopVlc() {
         _sendBroadCast("onStopVlc");
-
-        Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
     }
 
     @Override
     public void onVideoEnd() {
         _sendBroadCast("onVideoEnd");
-
-        Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
     }
 
     @Override
     public void onError() {
         _sendBroadCast("onError");
-
-        Drawable drawableIcon = getResources().getDrawable(_getResource("ic_play_arrow_white_24dp", "drawable"));
     }
 
     @Override
@@ -441,30 +513,16 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             new TimerTask() {
                 @Override
                 public void run() {
-                    if (_hideControls) {
-                        Thread thread = new Thread() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mediaPlayerControls.setVisibility(View.GONE); 
-                                        }
-                                    }
-                                );
-                            }
-                        };
-
-                        thread.start();
-                    }
-
                     if (_autoPlay && vlcVideoLibrary != null && _url != null) {
                         if (vlcVideoLibrary != null && vlcVideoLibrary.isPlaying()) {
                             vlcVideoLibrary.stop();
                         }
 
                         vlcVideoLibrary.play(_url);
+                    }
+                    if (controller != null) {
+                        controller.setMediaPlayer(playerInterface);
+                        controller.setAnchorView(surfaceView);
                     }
                 }
             },
@@ -482,6 +540,21 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
          * click listener on mainLayout that will send touch command from player to cordova if.
          * If recording is on, command will not be send.
          */
+        /**
+         * Click listener on close icon. It will preform click animation and finish activity.
+         */
+        rlClose.setOnClickListener(v -> {
+            ivClose.setAlpha(0.2f);
+            rlClose.postDelayed(() -> {
+                ivClose.setAlpha(1f);
+                closeLayout();
+                 }, 100);
+        });
+
+        if(!_isLiveStream) {
+            return;
+        }
+
         mainLayout.setOnClickListener(v -> {
             if(!isRecording && !isRecordingClicked) {
                 try {
@@ -509,16 +582,6 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             }
         });
 
-        /**
-         * Click listener on close icon. It will preform click animation and finish activity.
-         */
-        rlClose.setOnClickListener(v -> {
-            ivClose.setAlpha(0.2f);
-            rlClose.postDelayed(() -> {
-                ivClose.setAlpha(1f);
-                closeLayout();
-                 }, 100);
-        });
 
 
         recordSavedLayout.setOnClickListener(v -> {

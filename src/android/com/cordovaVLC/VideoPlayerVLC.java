@@ -188,6 +188,11 @@ public class VideoPlayerVLC extends CordovaPlugin {
         intent.putExtra("url", uri);
         intent.putExtra("autoPlay", autoPlay);
         intent.putExtra("hideControls", hideControls);
+        if(uri.contains(".sdp")) {
+            intent.putExtra("liveStream", true);
+        } else {
+            intent.putExtra("liveStream", false);
+        }
         cordova.startActivityForResult(this, intent, 1000);
     }
 
