@@ -10,7 +10,7 @@ import android.view.TextureView;
 import android.view.View;
 import android.os.Handler;
 
-import org.videolan.libvlc.IVLCVout;
+import org.videolan.libvlc.interfaces.IVLCVout;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
@@ -142,7 +142,9 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
     }
 
     private void setMedia(Media media) {
-        media.addOption(":network-caching=" + Constants.BUFFER);
+        media.addOption(":network-caching=300");
+        media.addOption(":clock-jitter=150");
+        media.addOption(":clock-synchro=150");
         media.addOption(":fullscreen");
         media.setHWDecoderEnabled(true, false);
 
