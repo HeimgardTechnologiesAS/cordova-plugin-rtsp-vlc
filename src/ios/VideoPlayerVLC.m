@@ -28,20 +28,37 @@ static CDVInvokedUrlCommand* commandGlobExternalData = nil;
         self.player = nil;
     }
     
+    if (self.recordingPlayer != nil) {
+        self.recordingPlayer = nil;
+    }
+    
     CDVPluginResult* pluginResult = nil;
     NSString* urlString = [command.arguments objectAtIndex:0];
     
     if (urlString != nil) {
         @try {
-            if (self.player == nil) {
-                self.player = [[VideoPlayerVLCViewController alloc] init];
+            if([urlString containsString:@".sdp"]) {
+                if (self.player == nil) {
+                    self.player = [[VideoPlayerVLCViewController alloc] init];
+                }
+                
+                self.player.urlString = urlString;
+                
+                [self.viewController addChildViewController:self.player];
+                [self.webView.superview insertSubview:self.player.view
+                                         aboveSubview:self.webView];
+            } else{
+                if (self.recordingPlayer == nil) {
+                    self.recordingPlayer = [[RecordingPlayerVLCViewController alloc] init];
+                }
+                
+                self.recordingPlayer.urlString = urlString;
+                
+                [self.viewController addChildViewController:self.recordingPlayer];
+                [self.webView.superview insertSubview:self.recordingPlayer.view
+                                         aboveSubview:self.webView];
             }
-            
-            self.player.urlString = urlString;
-            
-            [self.viewController addChildViewController:self.player];
-            [self.webView.superview insertSubview:self.player.view
-                                     aboveSubview:self.webView];
+
             
         } @catch (NSException* exception) {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
@@ -144,6 +161,9 @@ static CDVInvokedUrlCommand* commandGlobExternalData = nil;
     if(self.player != nil) {
         [self.player stop];
     }
+    if(self.recordingPlayer != nil) {
+        [self.recordingPlayer stop];
+    }
 }
 
 - (void)sendVlcState:(NSString*)event
@@ -208,7 +228,7 @@ static CDVInvokedUrlCommand* commandGlobExternalData = nil;
 {
     
     CDVPluginResult* pluginResult = nil;
-    if (self.player != nil) {
+    if (self.player != nil || self.recordingPlayer) {
         @try {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                              messageAsString:@"onDestroyVlc"];

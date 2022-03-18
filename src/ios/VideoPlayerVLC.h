@@ -21,6 +21,7 @@
 //
 //
 #import "VideoPlayerVLCViewController.h"
+#import "RecordingPlayerVLCViewController.h"
 #import <Cordova/CDVPlugin.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
@@ -28,6 +29,7 @@
 @interface VideoPlayerVLC : CDVPlugin
 
 @property(strong) VideoPlayerVLCViewController *player;
+@property(strong) RecordingPlayerVLCViewController *recordingPlayer;
 @property(strong) CDVInvokedUrlCommand *commandGlobPlay;
 @property(strong) CDVInvokedUrlCommand *commandGlobExternalData;
 @property(nonatomic, retain) VideoPlayerVLC *instance;

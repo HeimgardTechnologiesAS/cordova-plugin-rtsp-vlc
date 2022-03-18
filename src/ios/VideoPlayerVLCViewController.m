@@ -12,12 +12,10 @@
 
 @interface VideoPlayerVLCViewController ()
 @property(strong, nonatomic) VLCMediaPlayer* mediaPlayer;
-@property(strong, nonatomic) VLCMedia* media;
 @property(strong, nonatomic) UIView* subView;
 @property(strong, nonatomic) UIView* mediaView;
 
 @property(strong, nonatomic) UIImageView* closeButtonView;
-@property(strong, nonatomic) UIImageView* playButtonView;
 @property(strong, nonatomic) UIImageView* recButtonView;
 @property(strong, nonatomic) UIImageView* joystickView;
 @property(strong, nonatomic) UIImageView* jstkUpBgView;
@@ -33,16 +31,12 @@
 
 @property(strong, nonatomic) NSTimer* recProgressTimer;
 @property(strong, nonatomic) NSTimer* loadingIndicatorDismissTimer;
-@property(strong, nonatomic) NSTimer* hideVideoControlsTimer;
-
 
 @property(strong, nonatomic) NSDateFormatter* dateFormatter;
 @property(strong, nonatomic) NSDate* startDate;
 @property(strong, nonatomic) NSString* primaryColor;
 @property(strong, nonatomic) NSString* secondaryColor;
 @property(strong, nonatomic) NSString* contrastSecondaryColor;
-
-@property(strong, nonatomic) UISlider* seekbar;
 
 @property BOOL recActive;
 @property BOOL recWaitsForResponse;
@@ -95,11 +89,6 @@
     IBOutlet NSLayoutConstraint* recNotificationLableWidthLandConstraint;
     IBOutlet NSLayoutConstraint* recNotificationLableTopConstraint;
     IBOutlet NSLayoutConstraint* recNotificationLableCenterXLandConstraint;
-    
-    IBOutlet NSLayoutConstraint* playBtnAspectConstraint;
-    IBOutlet NSLayoutConstraint* playBtnHeightConstraint;
-    IBOutlet NSLayoutConstraint* playBtnCenterHorizontallyConstraint;
-    IBOutlet NSLayoutConstraint* playBtnCenterVertiacllyConstraint;
 }
 
 - (id)init {
@@ -176,14 +165,6 @@
     self.mediaView.translatesAutoresizingMaskIntoConstraints = NO;
     self.mediaView.backgroundColor = [UIColor blackColor];
     
-    CGRect frame = CGRectMake(0.0, 0.0, 200.0, 10.0);
-    self.seekbar = [[UISlider alloc] initWithFrame:frame];
-    self.seekbar.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.seekbar setUserInteractionEnabled:YES];
-    [self.seekbar setBackgroundColor:[UIColor clearColor]];
-    self.seekbar.minimumValue = 0.0;
-    self.seekbar.continuous = YES;
-    
     self.recButtonView =
     [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"recording-button-idle.png"]];
     self.recButtonView.contentMode = UIViewContentModeScaleAspectFit;
@@ -220,11 +201,6 @@
     self.closeButtonView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.closeButtonView setUserInteractionEnabled:YES];
     
-    self.playButtonView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"back_play.png"]];
-    [self.playButtonView setContentMode:UIViewContentModeScaleAspectFit];
-    self.playButtonView.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.playButtonView setUserInteractionEnabled:YES];
-    
     
     [self.subView addSubview:self.mediaView];
     [self.subView addSubview:self.recButtonView];
@@ -234,8 +210,6 @@
     [self.subView addSubview:self.recordingProgressLabel];
     [self.subView addSubview:self.recordingNotificationLabel];
     [self.subView addSubview:self.indicatorView];
-    [self.subView addSubview:self.playButtonView];
-    [self.subView addSubview:self.seekbar];
     
     [self.subView addSubview:self.jstkUpBgView];
     [self.subView addSubview:self.jstkLeftBgView];
@@ -252,7 +226,6 @@
     [self.subView bringSubviewToFront:self.jstkRightBgView];
     [self.subView bringSubviewToFront:self.recordingNotificationLabel];
     [self.subView bringSubviewToFront:self.indicatorView];
-    [self.subView bringSubviewToFront:self.playButtonView];
     
     [self updateJoystickButtonsVisibility:NO];
     self.recordingNotificationLabel.hidden = YES;
@@ -267,8 +240,6 @@
     [self createLoadingIndicatorConstraints];
     [self createRecProgressConstraints];
     [self createJoystickConstraints];
-    [self createPlayBtnConstraints];
-    [self createSeekbarConstraints];
     
     // view will be loaded in portrait mode, so apply portrait constraints
     [self applyMediaViewPortraitConstraints];
@@ -278,18 +249,15 @@
     [self applyRecButtonPortraitConstraints];
     [self applyJoystickPortraitConstraints];
     
+    
     self.mediaPlayer = [[VLCMediaPlayer alloc]
-                        initWithOptions:@[ @"--network-caching=1000 --rtsp-caching=1000 --file-caching=2000 --prefetch-buffer-size=1048576 --prefetch-seek-threshold=1048576 --prefetch-read-size=1048576 --no-skip-frames --live-caching=2000" ]];
+                        initWithOptions:@[ @"--network-caching=2000 --clock-jitter=0 --clock-synchro=0" ]];
     self.mediaPlayer.delegate = self;
     self.mediaPlayer.drawable = self.mediaView;
     
     [self initViewGestures];
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    [self hidePlayerControls:nil];
-    
-    // [self addObserver:self forKeyPath:@"_mediaPlayer.position" options:0 context:nil];
-    //[self addObserver:self forKeyPath:@"videoLength" options:0 context:nil];
     
     [[VideoPlayerVLC getInstance] sendVlcState:@"onViewCreated"];
 }
@@ -304,10 +272,6 @@
     [self.subView addGestureRecognizer:[[UITapGestureRecognizer alloc]
                                         initWithTarget:self
                                         action:@selector(screenTappedRequest:)]];
-    
-    [self.playButtonView addGestureRecognizer:[[UITapGestureRecognizer alloc]
-                                          initWithTarget:self
-                                          action:@selector(playBtnTappedRequest:)]];
     
     UILongPressGestureRecognizer* upBtnPress =
     [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(upBtnLongPress:)];
@@ -339,7 +303,6 @@
     [self.recordingNotificationLabel addGestureRecognizer:[[UITapGestureRecognizer alloc]
                                               initWithTarget:self
                                               action:@selector(recordingNotificationPressed:)]];
-    
     // TODO: needed for pinch/zoom feature
     //    [self.mediaView addGestureRecognizer:[[UIPinchGestureRecognizer
     //    alloc]initWithTarget:self action:@selector(screenTouchRequest:)]];
@@ -350,20 +313,6 @@
 
 - (BOOL)prefersStatusBarHidden {
     return YES;
-}
-
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
-    if([keyPath isEqualToString:@"_mediaPlayer.position"]){
-        if(_mediaPlayer) {
-            self.seekbar.value = self.seekbar.maximumValue * self.mediaPlayer.position;
-        }
-    }else if([keyPath isEqualToString:@"videoLength"]){
-        if(self.media.length) {
-            self.seekbar.maximumValue = self.media.length.value.floatValue;
-        }
-    }else{
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size
@@ -406,13 +355,11 @@
         if (!self.mediaPlayer.isPlaying) {
             NSURL* mediaUrl = [[NSURL alloc] initWithString:self.urlString];
             if (mediaUrl != nil) {
-                self.media = [[VLCMedia alloc] initWithURL:mediaUrl];
-                [self.mediaPlayer setMedia: self.media];
+                [self.mediaPlayer setMedia:[[VLCMedia alloc] initWithURL:mediaUrl]];
             } else {
                 return;
             }
             [self.mediaPlayer play];
-            
         }
     }
 }
@@ -441,18 +388,6 @@
             break;
         case VLCMediaStatePlaying:
             [[VideoPlayerVLC getInstance] sendVlcState:@"VLCMediaStatePlaying"];
-            if(self.mediaPlayer.isPlaying) {
-                if(self.media.length){
-                    self.seekbar.maximumValue = self.media.length.value.floatValue;
-                }
-                [self hidePlayerControls:nil];
-                [self.playButtonView setImage:[UIImage imageNamed:@"back_pause.png"]];
-            } else {
-                if(self.hideVideoControlsTimer) {
-                    [self.hideVideoControlsTimer invalidate];
-                }
-                [self.playButtonView setImage:[UIImage imageNamed:@"back_play.png"]];
-            }
             break;
         case VLCMediaStateError:
             [[VideoPlayerVLC getInstance] sendVlcState:@"VLCMediaStateError"];
@@ -492,11 +427,6 @@
 }
 
 - (void)screenTappedRequest:(UITapGestureRecognizer*)gesture {
-    if(self.mediaPlayer) {
-        [self.mediaPlayer setPosition:self.seekbar.value / self.seekbar.maximumValue];
-        //self.seekbar.value = self.seekbar.maximumValue * self.mediaPlayer.position;
-    }
-    [self delayedPlayerControlsHide];
     if (self.recWaitsForResponse || self.recActive || UIDeviceOrientationIsPortrait([[UIDevice currentDevice] orientation])) {
         return;
     }
@@ -513,13 +443,6 @@
      sendExternalData:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
 }
 
-- (void)playBtnTappedRequest:(UITapGestureRecognizer*)gesture {
-    if (!self.mediaPlayer.isPlaying) {
-        [self.mediaPlayer play];
-    } else {
-        [self.mediaPlayer pause];
-    }    
-}
 
 - (void)recordingNotificationPressed:(UITapGestureRecognizer*)gesture {
     NSMutableDictionary* request = [[NSMutableDictionary alloc] init];
@@ -776,25 +699,6 @@
     [self.indicatorView stopAnimating];
 }
 
-- (void)delayedPlayerControlsHide {
-    if(self.hideVideoControlsTimer) {
-        [self.hideVideoControlsTimer invalidate];
-    }
-    self.playButtonView.alpha = 1;
-    if (!self.mediaPlayer.isPlaying) {
-        return;
-    }
-    self.hideVideoControlsTimer = [NSTimer scheduledTimerWithTimeInterval:3
-                                                                         target:self
-                                                                       selector:@selector(hidePlayerControls:)
-                                                                       userInfo:nil
-                                                                        repeats:NO];
-}
-
-- (void)hidePlayerControls:(NSTimer*)timer {
-    self.playButtonView.alpha = 0;
-}
-
 
 - (void)applyJoystickPortraitImages {
     [self.jstkUpBgView setImage:[UIImage imageNamed:@"joystick-up-portrait.png"]];
@@ -944,46 +848,6 @@
     [self.subView addConstraint:mediaViewHeightConstraint];
     [self.subView addConstraint:mediaViewCenterHorizontallyConstraint];
     [self.subView addConstraint:mediaViewCenterVertiacllyConstraint];
-}
-
--(void)createPlayBtnConstraints {
-    playBtnHeightConstraint = [NSLayoutConstraint constraintWithItem:self.playButtonView
-                                                    attribute:NSLayoutAttributeHeight
-                                                    relatedBy:NSLayoutRelationEqual
-                                                    toItem:nil
-                                                    attribute:NSLayoutAttributeNotAnAttribute
-                                                    multiplier:1.0
-                                                    constant:60.0];
-    playBtnAspectConstraint =
-    [NSLayoutConstraint constraintWithItem:self.playButtonView
-                                 attribute:NSLayoutAttributeWidth
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.playButtonView
-                                 attribute:NSLayoutAttributeHeight
-                                multiplier:self.playButtonView.image.size.width /
-     self.playButtonView.image.size.height
-                                  constant:0];
-    playBtnCenterHorizontallyConstraint =
-    [NSLayoutConstraint constraintWithItem:self.playButtonView
-                                 attribute:NSLayoutAttributeCenterX
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeCenterX
-                                multiplier:1.0
-                                  constant:0];
-    playBtnCenterVertiacllyConstraint =
-    [NSLayoutConstraint constraintWithItem:self.playButtonView
-                                 attribute:NSLayoutAttributeCenterY
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.subView
-                                 attribute:NSLayoutAttributeCenterY
-                                multiplier:1.0
-                                  constant:0];
-    
-    [self.subView addConstraint:playBtnHeightConstraint];
-    [self.subView addConstraint:playBtnAspectConstraint];
-    [self.subView addConstraint:playBtnCenterHorizontallyConstraint];
-    [self.subView addConstraint:playBtnCenterVertiacllyConstraint];
 }
 
 -(void) createCloseButtonConstraints {
@@ -1230,39 +1094,6 @@
     [self.subView addConstraint:indicatorHorizontallyConstraint];
     [self.subView addConstraint:indicatorverticallyConstraint];
 }
-
--(void)createSeekbarConstraints{
-    NSLayoutConstraint *topConstraint =
-    [NSLayoutConstraint constraintWithItem:self.seekbar
-                                 attribute:NSLayoutAttributeBottom
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.mediaView
-                                 attribute:NSLayoutAttributeBottom
-                                multiplier:1.0
-                                  constant:8];
-    NSLayoutConstraint *leftConstraint =
-    [NSLayoutConstraint constraintWithItem:self.seekbar
-                                 attribute:NSLayoutAttributeLeft
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.mediaView
-                                 attribute:NSLayoutAttributeLeft
-                                multiplier:1.0
-                                  constant:8];
-    
-    NSLayoutConstraint *widthConstraint =
-    [NSLayoutConstraint constraintWithItem:self.seekbar
-                                 attribute:NSLayoutAttributeWidth
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self.mediaView
-                                 attribute:NSLayoutAttributeWidth
-                                multiplier:0.8
-                                  constant:1];
-    
-    [self.subView addConstraint:topConstraint];
-    [self.subView addConstraint:leftConstraint];
-    [self.subView addConstraint:widthConstraint];
-}
-
 
 - (void)createJoystickRefBgConstraints {
     jstckBgHeightLandscapeConstraint = [NSLayoutConstraint constraintWithItem:self.joystickView

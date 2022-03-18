@@ -154,13 +154,18 @@
                 <feature name="VideoPlayerVLCViewController">
                     <param name="ios-package" value="VideoPlayerVLCViewController" />
                 </feature>
+				<feature name="RecordingPlayerVLCViewController">
+                    <param name="ios-package" value="RecordingPlayerVLCViewController" />
+                </feature>
             </config-file>
  	          
             <header-file src="src/ios/VideoPlayerVLC.h" />
             <source-file src="src/ios/VideoPlayerVLC.m" />
             <header-file src="src/ios/VideoPlayerVLCViewController.h" />
             <source-file src="src/ios/VideoPlayerVLCViewController.m" />
-            <framework src="MobileVLCKit" type="podspec" spec="3.3.14" />
+			<header-file src="src/ios/RecordingPlayerVLCViewController.h" />
+            <source-file src="src/ios/RecordingPlayerVLCViewController.m" />
+            <framework src="MobileVLCKit" type="podspec" spec="3.3.18b11" />
 			<!-- <framework src="src/ios/MobileVLCKit.framework" custom="true"/> -->
             <framework src="/usr/lib/libbz2.dylib" />
             <framework src="/usr/lib/libiconv.dylib" />
@@ -188,5 +193,8 @@
 			<resource-file src="src/ios/res/joystick-up-portrait.png"/>
 			<resource-file src="src/ios/res/recording-button-active.png"/>
 			<resource-file src="src/ios/res/recording-button-idle.png"/>
+			<resource-file src="src/ios/res/back_pause.png"/>
+			<resource-file src="src/ios/res/back_play.png"/>
+			<resource-file src="src/ios/res/seek_thumb.png"/>
         </platform>
 </plugin>
