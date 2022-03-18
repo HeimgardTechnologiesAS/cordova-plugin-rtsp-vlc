@@ -317,7 +317,7 @@
                 if(self.seekbar.maximumValue > 0 ){
                     NSUInteger m = [[NSNumber numberWithFloat:(self.seekbar.maximumValue / 1000 / 60.0)] unsignedIntegerValue] % 60;
                     NSUInteger s = [[NSNumber numberWithFloat:self.seekbar.maximumValue / 1000] unsignedIntegerValue] % 60;
-                    self.seekbarMax.text = [NSString stringWithFormat:@" %02lu:%02lu ", m, s];
+                    self.seekbarMax.text = [NSString stringWithFormat:@"  %02lu:%02lu  ", m, s];
                 }
                 [self hidePlayerControls:nil];
                 [self.playButtonView setImage:[UIImage imageNamed:@"back_pause.png"]];
@@ -529,7 +529,7 @@
                                                     toItem:nil
                                                     attribute:NSLayoutAttributeNotAnAttribute
                                                     multiplier:1
-                                                    constant:48];
+                                                    constant:52];
     playBtnAspectConstraint =
     [NSLayoutConstraint constraintWithItem:self.playButtonView
                                  attribute:NSLayoutAttributeWidth
