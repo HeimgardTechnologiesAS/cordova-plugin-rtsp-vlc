@@ -122,7 +122,22 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
 
     public void play(String endPoint) {
         if (player == null || player.isReleased()) {
-            setMedia(new Media(vlcInstance, Uri.parse(endPoint)));
+            Media media = new Media(vlcInstance, Uri.parse(endPoint));
+            if(endPoint.endsWith(".sdp")) {
+                media.addOption(":network-caching=2000");
+                media.addOption(":rtsp-caching=2000");
+                media.addOption(":clock-jitter=150");
+                media.addOption(":clock-synchro=1");
+                media.addOption(":no-avcodec-hurry-up");
+                media.addOption(":no-skip-frames");
+                media.setHWDecoderEnabled(true, false);
+            } else {
+                media.addOption(":network-caching=3000");
+                media.addOption(":clock-jitter=150");
+                media.addOption(":clock-synchro=1");
+                media.setHWDecoderEnabled(false, false);
+            }
+            setMedia(media);
         } else if (!player.isPlaying()) {
             player.play();
         }
@@ -142,11 +157,7 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
     }
 
     private void setMedia(Media media) {
-        media.addOption(":network-caching=300");
-        media.addOption(":clock-jitter=150");
-        media.addOption(":clock-synchro=150");
         media.addOption(":fullscreen");
-        media.setHWDecoderEnabled(true, false);
 
         player = new MediaPlayer(vlcInstance);
         player.setMedia(media);
