@@ -171,7 +171,7 @@
     [self applyMediaViewPortraitConstraints];
     
     self.mediaPlayer = [[VLCMediaPlayer alloc]
-                        initWithOptions:@[ @"--network-caching=2000 --clock-jitter=2500 --clock-synchro=0 --file-caching=3000 --live-caching=3000 --avcodec-skip-frame=1 --no-skip-frames --no-drop-late-frames --no-avcodec-hurry-up --avcodec-hw=any --prefetch-buffer-size=1048576 --prefetch-read-size=1048576 ----prefetch-seek-threshold=1024 --no-directx-overlay" ]];
+                        initWithOptions:@[ @"--network-caching=2000 --clock-jitter=2500 --clock-synchro=0 --file-caching=3000 --live-caching=3000 --avcodec-skip-frame=1 --no-skip-frames --no-drop-late-frames --no-avcodec-hurry-up --avcodec-hw=any --prefetch-buffer-size=1048576 --prefetch-read-size=1048576 --prefetch-seek-threshold=1024 --no-directx-overlay" ]];
     self.mediaPlayer.delegate = self;
     self.mediaPlayer.drawable = self.mediaView;
     
