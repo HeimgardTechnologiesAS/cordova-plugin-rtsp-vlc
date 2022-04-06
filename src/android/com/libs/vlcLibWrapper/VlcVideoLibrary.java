@@ -133,8 +133,19 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
                 media.setHWDecoderEnabled(true, false);
             } else {
                 media.addOption(":network-caching=3000");
-                media.addOption(":clock-jitter=150");
-                media.addOption(":clock-synchro=1");
+                media.addOption(":clock-jitter=500");
+                media.addOption(":clock-synchro=0");
+                media.addOption(":http-caching=3000");
+                media.addOption(":file-caching=300000");
+                media.addOption(":live-caching=300000");
+                media.addOption(":sout-mux-caching=300000");
+                media.addOption(":gl=any");
+                media.addOption(":no-skip-frames");
+                media.addOption(":no-drop-late-frames");
+                media.addOption(":no-avcodec-hurry-up");
+                media.addOption(":prefetch-buffer-size=1048576");
+                media.addOption(":prefetch-read-size=1048576");
+                media.addOption(":prefetch-seek-threshold=1024");
                 media.setHWDecoderEnabled(false, false);
             }
             setMedia(media);
