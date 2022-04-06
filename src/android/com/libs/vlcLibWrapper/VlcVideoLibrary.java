@@ -9,6 +9,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.os.Handler;
+import android.util.Log;
 
 import org.videolan.libvlc.interfaces.IVLCVout;
 import org.videolan.libvlc.LibVLC;
@@ -84,27 +85,31 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
 
     @Override
     public void onEvent(MediaPlayer.Event event) {
-        switch (event.type) {
-            case MediaPlayer.Event.Playing:
-                vlcListener.onPlayVlc();
-                break;
-            case MediaPlayer.Event.Paused:
-                vlcListener.onPauseVlc();
-                break;
-            case MediaPlayer.Event.Stopped:
-                vlcListener.onStopVlc();
-                break;
-            case MediaPlayer.Event.EndReached:
-                player.stop();
-                vlcListener.onVideoEnd();
-                break;
-            case MediaPlayer.Event.EncounteredError:
-                vlcListener.onError();
-                break;
-            case MediaPlayer.Event.Buffering:
-                vlcListener.onBuffering(event.getBuffering());
-            default:
-                break;
+        try{
+            switch (event.type) {
+                case MediaPlayer.Event.Playing:
+                    vlcListener.onPlayVlc();
+                    break;
+                case MediaPlayer.Event.Paused:
+                    vlcListener.onPauseVlc();
+                    break;
+                case MediaPlayer.Event.Stopped:
+                    vlcListener.onStopVlc();
+                    break;
+                case MediaPlayer.Event.EndReached:
+                    player.stop();
+                    vlcListener.onVideoEnd();
+                    break;
+                case MediaPlayer.Event.EncounteredError:
+                    vlcListener.onError();
+                    break;
+                case MediaPlayer.Event.Buffering:
+                    vlcListener.onBuffering(event.getBuffering());
+                default:
+                    break;
+            }
+        }catch (Exception e){
+            Log.d("VLC on EventErr", e.toString());
         }
     }
 
@@ -117,7 +122,12 @@ public class VlcVideoLibrary implements MediaPlayer.EventListener {
     }
 
     public boolean isPlaying() {
-        return vlcInstance != null && player != null && player.isPlaying();
+        try {
+            return vlcInstance != null && player != null && player.isPlaying();
+        } catch (Exception e){
+            Log.d("VLC is playing get err", e.toString());
+        }
+        return false;
     }
 
     public void play(String endPoint) {

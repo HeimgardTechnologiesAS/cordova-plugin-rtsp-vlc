@@ -276,28 +276,51 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         }
 
         public int getCurrentPosition() {
-            float pos = vlcVideoLibrary.getPlayer().getPosition();
-            return (int)(pos * getDuration());
+            try {
+                float pos = vlcVideoLibrary.getPlayer().getPosition();
+                return (int)(pos * getDuration());
+            } catch (Exception e){
+                Log.d("VLC get postion err", e.toString());
+            }
+            return 0;
         }
 
         public int getDuration() {
-            return (int)vlcVideoLibrary.getPlayer().getLength();
+            try {
+                return (int)vlcVideoLibrary.getPlayer().getLength();
+            } catch (Exception e){
+                Log.d("VLC get duration err", e.toString());
+            }
+            return 0;
         }
 
         public boolean isPlaying() {
-            return vlcVideoLibrary.getPlayer().isPlaying();
+            return vlcVideoLibrary != null && vlcVideoLibrary.isPlaying();
         }
 
         public void pause() {
-            vlcVideoLibrary.getPlayer().pause();
+            try {
+                vlcVideoLibrary.getPlayer().pause();
+            } catch (Exception e){
+                Log.d("VLC pause err", e.toString());
+            }
+
         }
 
         public void seekTo(int pos) {
-            vlcVideoLibrary.getPlayer().setPosition((float)pos / getDuration());
+            try {
+                vlcVideoLibrary.getPlayer().setPosition((float)pos / getDuration());
+            } catch (Exception e){
+                Log.d("VLC seek to err:", e.toString());
+            }
         }
 
         public void start() {
-            vlcVideoLibrary.getPlayer().play();
+            try {
+                vlcVideoLibrary.getPlayer().play();
+            } catch (Exception e){
+                Log.d("VLC seek to err:", e.toString());
+            }
         }
 
         public boolean canPause() {
