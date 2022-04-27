@@ -1223,11 +1223,11 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         if(orientation.equals(PORTRAIT)) {
             activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             height = (int) (getDisplayMetrics().widthPixels/ratio);
-             width = getDisplayMetrics().widthPixels;
+            width = (int) getDisplayMetrics().widthPixels;
             cameraViewParams.height = height;
             cameraViewParams.width = width;
-           
-        
+
+
         } else if(orientation.equals(LANDSCAPE)) {
             activity.getWindow().getDecorView().setSystemUiVisibility(
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -1237,7 +1237,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
             | View.SYSTEM_UI_FLAG_IMMERSIVE);
             height = (int) getDisplayMetrics().heightPixels;
-            width = (int) (getDisplayMetrics().heightPixels * ratio);
+            width = (int) (getDisplayMetrics().widthPixels);
             cameraViewParams.height = height;
             cameraViewParams.width = width;
         }
