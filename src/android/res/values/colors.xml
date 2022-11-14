@@ -4,4 +4,5 @@
     <color name="whiteColor">#ffffff</color>
     <color name="paleBlueColor">#17a3c4</color>
     <color name="blackColor">#000000</color>
+    <color name="cdv_splashscreen_background">#000000</color>
 </resources>
