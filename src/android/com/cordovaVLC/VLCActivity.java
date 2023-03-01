@@ -225,8 +225,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-
-       
+        getWindow().setDecorFitsSystemWindows(false);       
 
         activity = this;
         ActionBar actionBar = activity.getActionBar();
