@@ -1012,7 +1012,7 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         
         ConstraintLayout.LayoutParams joystickParams = (ConstraintLayout.LayoutParams) clJoystick.getLayoutParams();
         joystickParams.horizontalBias = 0.5f;
-        joystickParams.verticalBias = 0.9f;
+        joystickParams.verticalBias = 0.6f;
         clJoystick.setLayoutParams(joystickParams);
 
 
