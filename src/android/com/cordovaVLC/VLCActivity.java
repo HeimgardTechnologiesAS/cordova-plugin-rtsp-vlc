@@ -701,7 +701,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
             jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
             jsonObject.put("value", true);
             _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
-        } catch (JSONException err){
+
+            Long dateLong = SystemClock.elapsedRealtime();
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("Recordings", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putLong("startRecordingTime", dateLong);
+            editor.commit();
+            editor.apply();
+        } catch (JSONException err) {
             Log.d("Error", err.toString());
             ivRecordingIdle.setAlpha(1f);
         }
@@ -712,7 +719,16 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     private void recordingHasStarted(boolean isStarted){
         setRecordingViewProperties(isStarted);
-        cmRecordingTimer.setBase(SystemClock.elapsedRealtime());
+
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("Recordings", Context.MODE_PRIVATE);
+        Long recordingStartDate = sharedPreferences.getLong("startRecordingTime", 0);
+
+        if (recordingStartDate != 0) {
+            cmRecordingTimer.setBase(recordingStartDate);
+        } else {
+            cmRecordingTimer.setBase(SystemClock.elapsedRealtime());
+        }
+
         cmRecordingTimer.start();
         showRecordingNotification = true;
     }
@@ -722,17 +738,23 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
      */
     private void stopRecording() {
          try {
-             _recordingTransitionActive = true;
+            _recordingTransitionActive = true;
             ivRecordingActive.setAlpha(0.5f);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("type", CordovaAPIKeys.PLAYER_RECORDING_REQUEST);
             jsonObject.put("value", false);
             _sendBroadCast(CordovaAPIKeys.PLAYER_RECORDING_REQUEST, jsonObject);
-        }catch (JSONException err){
+
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("Recordings", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            Long a = sharedPreferences.getLong("startRecordingTime", 0);
+            editor.putLong("startRecordingTime", 0);
+            editor.commit();
+            editor.apply();
+        } catch (JSONException err) {
             Log.d("Error", err.toString());
             ivRecordingActive.setAlpha(1f);
         }
-
     }
 
     /**
