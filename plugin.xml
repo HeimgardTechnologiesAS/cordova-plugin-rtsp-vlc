@@ -165,7 +165,8 @@
             <source-file src="src/ios/VideoPlayerVLCViewController.m" />
 			<header-file src="src/ios/RecordingPlayerVLCViewController.h" />
             <source-file src="src/ios/RecordingPlayerVLCViewController.m" />
-            <framework src="MobileVLCKit" type="podspec" spec="3.3.18b11" />
+            <framework src="MobileVLCKit" type="podspec" spec="3.3.18b12" 
+/>
 			<!-- <framework src="src/ios/MobileVLCKit.framework" custom="true"/> -->
             <framework src="/usr/lib/libbz2.dylib" />
             <framework src="/usr/lib/libiconv.dylib" />
