@@ -239,7 +239,7 @@ public class VideoPlayerVLC extends CordovaPlugin {
     }
 
     private void _broadcastRCV() {
-        IntentFilter filter = new IntentFilter(VLCActivity.BROADCAST_METHODS);
+        IntentFilter filter = new IntentFilter(VideoPlayerVLC.BROADCAST_METHODS);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             activity.registerReceiver(br, filter, Context.RECEIVER_EXPORTED);
         } else {
