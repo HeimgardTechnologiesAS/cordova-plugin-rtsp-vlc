@@ -238,14 +238,14 @@ public class VideoPlayerVLC extends CordovaPlugin {
         activity.sendBroadcast(intent);
     }
 
-     private void _broadcastRCV() {
-         IntentFilter filter = new IntentFilter(VLCActivity.BROADCAST_LISTENER);
-         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-             activity.registerReceiver(br, filter, Context.RECEIVER_EXPORTED);
-         } else {
-             activity.registerReceiver(br, filter);
+    private void _broadcastRCV() {
+        IntentFilter filter = new IntentFilter(VLCActivity.BROADCAST_METHODS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            activity.registerReceiver(br, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            activity.registerReceiver(br, filter);
          }
-     }
+    }
 
     private void _cordovaSendResult(String event, String data) {
         PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, event);
