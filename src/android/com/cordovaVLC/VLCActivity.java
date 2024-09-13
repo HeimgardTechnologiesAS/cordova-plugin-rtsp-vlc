@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.TypedValue;
 import android.util.Log;
+import android.os.Build;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
