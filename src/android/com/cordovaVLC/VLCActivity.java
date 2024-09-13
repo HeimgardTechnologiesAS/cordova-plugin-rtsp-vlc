@@ -560,10 +560,14 @@ public class VLCActivity extends Activity implements VlcListener, View.OnClickLi
         );
     }
 
-    private void _broadcastRCV() {
-        IntentFilter filter = new IntentFilter(VideoPlayerVLC.BROADCAST_METHODS);
-        activity.registerReceiver(br, filter);
-    }
+      private void _broadcastRCV() {
+          IntentFilter filter = new IntentFilter(VLCActivity.BROADCAST_LISTENER);
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+              activity.registerReceiver(br, filter, Context.RECEIVER_EXPORTED);
+          } else {
+              activity.registerReceiver(br, filter);
+          }
+      }
 
     private void setClickListeners() {
         /**
